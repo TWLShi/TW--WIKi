@@ -1,0 +1,56 @@
+{
+  "id": "sub_08",
+  "name": "电动车/新能源汽车火灾",
+  "coverage": 0.03,
+  "alias": ["电瓶车火灾", "充电桩火灾", "新能源汽车火灾"],
+  "alertKeywords": ["电动车", "新能源汽车", "充电桩"],
+  "level": 2,
+  "nTotalRange": [4, 8],
+  "formula": {
+    "nBase": 2,
+    "alphaSub": 2,
+    "betaStruct": 1,
+    "gSpecial": 1,
+    "mSupport": 1,
+    "nTotal": "7"
+  },
+  "slots": {
+    "structureType": {
+      "typicalValue": "停车场/充电桩",
+      "confidenceRequired": 1.0
+    },
+    "energyMaterial": {
+      "typicalValue": "锂电池",
+      "confidenceRequired": 0.90
+    },
+    "trappedCount": {
+      "typicalValue": "0-5",
+      "confidenceRequired": 0.80
+    },
+    "developmentStage": {
+      "typicalValue": "初期→猛烈",
+      "confidenceRequired": 0.75,
+      "note": "快速蔓延"
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 2,
+    "commandVehicle": 1,
+    "elevatedPlatform": 0,
+    "foamVehicle": 0,
+    "rescueVehicle": 1,
+    "smokeExhaust": 0,
+    "medicalVehicle": 0,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 0
+  },
+  "triggerConditions": [
+    "报警描述含'电动车''新能源汽车''充电桩'等",
+    "快速控火，细水雾优于大量水",
+    "确认是否有人员被困",
+    "注意复燃，留守观察"
+  ],
+  "priorityNote": "细水雾 + 快速控火"
+}

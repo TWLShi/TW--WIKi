@@ -1,0 +1,190 @@
+# 多智能体故障处理监控仪表盘设计 + 完整异常处理代码框架 v6.2
+
+---
+
+## 一、故障处理监控仪表盘设计
+
+### 1.1 整体布局（推荐大屏仪表盘）
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  顶部全局状态栏（实时刷新，每5秒）                            │
+├──────────────┬───────────────────────┬───────────────────────┤
+│ 左侧 Agent 状态 │  中间 故障处理流程   │  右侧 告警与恢复     │
+│  (4个Agent)     │  (当前执行状态)       │  (实时告警列表)      │
+├──────────────┴───────────────────────┴───────────────────────┤
+│ 底部 故障历史 + 系统健康趋势图                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 1.2 详细面板设计
+
+**面板1：全局健康概览（顶部）**
+- 系统整体健康度：98.7%（绿色/黄色/红色）
+- 当前故障等级：轻度 / 中度 / 重度 / 致命
+- 活跃Agent数量：4/4
+- 过去1小时故障次数：3次（轻度2、中度1）
+- 人工接管率：2.1%（阈值告警）
+
+**面板2：Agent实时状态（左侧）**
+- 4个卡片（Perception / Decision / Execution / Prediction）
+- 每个卡片显示：
+  - 状态（正常 / 警告 / 故障 / 离线）
+  - 当前任务耗时
+  - 成功率（过去10次）
+  - 最后一次输出置信度
+
+**面板3：故障处理流程监控（中间）**
+使用实时管道图：
+
+```mermaid
+flowchart LR
+    A[输入] --> B[感知Agent] --> C[决策Agent] --> D[执行Agent]
+    D --> E[预测Agent] --> F[仲裁]
+    F --> G{是否故障?}
+    G -->|正常| H[输出最终方案]
+    G -->|故障| I[重试 → 降级 → 人工]
+```
+
+**面板4：实时告警列表（右侧）**
+- 按严重程度排序
+- 每条告警包含：时间、Agent、故障类型、当前处理状态、操作按钮（"强制人工""重启Agent"）
+
+**面板5：故障历史趋势（底部）**
+- 过去24小时故障次数曲线图
+- 故障类型分布饼图（超时 / 输出无效 / 仲裁冲突 / 服务不可用）
+- 恢复时间平均值
+
+---
+
+## 二、完整异常处理代码框架
+
+以下是**生产级Python代码框架**，可直接扩展为LangGraph / CrewAI模块。
+
+```python
+# fault_handler.py
+import asyncio
+import logging
+from enum import Enum
+from dataclasses import dataclass
+from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
+
+class FaultLevel(Enum):
+    LIGHT = "light"      # 轻度，可自动恢复
+    MEDIUM = "medium"    # 中度，需要降级
+    SEVERE = "severe"    # 重度，需要人工介入
+    CRITICAL = "critical"# 致命，系统级降级
+
+@dataclass
+class FaultEvent:
+    agent_name: str
+    fault_type: str
+    level: FaultLevel
+    message: str
+    timestamp: float
+    incident_id: str
+    retry_count: int = 0
+
+class MultiAgentFaultHandler:
+    def __init__(self):
+        self.fault_history: list[FaultEvent] = []
+        self.agent_status: Dict[str, bool] = {}  # Agent是否健康
+        self.fallback_cache = {}                 # 备用数据缓存
+
+    async def run_with_fault_tolerance(self, agent_func, agent_name: str,
+                                       input_data: Any, incident_id: str,
+                                       timeout: int = 15) -> Dict:
+        """带容错的Agent执行入口"""
+        for attempt in range(3):
+            try:
+                result = await asyncio.wait_for(
+                    agent_func(input_data), timeout=timeout
+                )
+                if self._is_output_valid(result):
+                    self._record_success(agent_name)
+                    return result
+                else:
+                    await self._handle_low_quality_output(agent_name, result, incident_id)
+            except asyncio.TimeoutError:
+                await self._handle_timeout(agent_name, incident_id, attempt)
+            except Exception as e:
+                await self._handle_exception(agent_name, e, incident_id, attempt)
+
+        # 所有重试失败 → 执行降级策略
+        return await self._execute_fallback(agent_name, input_data, incident_id)
+
+    async def _handle_timeout(self, agent_name: str, incident_id: str, attempt: int):
+        event = FaultEvent(agent_name, "timeout", FaultLevel.LIGHT,
+                           f"第{attempt+1}次超时", asyncio.get_event_loop().time(), incident_id)
+        self.fault_history.append(event)
+        logger.warning(f"{agent_name} 超时，尝试第{attempt+1}次重试")
+        await asyncio.sleep(1 * (2 ** attempt))  # 指数退避
+
+    async def _handle_exception(self, agent_name: str, exc: Exception,
+                                incident_id: str, attempt: int):
+        level = FaultLevel.MEDIUM if attempt < 2 else FaultLevel.SEVERE
+        event = FaultEvent(agent_name, "exception", level, str(exc),
+                           asyncio.get_event_loop().time(), incident_id, attempt)
+        self.fault_history.append(event)
+        logger.error(f"{agent_name} 异常: {exc}")
+
+    async def _execute_fallback(self, agent_name: str, input_data: Any, incident_id: str):
+        """执行降级策略"""
+        logger.info(f"{agent_name} 执行降级策略")
+
+        if agent_name == "PredictionAgent":
+            return self._conservative_prediction_fallback(input_data)
+        elif agent_name == "DecisionAgent":
+            return self._rule_based_decision_fallback(input_data)
+        else:
+            # 其他Agent → 标记人工介入
+            await self._trigger_human_takeover(incident_id, f"{agent_name} 完全失败")
+            return {"status": "fallback_to_human", "reason": f"{agent_name}故障"}
+
+    async def _trigger_human_takeover(self, incident_id: str, reason: str):
+        """触发人工接管"""
+        logger.critical(f"🚨 人工接管触发！incident_id={incident_id} 原因：{reason}")
+        # 调用外部通知服务（如企业微信、短信、Dashboard告警）
+        # push_alert_to_dashboard(incident_id, reason, level="critical")
+
+    def _is_output_valid(self, result: Any) -> bool:
+        """输出质量校验"""
+        if not isinstance(result, dict):
+            return False
+        return result.get("confidence", 0) >= 0.6
+
+    # ==================== 监控仪表盘数据接口 ====================
+    def get_dashboard_data(self) -> Dict:
+        """供仪表盘实时调用"""
+        return {
+            "overall_health": self._calculate_overall_health(),
+            "agent_status": self.agent_status,
+            "recent_faults": self.fault_history[-10:],
+            "fault_level_distribution": self._get_fault_distribution(),
+            "recovery_stats": {
+                "avg_recovery_time": self._avg_recovery_time(),
+                "manual_takeover_rate": self._manual_takeover_rate()
+            }
+        }
+```
+
+---
+
+## 使用方法
+
+- 将以上代码保存为 fault_handler.py
+- 在多智能体主流程中包裹每个Agent调用：fault_handler.run_with_fault_tolerance(...)
+- 仪表盘后端定时调用 get_dashboard_data() 推送实时数据
+
+---
+
+## 框架包含
+
+- 分级故障处理（Light/Medium/Severe/Critical）
+- 自动重试 + 指数退避
+- 降级策略（Prediction用保守预测、Decision用规则引擎）
+- 人工接管触发
+- 仪表盘数据接口（get_dashboard_data）
+- 完整日志与监控

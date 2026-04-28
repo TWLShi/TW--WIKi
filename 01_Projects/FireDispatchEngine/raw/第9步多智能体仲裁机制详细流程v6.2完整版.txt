@@ -1,0 +1,99 @@
+# 第9步 多智能体仲裁机制 详细流程 v6.2 完整版
+
+## 1. 仲裁机制总体目标
+- 解决四个Agent可能出现的不一致问题
+- 保证最终方案**安全优先、可落地、可解释**
+- 实现**自动通过 + LLM仲裁 + 人工兜底**的三级决策
+
+---
+
+## 2. 仲裁机制详细流程图
+
+```mermaid
+flowchart TD
+    Start[接收四个Agent输出] --> Norm[阶段1：结果标准化]
+    Norm --> Cross[阶段2：交叉验证\n检测冲突]
+    Cross --> Vote[阶段3：加权投票]
+    Vote --> Check{冲突分 < 0.25?}
+    Check -->|是| AutoPass[自动通过\n采用加权结果]
+    Check -->|否| LLM[阶段4：LLM仲裁器触发]
+    LLM --> Validate[阶段5：二次验证]
+    Validate --> FinalCheck{二次通过率 ≥ 85%?}
+    FinalCheck -->|是| Output[输出最终指挥方案]
+    FinalCheck -->|否| Human[标记高不确定性\n强制人工确认]
+    AutoPass --> Output
+```
+
+---
+
+## 3. 仲裁机制5阶段详细分解
+
+### 阶段1：结果标准化（Normalization）
+- 将四个Agent的输出统一成标准JSON Schema
+- 必含字段：`score`、`confidence`、`rationale`、`key_recommendations`
+- 目的：消除格式差异，便于后续比较
+
+### 阶段2：交叉验证（Cross-Validation）
+- 两两对比四个Agent输出
+- 重点检测维度：
+  - 感知 vs 决策（场景理解是否一致）
+  - 决策 vs 执行（战术是否可落地）
+  - 执行 vs 预测（时间线与预测是否匹配）
+- 计算冲突分（0-1分）
+
+### 阶段3：加权投票（Weighted Voting）
+- 默认权重（可按场景动态调整）：
+  - DecisionAgent（战术核心）：**40%**
+  - PredictionAgent（前瞻性）：**25%**
+  - ExecutionAgent（可执行性）：**20%**
+  - PerceptionAgent（事实基础）：**15%**
+
+### 阶段4：LLM仲裁器（LLM Arbitration）
+- **触发条件**：冲突分 ≥ 0.25 或任意Agent分歧 > 0.3
+- 使用以下**专用仲裁Prompt**（核心）：
+
+```text
+你是最终消防指挥仲裁官，拥有最高决策权。
+
+四个Agent输出如下：
+- PerceptionAgent：{{perception_output}}
+- DecisionAgent：{{decision_output}}
+- ExecutionAgent：{{execution_output}}
+- PredictionAgent：{{prediction_output}}
+
+已检测到的冲突点：{{detected_conflicts}}
+
+请综合所有信息，做出最终指挥方案。
+要求：
+1. 必须平衡四个Agent建议
+2. 优先保障人员生命安全
+3. 给出清晰的仲裁理由
+
+输出严格JSON格式：
+{
+  "final_tactical_direction": "...",
+  "force_assignment": [ ... ],
+  "timeline": [ ... ],
+  "risk_mitigation": [ ... ],
+  "arbitration_reason": "详细解释融合理由（引用具体Agent观点）",
+  "overall_confidence": 0.XX,
+  "compromise_made": ["牺牲了XXAgent建议，因为..."],
+  "recommended_to_human": true/false
+}
+```
+
+### 阶段5：二次验证（Secondary Validation）
+- 将仲裁结果重新送回ExecutionAgent和PredictionAgent校验
+- 计算二次通过率
+- 通过率 < 85% → 标记"高不确定性"，强制进入人工确认
+
+---
+
+## 4. 仲裁决策规则（阈值配置）
+
+| 场景类型       | 自动通过阈值 | LLM仲裁触发阈值 | 强制人工阈值 | 备注 |
+|----------------|--------------|------------------|--------------|------|
+| 普通住宅       | < 0.25       | ≥ 0.25           | ≥ 0.45       | 常规 |
+| 高层/地下      | < 0.22       | ≥ 0.22           | ≥ 0.40       | 风险高 |
+| 化工/危化品    | < 0.18       | ≥ 0.18           | ≥ 0.35       | 最高优先人工 |
+| 城中村         | < 0.20       | ≥ 0.20           | ≥ 0.42       | 特殊环境 |

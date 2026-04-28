@@ -1,0 +1,137 @@
+# 消防调派智能系统核心引擎 - v6.1 代码级细化版（第1步）
+
+## 1. 代码伪代码（Python风格，可直接转为实际代码）
+
+```python
+def process_incoming_alert(raw_audio_stream, caller_phone, call_time):
+    incident_id = generate_incident_id(call_time)  # INC-20250424-173512-XXXX
+
+    # 1.1 系统接入与呼叫处理
+    start_recording(raw_audio_stream)
+    raw_audio_url = save_audio_backup(raw_audio_stream)  # 双备份
+
+    # 1.2 实时语音转文字
+    asr_result = ASR_engine.transcribe(
+        audio=raw_audio_stream,
+        language="zh",
+        domain="firefighting",   # 使用消防领域词库
+        noise_suppress=True
+    )
+
+    # 1.3 实体识别与信息抽取
+    entities = NER_engine.extract(asr_result.text, domain="fire")
+    address = standardize_address(entities.address)  # 模糊地址→标准地址
+    geo = geocode(address)  # GPS/地图匹配
+
+    # 1.4 初步标签打标
+    tags = tag_generator.generate(
+        text=asr_result.text,
+        entities=entities,
+        confidence_threshold=0.65
+    )
+
+    # 1.5 初始评估与分流决策
+    assessment = quick_risk_assessment(entities, tags)
+
+    # 1.6 数据持久化
+    alert_record = {
+        "incident_id": incident_id,
+        "call_time": call_time,
+        "caller_phone": caller_phone,
+        "raw_audio_url": raw_audio_url,
+        "asr_text": asr_result.text,
+        "structured_alert": build_structured_alert(entities, geo, tags),
+        "initial_assessment": assessment,
+        "processing_time_ms": calculate_time()
+    }
+
+    save_to_db(alert_record)
+    push_to_dispatch_dashboard(alert_record)
+
+    # 分流决策
+    if assessment.need_immediate_query:
+        trigger_query_routing(incident_id)
+
+    return alert_record
+```
+
+---
+
+## 2. Prompt模板（供LLM ASR后处理或辅助解析使用）
+
+### 主Prompt模板（ASR后处理 + 结构化）
+
+```text
+你是一名专业消防接警员，正在处理119报警。
+
+原始报警内容：
+"""{{asr_text}}"""
+
+请严格按照以下JSON格式输出结构化信息：
+
+{
+  "address": "完整标准化地址",
+  "building_type": "住宅|高层|地下车库|商业综合体|厂房|化工|医院|学校|其他",
+  "fire_description": "简短火情描述",
+  "personnel_status": "被困人数估算|伤亡|无人员|未知",
+  "hazmat_mention": true/false,
+  "tags": ["明火","浓烟","爆炸风险","城中村","高层","人员密集","夜间"...],
+  "confidence": 0.XX,
+  "missing_info": ["地址不精确","火情规模未知","人员情况未知",...],
+  "suggested_questions": ["请问具体在哪栋哪单元？","看到明火还是只有烟？","里面有人吗？",...]
+}
+
+要求：
+- 地址尽量精确到小区/楼栋
+- 标签必须从消防标准标签库中选择
+- 如果信息严重缺失，missing_info和suggested_questions必须填写
+```
+
+### 快速风险评估Prompt
+
+```text
+根据以下报警信息，快速判断风险等级（low/medium/high/urgent）并说明理由：
+
+{{structured_alert}}
+
+输出格式：
+{
+  "risk_level": "medium",
+  "reason": "高层住宅 + 夜间 + 人员被困描述",
+  "need_immediate_query": true
+}
+```
+
+---
+
+## 3. 异常处理分支（容错机制）
+
+| 异常场景 | 处理逻辑 | 后续动作 | 优先级 |
+|---------|---------|---------|-------|
+| ASR识别置信度 < 0.6 | 标记"语音模糊"，保留原始音频 | 立即推送给人工接警员 + 触发人工问询 | 高 |
+| 地址完全无法识别 | 标记"地址缺失" | 触发第2步高优先级问询（"请告诉我具体地址"） | 最高 |
+| 报警人情绪失控/哭喊 | 启用"安抚模式"话术 + 关键词提取 | 并行人工介入 | 高 |
+| 沉默/无声音 > 15秒 | 自动播放引导话术 | "您好，请告诉我着火的位置……" | 中 |
+| 来电号码异常（空号/虚拟号） | 记录警告 | 仍正常处理，但标记"信息可靠性低" | 中 |
+| 系统ASR服务超时 | 切换备用ASR引擎 | 通知运维，进入降级模式 | 高 |
+| 地理编码失败 | 使用基站粗定位 | 标记"地址精度:低" | 中 |
+| 检测到爆炸/危化品关键词 | 立即提升风险等级为urgent | 自动触发第4步高等级判定 + 通知高级调度员 | 最高 |
+
+### 异常统一处理框架
+
+```python
+try:
+    result = process_alert(...)
+except ASR_Error as e:
+    fallback_to_manual_mode(incident_id)
+    log_audit("ASR_FAILURE", details=e)
+except Address_Error:
+    trigger_forced_query(incident_id, priority="high")
+```
+
+---
+
+## 第1步当前状态总结
+- 已细化到**可直接开发**的颗粒度
+- 包含**生产级异常处理**和**Prompt工程**
+- 强审计 + 高容错设计

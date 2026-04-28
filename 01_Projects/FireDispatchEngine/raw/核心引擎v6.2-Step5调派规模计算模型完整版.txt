@@ -1,0 +1,190 @@
+# 消防调派智能系统核心引擎 - v6.2 完整细化版（第5步）
+
+## 第5步：调派规模计算模型（目标耗时：8-20秒）
+
+### 5.1 输入聚合
+- 5.1.1 接收第4步最终等级 + 置信度
+- 5.1.2 接收第3步完整多维画像
+- 5.1.3 加载实时资源池状态
+- 5.1.4 加载全局配置（季节、区域政策、特殊预案）
+
+### 5.2 规则基础计算
+- 5.2.1 查询统一调派编成表（配置化）
+- 5.2.2 计算基础车辆数 + 装备清单
+- 5.2.3 应用硬规则约束（最小/最大规模）
+
+### 5.3 机器学习加权预测
+- 5.3.1 特征工程（150+维）
+- 5.3.2 ML模型预测最优系数（XGBoost/LightGBM）
+- 5.3.3 输出推荐系数 + SHAP解释
+
+### 5.4 全局资源平衡优化
+- 5.4.1 全区负载均衡计算
+- 5.4.2 单中队出车率限制
+- 5.4.3 跨区联动建议
+
+### 5.5 三档方案生成与解释
+- 5.5.1 最小 / 推荐 / 最大 三档方案
+- 5.5.2 生成自然语言解释
+- 5.5.3 置信度评估
+
+### 5.6 输出与分流
+- 5.6.1 更新警情规模数据
+- 5.6.2 触发第6步（队站车辆匹配）
+
+---
+
+## 1. 代码伪代码（混合规则+ML）
+
+```python
+def dispatch_scale_calculation(incident_id: str):
+    # 5.1 输入聚合
+    level_result = get_level_result(incident_id)
+    portrait = get_portrait(incident_id)
+    resource_status = get_realtime_resource_status()
+
+    # 5.2 规则基础计算
+    base_composition = rule_based_composition(level_result.final_level, portrait)
+
+    # 5.3 ML加权预测
+    features = scale_feature_engineer(portrait, level_result, resource_status)
+    ml_coefficient = ml_scale_model.predict(features)          # 输出最优系数
+    shap_explain = explainer.shap_values(features)
+
+    # 5.4 全局平衡优化
+    balanced_scale = global_balance_optimizer(
+        base=base_composition,
+        ml_coeff=ml_coefficient,
+        resource=resource_status
+    )
+
+    # 5.5 三档方案生成
+    result = {
+        "incident_id": incident_id,
+        "alert_level": level_result.final_level,
+        "recommended_vehicles": balanced_scale.recommended,
+        "min_vehicles": balanced_scale.min,
+        "max_vehicles": balanced_scale.max,
+        "composition": generate_composition_list(balanced_scale),
+        "personnel_estimate": calculate_personnel(balanced_scale),
+        "explanation_rule": base_composition.explain,
+        "explanation_ml": generate_shap_text(shap_explain),
+        "confidence": calculate_scale_confidence(level_result, ml_coefficient),
+        "need_human_review": balanced_scale.confidence < 0.85
+    }
+
+    save_scale_result(incident_id, result)
+    log_audit("Step5_ScaleCalculation", result)
+
+    trigger_next_step(incident_id, "Step6_StationVehicleMatching")
+    return result
+```
+
+---
+
+## 2. Prompt模板（解释生成）
+
+### 规模计算解释Prompt
+```text
+你是一名消防调度专家。根据以下计算结果，用简洁专业的语言向调度员解释推荐规模：
+
+等级：{{level}}级
+基础车辆：{{base_vehicles}}
+ML预测系数：{{ml_coefficient}}（主要贡献：{{top_shap_features}}）
+全局资源情况：{{resource_summary}}
+
+请输出一段不超过60字的自然语言解释，包含推荐理由和注意事项。
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| ML模型不可用                | 回退到纯规则计算                      | 记录降级，通知模型团队       | 高     |
+| 资源极度紧张                | 强制输出最小档 + 跨区联动建议         | 标记高负载警报               | 最高   |
+| 计算系数异常（>3.5或<0.8）  | 截断处理 + 人工复核                   | 推送预警                     | 高     |
+| 画像数据缺失                | 使用默认值 + 降低置信度               | 标记数据质量问题             | 中     |
+| 全局平衡优化失败            | 回退到本地最优方案                    | 记录冲突                     | 中     |
+
+---
+
+## 4. 数据库表结构
+
+### 核心结果表：dispatch_scale_result
+```sql
+CREATE TABLE dispatch_scale_result (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    alert_level           SMALLINT,
+    recommended_vehicles  INTEGER,
+    min_vehicles          INTEGER,
+    max_vehicles          INTEGER,
+    ml_coefficient        NUMERIC(5,3),
+    composition           JSONB,                    -- 详细车辆清单
+    personnel_estimate    INTEGER,
+    explanation_rule      TEXT,
+    explanation_ml        TEXT,
+    shap_values           JSONB,
+    confidence            NUMERIC(4,3),
+    need_human_review     BOOLEAN DEFAULT FALSE,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 历史规模记录表：scale_history
+```sql
+CREATE TABLE scale_history (
+    history_id            BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    model_version         VARCHAR(30),
+    actual_vehicles_used  INTEGER,                  -- 事后人工反馈
+    feedback_score        NUMERIC(4,2),             -- 人工评价
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/scale/calculate
+
+请求体：
+```json
+{
+  "use_ml": true,
+  "model_version": "scale-xgb-v2.4",
+  "force_min_scale": false,
+  "resource_constraint_level": "normal"   // normal / tight / critical
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "recommended_vehicles": 15,
+    "min_vehicles": 11,
+    "max_vehicles": 19,
+    "composition": [
+      {"type": "水罐车", "count": 7, "priority": 1},
+      {"type": "举高车", "count": 3, "priority": 1},
+      {"type": "泡沫车", "count": 2, "priority": 2}
+    ],
+    "explanation_ml": "高层+人员密集场景，ML系数提升至2.18...",
+    "confidence": 0.89,
+    "need_human_review": false,
+    "next_step": "Step6_StationVehicleMatching"
+  }
+}
+```
+
+---
+
+## 第5步核心特点
+- 规则保证安全底线 + ML实现智能优化
+- 支持持续学习（人工实际用车反馈 → 模型重训）
+- 三档方案为后续人工确认提供灵活空间
