@@ -1,0 +1,177 @@
+# 消防调派智能系统核心引擎 - v6.2 机器学习混合判定版（第4步）
+
+## 第4步整体流程（混合判定）
+
+### 4.1 规则引擎预打分（快速路径）
+- 4.1.1 执行传统规则表打分（可解释、速度快）
+- 4.1.2 输出规则基础分 + 解释
+
+### 4.2 机器学习模型判定（深度路径）
+- 4.2.1 特征工程（从第3步画像提取200+维特征）
+- 4.2.2 调用ML模型（XGBoost / LightGBM / Transformer）
+- 4.2.3 输出ML预测等级 + 概率分布
+- 4.2.4 SHAP值解释（可解释AI）
+
+### 4.3 混合融合决策
+- 4.3.1 加权融合：`final_score = 0.45 * rule_score + 0.55 * ml_score`
+- 4.3.2 若规则与ML分歧 > 1级 → 触发人工复核
+- 4.3.3 最终等级 + 置信度 + 双解释（规则 + ML）
+
+### 4.4 特殊场景与干预
+- 4.4.1 高危关键词硬规则覆盖（爆炸、危化品等）
+- 4.4.2 置信度阈值判断
+- 4.4.3 触发第5步
+
+---
+
+## 1. 代码伪代码（混合模式）
+
+```python
+def alert_level_mapping_hybrid(incident_id: str):
+    portrait = get_portrait(incident_id)
+
+    # 4.1 规则引擎
+    rule_result = rule_engine.score(portrait)
+
+    # 4.2 机器学习判定
+    features = feature_engineer.extract(portrait)          # 200+维特征
+    ml_prob = ml_model.predict_proba(features)            # [P1, P2, P3, P4]
+    ml_level = int(np.argmax(ml_prob) + 1)
+    ml_conf = float(max(ml_prob))
+    shap_values = explainer.shap_values(features)          # 可解释性
+
+    # 4.3 混合融合
+    final_score = 0.45 * rule_result.score + 0.55 * ml_prob.mean()
+    final_level = score_to_level(final_score)
+
+    confidence = (rule_result.confidence * 0.4 + ml_conf * 0.6)
+
+    # 分歧检测
+    divergence = abs(rule_result.level - ml_level)
+    need_human_review = (divergence >= 2) or (confidence < 0.80)
+
+    result = {
+        "incident_id": incident_id,
+        "final_level": final_level,
+        "confidence": confidence,
+        "rule_level": rule_result.level,
+        "ml_level": ml_level,
+        "ml_probabilities": ml_prob.tolist(),
+        "explanation_rule": rule_result.explanation,
+        "explanation_ml": generate_shap_explanation(shap_values),
+        "need_human_review": need_human_review,
+        "model_version": ml_model.version
+    }
+
+    save_level_result(incident_id, result)
+    log_audit("Step4_HybridLevelMapping", result)
+
+    trigger_next_step(incident_id, "Step5_ScaleCalculation")
+    return result
+```
+
+---
+
+## 2. Prompt模板（ML解释增强）
+
+### SHAP解释生成Prompt
+```text
+你是一名消防专家。请用通俗语言解释以下机器学习模型对警情等级的判定理由。
+
+ML模型预测等级：{{ml_level}}（概率分布：{{ml_prob}}）
+
+关键特征贡献（SHAP值）：
+{{shap_top_features}}
+
+请输出一段不超过80字的自然语言解释，供调度员快速理解。
+```
+
+---
+
+## 3. 异常处理分支（新增ML相关）
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| ML模型服务超时 / 失败       | 回退到纯规则引擎                      | 记录降级，通知模型运维       | 高     |
+| ML置信度极低（<0.6）        | 提高规则权重至0.7                     | 强制人工复核                 | 最高   |
+| 规则与ML分歧≥2级            | 标记"高分歧"                          | 立即推送人工复核             | 最高   |
+| 特征工程缺失关键字段        | 使用默认中位数填充 + 标记             | 降低整体置信度               | 中     |
+| 模型版本漂移                | 使用影子模型对比                      | 触发模型监控告警             | 高     |
+
+---
+
+## 4. 数据库表结构（新增ML字段）
+
+### 升级后的 alert_level_result 表
+```sql
+CREATE TABLE alert_level_result (
+    incident_id          VARCHAR(32) PRIMARY KEY,
+    final_level          SMALLINT NOT NULL,
+    confidence           NUMERIC(4,3),
+
+    rule_level           SMALLINT,
+    ml_level             SMALLINT,
+    ml_probabilities     JSONB,                    -- [0.05, 0.12, 0.68, 0.15]
+    model_version        VARCHAR(30),
+
+    explanation_rule     TEXT,
+    explanation_ml       TEXT,                     -- SHAP解释
+    shap_values          JSONB,                    -- 特征重要性
+
+    need_human_review    BOOLEAN DEFAULT FALSE,
+    reviewed_by          VARCHAR(50),
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 模型监控表
+```sql
+CREATE TABLE ml_model_monitor (
+    monitor_id           BIGSERIAL PRIMARY KEY,
+    model_version        VARCHAR(30),
+    incident_id          VARCHAR(32),
+    prediction_accuracy  NUMERIC(5,3),            -- 人工复核后反馈
+    drift_score          NUMERIC(5,3),
+    created_at           TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义（新增ML参数）
+
+### POST /api/v1/alerts/{incident_id}/level/mapping
+
+请求体：
+```json
+{
+  "use_ml": true,
+  "model_version": "xgboost-v2.3",
+  "force_human_review": false
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "final_level": 3,
+    "confidence": 0.87,
+    "rule_level": 3,
+    "ml_level": 4,
+    "ml_probabilities": [0.08, 0.15, 0.62, 0.15],
+    "explanation_rule": "高层+人员密集...",
+    "explanation_ml": "模型重点关注烟雾程度和夜间因素...",
+    "need_human_review": false,
+    "next_step": "Step5_ScaleCalculation"
+  }
+}
+```
+
+---
+
+## 混合判定优势
+- **规则**：可解释、易维护、强约束
+- **ML**：处理复杂非线性关系、持续学习（人工复核反馈后可重训）
+- **融合**：准确率更高，分歧时自动人工介入

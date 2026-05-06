@@ -1,0 +1,205 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第2步）
+
+## 第2步：Query_Routing 智能问询路由（目标耗时：30-120秒）
+
+### 2.1 缺失要素智能检测
+- 2.1.1 读取第1步输出的 structured_alert 和 missing_info
+- 2.1.2 按优先级排序缺失项（地址精度 < 0.7 → 最高优先级）
+- 2.1.3 生成缺失要素向量
+
+### 2.2 问询路由决策（路由树 + 规则引擎）
+- 2.2.1 加载动态路由树（根节点 → 地址分支 → 火情分支 → 人员分支）
+- 2.2.2 决定问询方式（语音助手 / 文字弹窗 / 调度员手动）
+- 2.2.3 生成问询序列（最多3-5个问题，避免信息过载）
+
+### 2.3 动态话术生成与调用
+- 2.3.1 从标准话术库匹配或动态生成
+- 2.3.2 个性化调整（根据报警人情绪、方言）
+- 2.3.3 通过TTS语音助手播报或显示给调度员
+
+### 2.4 实时问询执行与解析
+- 2.4.1 发送问题并等待回答（超时30秒）
+- 2.4.2 实时ASR转写回答
+- 2.4.3 NER抽取新实体并更新警情字段
+- 2.4.4 循环判断是否继续追问
+
+### 2.5 补全评估与分流
+- 2.5.1 计算整体补全率（≥85%视为合格）
+- 2.5.2 若不合格则继续追问或标记"需人工接管"
+- 2.5.3 触发下一步（第3步 多维要素识别）
+
+### 2.6 数据持久化与留痕
+- 2.6.1 记录完整问询历史
+- 2.6.2 更新 alert_structured 表
+- 2.6.3 写入审计日志
+
+---
+
+## 1. 代码伪代码
+
+```python
+def query_routing(incident_id: str):
+    # 读取第1步结果
+    alert = get_structured_alert(incident_id)
+    missing = detect_missing_elements(alert)
+
+    if not missing:
+        return trigger_next_step(incident_id, "Step3")
+
+    # 2.2 路由决策
+    query_plan = routing_engine.generate_plan(missing, alert.risk_level)
+
+    query_history = []
+
+    for question in query_plan.questions:
+        # 2.3 生成话术
+        prompt = build_query_prompt(question, alert)
+        spoken_text = llm_generate_speech(prompt) if use_tts else question.text
+
+        # 2.4 执行问询
+        answer = ask_question(spoken_text, timeout=30)
+        parsed_answer = parse_answer(answer, question.type)
+
+        # 更新警情
+        update_alert_field(incident_id, parsed_answer)
+        query_history.append({"q": question.text, "a": answer, "time": now()})
+
+        # 实时评估是否还需要继续问
+        if completion_rate_reached(incident_id) >= 0.85:
+            break
+
+    # 2.5 最终评估
+    final_assessment = evaluate_completion(incident_id)
+
+    # 2.6 持久化
+    save_query_history(incident_id, query_history)
+    log_audit("Step2_QueryRouting", details=final_assessment)
+
+    # 分流
+    if final_assessment.need_human_takeover:
+        notify_human_dispatcher(incident_id)
+    else:
+        trigger_next_step(incident_id, "Step3_MultiDimension")
+
+    return final_assessment
+```
+
+---
+
+## 2. Prompt模板
+
+### 主Prompt（动态话术生成）
+```text
+你是一名经验丰富的消防接警员，正在与报警人通话。
+
+当前已知信息：
+{{structured_alert_summary}}
+
+缺失关键信息：{{missing_elements}}
+
+请生成一条自然、简短、安抚性的问询话术（最多20字），重点询问最高优先级缺失项。
+语气要专业且有温度。
+```
+
+### 答案解析Prompt
+```text
+报警人回答："""{{answer_text}}"""
+
+请提取以下字段并输出JSON：
+{
+  "address_detail": "...",
+  "fire_scale": "明火/浓烟/爆炸/未知",
+  "personnel": "被困人数/伤亡/无",
+  "hazmat": true/false,
+  "new_tags": ["标签1", "标签2"],
+  "confidence": 0.XX
+}
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                  | 处理逻辑                              | 后续动作                     | 优先级 |
+|---------------------------|---------------------------------------|------------------------------|--------|
+| 报警人拒答 / 情绪崩溃     | 切换安抚话术 + 减少问题数量          | 标记"信息不完整"             | 高     |
+| 问询超时（>30秒）         | 自动跳过当前问题或换一种问法         | 记录超时，降低补全率         | 中     |
+| ASR识别答案失败           | 保留原始音频 + 标记人工复核          | 推送给调度员                 | 高     |
+| 补全率 < 60%              | 强制进入人工接管模式                  | 通知高级调度员               | 最高   |
+| 路由树冲突（多个高优先级）| 按风险权重排序，只问Top3             | 记录决策理由                 | 中     |
+| TTS/语音助手失败          | 切换文字弹窗模式                      | 通知运维                     | 中     |
+| 重复问询同一问题          | 检测历史记录，避免循环               | 跳过并降低优先级             | 低     |
+
+---
+
+## 4. 数据库表结构
+
+### 主扩展表：query_routing_history
+```sql
+CREATE TABLE query_routing_history (
+    history_id          BIGSERIAL PRIMARY KEY,
+    incident_id         VARCHAR(32) REFERENCES incidents(incident_id),
+    question_text       TEXT NOT NULL,
+    answer_text         TEXT,
+    parsed_result       JSONB,
+    question_priority   INTEGER,
+    ask_time            TIMESTAMP,
+    answer_time         TIMESTAMP,
+    success             BOOLEAN
+);
+```
+
+### 更新 alert_structured 表（新增字段）
+```sql
+ALTER TABLE alert_structured ADD COLUMN IF NOT EXISTS
+    query_completion_rate   NUMERIC(4,3) DEFAULT 0,
+    query_rounds            INTEGER DEFAULT 0,
+    last_query_time         TIMESTAMP;
+```
+
+### 审计日志扩展
+```sql
+-- 使用 alert_processing_log 表，step_name = 'Step2_QueryRouting'
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/query
+
+请求体：
+```json
+{
+  "auto_start": true,
+  "max_questions": 5,
+  "priority_elements": ["address", "personnel", "hazmat"]
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "completion_rate": 0.92,
+    "query_history": [...],
+    "updated_structured_alert": { ... },
+    "next_step": "Step3_MultiDimension",
+    "need_human_intervention": false
+  }
+}
+```
+
+### 其他接口
+- GET /api/v1/alerts/{incident_id}/query/status
+- POST /api/v1/alerts/{incident_id}/manual-answer （人工输入答案）
+- POST /api/v1/alerts/{incident_id}/force-complete-query
+
+---
+
+## 第2步与第1步衔接
+- 输入：第1步输出的 structured_alert 和 missing_info
+- 输出：补全后的 alert_structured + query_history
+- 触发条件：need_immediate_query = true 或补全率 < 85%

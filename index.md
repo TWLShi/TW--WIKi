@@ -4,89 +4,45 @@ title: Wiki Index
 
 # Wiki Index
 
-*This index is automatically maintained. Last updated: 2026-04-30*
+*This index is automatically maintained. Last updated: 2026-05-06*
 
-## Wiki Template (wiki模板/)
+## LLM Wiki Structure (llm-wiki-base/)
 
 | Directory | Purpose |
 |-----------|---------|
-| [wiki模板/concepts/](wiki模板/concepts/) | 概念页面 |
-| [wiki模板/entities/](wiki模板/entities/) | 实体页面 |
-| [wiki模板/skills/](wiki模板/skills/) | 技能页面 |
-| [wiki模板/references/](wiki模板/references/) | 参考资料 |
-| [wiki模板/synthesis/](wiki模板/synthesis/) | 综合知识 |
-| [wiki模板/journal/](wiki模板/journal/) | 日志/日记 |
-| [wiki模板/_archives/](wiki模板/_archives/) | 归档存储 |
-| [wiki模板/_raw/](wiki模板/_raw/) | 原始草稿 |
+| [llm-wiki-base/concepts/](llm-wiki-base/concepts/) | 概念页面 |
+| [llm-wiki-base/entities/](llm-wiki-base/entities/) | 实体页面 |
+| [llm-wiki-base/skills/](llm-wiki-base/skills/) | 技能页面 |
+| [llm-wiki-base/references/](llm-wiki-base/references/) | 参考资料 |
+| [llm-wiki-base/synthesis/](llm-wiki-base/synthesis/) | 综合知识 |
+| [llm-wiki-base/journal/](llm-wiki-base/journal/) | 日志/日记 |
+| [llm-wiki-base/projects/](llm-wiki-base/projects/) | 项目知识 |
+| [llm-wiki-base/_raw/](llm-wiki-base/_raw/) | 原始草稿 |
+| [llm-wiki-base/_archives/](llm-wiki-base/_archives/) | 归档存储 |
 
-## Knowledge Base (知识库主体)
+## LLM Wiki Content (wiki/)
 
 | Folder | Content |
 |--------|---------|
-| [四个Part/](四个Part/) | 系统Parts (Part1-4) |
-| [十二个流程/](十二个流程/) | 12步核心流程 |
-| [六个场景聚类/](六个场景聚类/) | MOCs场景枢纽 |
-| [其他资料/](其他资料/) | PARA结构 + 其他内容 |
+| [wiki/01-Part（部分）/](wiki/01-Part（部分）/) | 系统Parts (Part1-4) |
+| [wiki/02-Step（流程）/](wiki/02-Step（流程）/) | 12步核心流程 |
+| [wiki/03-Scene（场景）/](wiki/03-Scene（场景）/) | MOCs场景枢纽 |
+| [wiki/其他类/](wiki/其他类/) | PARA结构 + 其他内容 |
+| [wiki/原始材料/](wiki/原始材料/) | 原始资料 |
 
-### 四个Part/
+## Version Management (wiki-version/)
 
-- [Part1-需求层/](四个Part/Part1-需求层/) — 需求层
-  - [需求/](四个Part/Part1-需求层/需求/)
-  - [场景/](四个Part/Part1-需求层/场景/)
-- [Part2-系统设计/](四个Part/Part2-系统设计/) — 系统设计
-  - [系统设计/](四个Part/Part2-系统设计/系统设计/)
-  - [DIKW示例/](四个Part/Part2-系统设计/DIKW示例/)
-  - [数据模型/](四个Part/Part2-系统设计/数据模型/)
-- [Part3-调度引擎/](四个Part/Part3-调度引擎/) — 核心引擎
-  - [调度引擎/](四个Part/Part3-调度引擎/调度引擎/)
-    - [AI支持/](四个Part/Part3-调度引擎/调度引擎/AI支持/)
-    - [查询路由/](四个Part/Part3-调度引擎/调度引擎/查询路由/)
-    - [状态机/](四个Part/Part3-调度引擎/调度引擎/状态机/)
-- [Part4-审计/](四个Part/Part4-审计/) — 审计责任
-  - [审计责任/](四个Part/Part4-审计/审计责任/)
-  - [数学优化/](四个Part/Part4-审计/数学优化/)
-  - [路线图/](四个Part/Part4-审计/路线图/)
-  - [附录/](四个Part/Part4-审计/附录/)
+| Folder | Content |
+|--------|---------|
+| [wiki-version/](wiki-version/) | 历史版本快照 |
 
-### 十二个流程/
+## Legacy (wiki模板/)
 
-- [第1步-接警接收与初步研判/](十二个流程/第1步-接警接收与初步研判/)
-- [第2步-智能问询与信息补全/](十二个流程/第2步-智能问询与信息补全/)
-- [第3步-多维画像构建/](十二个流程/第3步-多维画像构建/)
-- [第4步-警情等级智能判定/](十二个流程/第4步-警情等级智能判定/)
-- [第5步-调派规模智能计算/](十二个流程/第5步-调派规模智能计算/)
-- [第6步-资源匹配与任务分配/](十二个流程/第6步-资源匹配与任务分配/)
-- [第7步-约束校验与风险评估/](十二个流程/第7步-约束校验与风险评估/)
-- [第8步-反向模拟与方案预演/](十二个流程/第8步-反向模拟与方案预演/)
-- [第9步-AI多智能体协同指挥/](十二个流程/第9步-AI多智能体协同指挥/)
-- [第10步-人工指挥确认与授权/](十二个流程/第10步-人工指挥确认与授权/)
-- [第11步-指挥指令下达与协同/](十二个流程/第11步-指挥指令下达与协同/)
-- [第12步-全程审计与优化反馈/](十二个流程/第12步-全程审计与优化反馈/)
-
-### 六个场景聚类/
-
-- [MOC-Index.md](六个场景聚类/MOC-Index.md) — 场景总索引
-- [MOC-消防调派引擎.md](六个场景聚类/MOC-消防调派引擎.md) — 项目导航
-- [MOC-核心调派引擎-详细子模块.md](六个场景聚类/MOC-核心调派引擎-详细子模块.md) — 核心引擎场景
-- [MOC-状态机.md](六个场景聚类/MOC-状态机.md) — 状态机场景
-- [MOC-审计责任与数学模型.md](六个场景聚类/MOC-审计责任与数学模型.md) — 审计场景
-
-### 其他资料/
-
-- [全局导航/](其他资料/全局导航/) — 全局导航
-- [项目/](其他资料/项目/) — 项目层
-  - [消防调派引擎/](其他资料/项目/消防调派引擎/) — 消防调派智能系统
-  - [第二大脑智能体/](其他资料/项目/第二大脑智能体/)
-- [领域/](其他资料/领域/) — 领域层
-  - [应急响应/](其他资料/领域/应急响应/)
-  - [知识管理/](其他资料/领域/知识管理/)
-  - [个人生产力/](其他资料/领域/个人生产力/)
-- [业务模型/](其他资料/业务模型/) — 业务模型
-- [资源/](其他资料/资源/) — 资源层
-  - [消防知识/](其他资料/资源/消防知识/)
-  - [生产力工具/](其他资料/资源/生产力工具/)
-  - [模板/](其他资料/资源/模板/)
-- [系统设计/](其他资料/系统设计/) — 系统设计
-- [外部记忆/](其他资料/外部记忆/) — 外部记忆
-- [收集箱/](其他资料/收集箱/) — 收集箱
-- [知识库总说明.md](其他资料/知识库总说明.md)
+| Directory | Purpose |
+|-----------|---------|
+| [wiki模板/concepts/](wiki模板/concepts/) | 概念页面模板 |
+| [wiki模板/entities/](wiki模板/entities/) | 实体页面模板 |
+| [wiki模板/skills/](wiki模板/skills/) | 技能页面模板 |
+| [wiki模板/references/](wiki模板/references/) | 参考资料模板 |
+| [wiki模板/synthesis/](wiki模板/synthesis/) | 综合知识模板 |
+| [wiki模板/journal/](wiki模板/journal/) | 日志模板 |

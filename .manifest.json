@@ -1,8 +1,8 @@
 {
   "version": 1,
   "stats": {
-    "total_sources_ingested": 6,
-    "total_pages": 200
+    "total_sources_ingested": 38,
+    "total_pages": 215
   },
   "sources": [
     {
@@ -69,6 +69,39 @@
       "source_type": "document",
       "project": "null",
       "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "llm-wiki-base/_raw/Part1/notebookLM.txt",
+      "ingested_at": "2026-05-06T03:33:00Z",
+      "size_bytes": 15060,
+      "modified_at": "2026-05-06T13:33:00Z",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_type": "document",
+      "project": "FireDispatchEngine",
+      "pages_created": ["wiki/01-Part（部分）/Part1-需求层/场景/Query_Routing/source-报警求助模式.md"],
+      "pages_updated": []
+    },
+    {
+      "path": "llm-wiki-base/_raw/Part1/会议纪要.txt",
+      "ingested_at": "2026-05-06T03:33:00Z",
+      "size_bytes": 11799,
+      "modified_at": "2026-05-06T13:33:00Z",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_type": "document",
+      "project": "FireDispatchEngine",
+      "pages_created": ["wiki/01-Part（部分）/Part1-需求层/场景/Query_Routing/报警求助模式与场景路由规划设计方案.md"],
+      "pages_updated": []
+    },
+    {
+      "path": "llm-wiki-base/_raw/Part1/Fire_Dispatch_Engine_Blueprint.pdf",
+      "ingested_at": "2026-05-06T04:00:00Z",
+      "size_bytes": 21943245,
+      "modified_at": "2026-05-06T13:33:00Z",
+      "content_hash": "placeholder_hash",
+      "source_type": "document",
+      "project": "FireDispatchEngine",
+      "pages_created": ["wiki/01-Part（部分）/Part1-需求层/source-FireDispatchEngine架构设计蓝图.md"],
       "pages_updated": []
     }
   ]

@@ -1,0 +1,118 @@
+# 06_核心调派引擎 详细流程 v3.0
+
+```mermaid
+flowchart TD
+    Start((🚨 接警开始<br/>119报警电话接入))
+
+    subgraph 核心引擎 ["🔥 06_核心调派引擎 详细流程 v3.0"]
+        direction TB
+        A[1. 警情接收与初步解析<br/>语音转文字 + 地址提取 + 初步标签打标]
+        B[2. Query_Routing<br/>问题路由与智能问询]
+        C[3. 多维问题与要素识别<br/>维度映射体系]
+        D[4. 警情等级映射<br/>Alert_Level_Mapping]
+        E[5. 调派规模计算模型<br/>+ 定级与编成机制]
+        F[6. 队站 & 车辆确定逻辑]
+        G[7. 约束校验机制<br/>Constraint Validation]
+        H[8. 反向校验与冲突解决]
+        I[9. AI多智能体协同决策]
+        J[10. 人工确认节点<br/>Human Confirmation]
+        K[11. 调派方案生成与输出<br/>指挥方案 + 路径规划]
+        L[12. 审计留痕与责任记录]
+    end
+
+    subgraph 问题路由详细 ["📋 2. Query_Routing 专区"]
+        B1[非对称问询路由设计<br/>关键缺失要素优先问询 + 动态话术生成]
+        B2[标准话术库V1<br/>位置确认话术 + 火情规模话术 + 人员伤亡话术]
+        B3[问题路由树<br/>根节点 → 地址/类型/规模 + 多分支决策树]
+        B4[补充问题类型维度<br/>时间敏感度 + 危险品标识 + 特殊人群]
+    end
+
+    subgraph 要素识别 ["🔍 3. 多维问题与要素识别"]
+        C1[空间维度: 地址、建筑类型、楼层]
+        C2[时间维度: 起火时间、报警延迟]
+        C3[规模维度: 着火面积、烟雾程度]
+        C4[风险维度: 人员密集度、危化品]
+        C5[问题维度映射体系]
+    end
+
+    subgraph 等级编成 ["📊 4-5. 等级映射 + 规模计算"]
+        D1[一级: 普通住宅 2-4辆]
+        D2[二级: 较大建筑 3-5辆+举高]
+        D3[三级: 高层/地下 7-13辆]
+        D4[四级: 化工危化 13-20辆]
+        E1[调派规模计算模型<br/>基础编成 + 加权系数]
+    end
+
+    subgraph 资源确定 ["🚒 6. 队站 & 车辆逻辑"]
+        F1[队站确定逻辑<br/>距离最优 + 到达时间ETA]
+        F2[车辆确定逻辑<br/>类型匹配: 水罐、泡沫、举高 + 状态查询]
+        F3[多站点联动规则]
+    end
+
+    subgraph 约束校验详细 ["✅ 7. 约束校验机制"]
+        G1[资源可用性校验<br/>当前在勤车辆统计]
+        G2[距离/时间约束<br/>5分钟/10分钟到达圈]
+        G3[特殊环境约束<br/>城中村窄巷、断头路 + 高层供水接力 + 化工防护等级]
+        G4[编成规模合法性<br/>最小/最大车辆限制]
+        G5[政策与预案约束]
+    end
+
+    subgraph 反向校验 ["🔄 8. 反向校验"]
+        H1[方案模拟推演<br/>预计到达时间验证]
+        H2[资源冲突检测<br/>同一中队超负荷]
+        H3[自动调整建议生成]
+    end
+
+    subgraph AI多智能体 ["🤖 9. AI多智能体协同"]
+        I1[火灾场景画像匹配<br/>11类子场景画像]
+        I2[DIKW链路推理<br/>Data→Information→Knowledge→Wisdom]
+        I3[多智能体协同<br/>感知Agent + 决策Agent + 执行Agent]
+        I4[指挥方案智能生成<br/>力量编成 + 处置路径 + 注意事项]
+        I5[预测模型介入<br/>火势蔓延预测]
+    end
+
+    subgraph 人工确认 ["👤 10. 人工确认节点"]
+        J1[调度员二次确认<br/>关键决策点必须人工]
+        J2[修改或补充信息入口]
+        J3[责任追溯记录主体]
+    end
+
+    Start --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+
+    B --> B1 & B2 & B3 & B4
+    C --> C1 & C2 & C3 & C4 & C5
+    D & E --> D1 & D2 & D3 & D4 & E1
+    F --> F1 & F2 & F3
+    G --> G1 & G2 & G3 & G4 & G5
+    H --> H1 & H2 & H3
+    I --> I1 & I2 & I3 & I4 & I5
+    J --> J1 & J2 & J3
+
+    H -->|通过| I
+    H -->|冲突| Conflict[⚠️ 冲突解决<br/>自动调整或请求补充]
+    Conflict --> B
+    J -->|确认通过| K
+    J -->|需修改| Modify[🔄 返回修改<br/>返回步骤5或2]
+
+    classDef start fill:#22c55e,stroke:#166534,color:#fff,stroke-width:4px
+    classDef core fill:#f59e0b,stroke:#b45309,color:#000,stroke-width:3px
+    classDef detail fill:#64748b,stroke:#475569
+    classDef final fill:#ef4444,stroke:#991b1b,color:#fff
+
+    class Start start
+    class A,B,C,D,E,F,G,H,I,J,K,L core
+    class B1,B2,B3,B4,C1,C2,C3,C4,C5,D1,D2,D3,D4,E1,F1,F2,F3,G1,G2,G3,G4,G5,H1,H2,H3,I1,I2,I3,I4,I5,J1,J2,J3 detail
+    class Conflict,Modify core
+    class L final
+```

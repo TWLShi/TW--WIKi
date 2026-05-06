@@ -1,0 +1,56 @@
+{
+  "id": "sub_05",
+  "name": "工业厂房/仓库火灾",
+  "coverage": 0.06,
+  "alias": ["工厂火灾", "厂房火灾", "仓库火灾"],
+  "alertKeywords": ["工厂", "厂房", "仓库"],
+  "level": { "min": 3, "max": 4 },
+  "nTotalRange": [8, 14],
+  "formula": {
+    "nBase": 4,
+    "alphaSub": 2,
+    "betaStruct": 2,
+    "gSpecial": 2,
+    "mSupport": 1,
+    "nTotal": "11"
+  },
+  "slots": {
+    "structureType": {
+      "typicalValue": "钢结构、大跨度厂房",
+      "confidenceRequired": 1.0,
+      "note": "防坍塌"
+    },
+    "energyMaterial": {
+      "typicalValue": "易燃固体/液体",
+      "confidenceRequired": 0.85
+    },
+    "trappedCount": {
+      "typicalValue": "0-20",
+      "confidenceRequired": 0.80
+    },
+    "developmentStage": {
+      "typicalValue": "发展→猛烈",
+      "confidenceRequired": 0.75,
+      "note": "快速蔓延"
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 3,
+    "commandVehicle": 1,
+    "elevatedPlatform": 2,
+    "foamVehicle": 2,
+    "rescueVehicle": 1,
+    "smokeExhaust": 0,
+    "medicalVehicle": 0,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 1
+  },
+  "triggerConditions": [
+    "报警描述含'工厂''厂房''仓库'等",
+    "注意钢结构坍塌风险",
+    "确认是否有危化品"
+  ],
+  "priorityNote": "破拆 + 供水 + 防坍塌"
+}

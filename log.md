@@ -18,4 +18,6 @@ title: Wiki Log
   - WARNING: 1536+ wikilinks pointing to old paths (need update after directory rename)
 - [2026-04-30] WIKILINKS FIXED: Replaced 1536+ old path references (01_Projects/, 05_MOCs/, etc.) with new Chinese paths
 - [2026-04-30] FRONTMATTER ADDED: Added frontmatter to 370 files (all 454 files now have frontmatter)
-- [2026-04-30] CROSS_LINK: Scanned vault, found strong link structure (1536 wikilinks, hub pages well connected)
+- [2026-05-06] LLM_WIKI_INIT: Reorganized into wiki/ folder - 01-Part、02-Step、03-Scene、版本管理、其他类、原始材料 moved to wiki/ subfolder
+- [2026-05-06] REORG: 需求/ directory reorganized with new folders (调派核心模型, 约束校验, 问题路由, 多智能体架构, AI流程, 火灾预测, 审计体系, 责任机制)
+- [2026-05-06] INGEST: _raw/语义/ PDFs → 需求/ subdirectories, 10+ new pages created

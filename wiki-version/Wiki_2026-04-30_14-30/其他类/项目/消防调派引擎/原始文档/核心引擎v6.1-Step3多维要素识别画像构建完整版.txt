@@ -1,0 +1,209 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第3步）
+
+## 第3步：多维要素识别与画像构建（目标耗时：10-25秒）
+
+### 3.1 空间维度解析
+- 3.1.1 地址标准化与GIS精确定位
+- 3.1.2 建筑类型深度识别（住宅/高层/地下/厂房/商业/化工/医院等）
+- 3.1.3 楼层/结构解析（地上层数、地下层数、是否连体）
+- 3.1.4 周边环境分析（水源、道路宽度、窄巷、周边风险点）
+
+### 3.2 时间维度计算
+- 3.2.1 起火时间估算（报警时间 - 延迟描述）
+- 3.2.2 报警延迟计算（当前时间 - 估算起火时间）
+- 3.2.3 蔓延时间窗口评估（已燃烧多久）
+- 3.2.4 昼夜/季节影响因子加载
+
+### 3.3 规模维度评估
+- 3.3.1 着火面积估算（m²）
+- 3.3.2 烟雾浓度与可见度判断
+- 3.3.3 火势类型（明火/阴燃/爆燃风险）
+- 3.3.4 蔓延趋势初步预测
+
+### 3.4 风险维度评估
+- 3.4.1 人员风险（密集度、特殊人群、被困概率）
+- 3.4.2 危化品风险（是否有提及、类型、数量）
+- 3.4.3 次生灾害风险（爆炸、坍塌、有毒气体）
+- 3.4.4 环境影响风险（医院、学校、养老院等敏感目标）
+
+### 3.5 画像融合与向量生成
+- 3.5.1 多维标签体系融合
+- 3.5.2 生成画像向量（用于后续相似案例匹配）
+- 3.5.3 历史案例Top-N匹配
+- 3.5.4 整体画像置信度计算
+
+### 3.6 输出与分流决策
+- 3.6.1 生成完整警情画像
+- 3.6.2 判断是否需要补充问询
+- 3.6.3 触发第4步（等级判定）
+
+---
+
+## 1. 代码伪代码
+
+```python
+def multi_dimension_recognition(incident_id: str):
+    # 读取前两步结果
+    alert = get_full_alert(incident_id)  # 包含Step1 + Step2补全
+
+    portrait = {}
+
+    # 3.1 空间维度
+    portrait['spatial'] = {
+        'std_address': standardize_and_geocode(alert.address),
+        'building_type': classify_building(alert),
+        'floor_info': parse_floor(alert.description),
+        'surroundings': analyze_surroundings(alert.geo)
+    }
+
+    # 3.2 时间维度
+    portrait['temporal'] = calculate_temporal_features(alert.call_time, alert.description)
+
+    # 3.3 规模维度
+    portrait['scale'] = estimate_fire_scale(alert.description, alert.building_type)
+
+    # 3.4 风险维度
+    portrait['risk'] = assess_risk_dimensions(alert, portrait)
+
+    # 3.5 画像融合
+    portrait['tags'] = generate_multi_dim_tags(portrait)
+    portrait['vector'] = embedding_model.encode(portrait)  # 用于相似度匹配
+    portrait['historical_matches'] = find_similar_cases(portrait.vector, top_n=5)
+
+    # 3.6 置信度与决策
+    portrait['overall_confidence'] = calculate_confidence(portrait)
+    portrait['need_further_query'] = portrait['overall_confidence'] < 0.75
+
+    # 持久化
+    save_portrait(incident_id, portrait)
+    log_audit("Step3_MultiDimension", portrait)
+
+    # 分流
+    if portrait['need_further_query']:
+        trigger_query_routing(incident_id, priority="medium")
+    else:
+        trigger_next_step(incident_id, "Step4_LevelMapping")
+
+    return portrait
+```
+
+---
+
+## 2. Prompt模板
+
+### 多维画像构建主Prompt
+```text
+你是一名资深消防指挥员。请对以下警情进行多维分析，并输出JSON：
+
+警情信息：
+{{full_alert_json}}
+
+请分析以下维度：
+1. 空间维度：地址精度、建筑类型、结构特点、周边环境
+2. 时间维度：起火时间估算、已燃烧时间、时间敏感度
+3. 规模维度：着火面积估算、烟雾程度、火势类型
+4. 风险维度：人员、危化品、次生灾害、敏感目标
+
+输出严格JSON格式：
+{
+  "spatial": {...},
+  "temporal": {...},
+  "scale": {...},
+  "risk": {...},
+  "key_tags": ["tag1", "tag2"],
+  "confidence": 0.XX,
+  "suggested_questions_if_low_confidence": [...]
+}
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                  | 处理逻辑                              | 后续动作                     | 优先级 |
+|---------------------------|---------------------------------------|------------------------------|--------|
+| 地址精度过低              | 标记"空间维度弱"，提升问询优先级     | 触发补充问询                 | 高     |
+| 规模信息完全缺失          | 使用建筑类型默认值 + 标记警告         | 进入第4步时提高人工复核      | 高     |
+| 危化品关键词模糊          | 标记"疑似危化"，提升风险等级         | 通知专业处置组               | 最高   |
+| 向量嵌入模型失败          | 回退到规则-based标签体系              | 记录错误，通知运维           | 中     |
+| 历史案例匹配为空          | 使用通用模板                          | 标记"新场景"                 | 低     |
+| 置信度 < 0.6              | 强制补充问询或人工介入                | 暂停进入第4步                | 高     |
+
+---
+
+## 4. 数据库表结构
+
+### 核心画像表：incident_portrait
+```sql
+CREATE TABLE incident_portrait (
+    incident_id             VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    spatial_json            JSONB,           -- 空间维度完整数据
+    temporal_json           JSONB,
+    scale_json              JSONB,
+    risk_json               JSONB,
+    tags                    TEXT[],
+    portrait_vector         VECTOR(512),     -- 用于相似度搜索
+    overall_confidence      NUMERIC(4,3),
+    historical_matches      JSONB,           -- Top5案例
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 维度日志表：portrait_dimensions_log
+```sql
+CREATE TABLE portrait_dimensions_log (
+    log_id                  BIGSERIAL PRIMARY KEY,
+    incident_id             VARCHAR(32),
+    dimension_type          VARCHAR(20),     -- spatial/temporal/scale/risk
+    raw_input               JSONB,
+    computed_result         JSONB,
+    confidence              NUMERIC(4,3),
+    created_at              TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/portrait/build
+
+请求体：
+```json
+{
+  "force_rebuild": false,
+  "include_historical": true
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "portrait": {
+      "spatial": { ... },
+      "temporal": { ... },
+      "scale": { ... },
+      "risk": { ... },
+      "tags": ["高层", "人员密集", "夜间"],
+      "overall_confidence": 0.89
+    },
+    "next_step": "Step4_LevelMapping",
+    "need_further_query": false
+  }
+}
+```
+
+### 查询接口
+- GET /api/v1/alerts/{incident_id}/portrait
+- POST /api/v1/alerts/{incident_id}/portrait/recalculate
+
+---
+
+## 第3步与前后衔接
+- **输入**：第1步 + 第2步补全后的完整警情数据
+- **输出**：结构化多维画像 + 向量 + 标签
+- **触发**：第4步警情等级判定

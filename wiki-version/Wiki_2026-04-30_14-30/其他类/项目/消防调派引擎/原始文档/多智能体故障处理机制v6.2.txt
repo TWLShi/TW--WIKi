@@ -1,0 +1,124 @@
+# 多智能体故障处理机制（Fault Tolerance & Recovery v6.2）
+
+## 1. 故障处理总体原则
+- **安全优先**：任何故障都倾向于保守方案或人工介入
+- **分级降级**：从自动恢复 → 局部降级 → 全局回退 → 人工接管
+- **全链路可观测**：所有故障记录到审计日志
+- **快速恢复**：目标恢复时间 < 15秒（大部分场景）
+
+---
+
+## 2. 故障处理整体流程图
+
+```mermaid
+flowchart TD
+    A[Agent执行] --> B{是否超时/失败?}
+    B -->|是| C[重试机制]
+    C --> D{重试成功?}
+    D -->|是| E[继续流程]
+    D -->|否| F[降级处理]
+    B -->|否| G{输出质量检查}
+    G -->|通过| H[正常进入仲裁]
+    G -->|不通过| F
+    F --> I[故障等级评估]
+    I --> J{故障等级}
+    J -->|轻度| K[使用备用规则/默认值]
+    J -->|中度| L[回退到上一个Agent或简化模式]
+    J -->|重度| M[强制人工接管 + 告警]
+    K & L & M --> N[记录故障日志 + 反馈训练]
+    N --> O[继续或终止流程]
+```
+
+---
+
+## 3. 故障分级与处理策略
+
+| 故障等级 | 典型场景 | 处理策略 | 恢复时间 | 是否通知人工 | 优先级 |
+|----------|----------|----------|----------|--------------|--------|
+| **轻度** | 单个Agent超时、输出置信度低 | 自动重试1次 + 使用缓存/默认值 | < 5秒 | 否 | 低 |
+| **中度** | 2个Agent失败、仲裁冲突大 | 降级模式（关闭预测Agent，使用规则模板） | 5-15秒 | 记录警告 | 中 |
+| **重度** | 3个以上Agent失败、LLM仲裁不可用 | 立即切换到纯规则模式 + 强制人工确认 | < 10秒 | 是（高亮） | 高 |
+| **致命** | 多智能体框架崩溃、核心服务不可用 | 全局降级为人工模式 + 系统告警 | 立即 | 是（推送值班长） | 最高 |
+
+---
+
+## 4. 具体故障处理机制
+
+### 4.1 单个Agent故障处理
+- **超时重试**：最多重试2次（指数退避：1s → 3s）
+- **Fallback策略**：
+  - Perception失败 → 使用第3步静态画像
+  - Decision失败 → 使用规则引擎默认战术
+  - Execution失败 → 使用简化时间线模板
+  - Prediction失败 → 使用保守预测（最坏情况假设）
+
+### 4.2 仲裁阶段故障处理
+- LLM仲裁超时 → 采用加权投票结果 + 标记"仲裁置信度低"
+- 所有Agent输出无效 → 直接进入人工确认，并附带"多智能体系统异常"警告
+
+### 4.3 系统级故障处理
+- Redis / 向量数据库不可用 → 切换到纯规则模式
+- GPU推理服务崩溃 → 切换到CPU备用模型
+- 全系统不可用 → 自动切换到**纯人工调派模式**（第10步直接启动）
+
+---
+
+## 5. 代码伪代码（核心故障处理逻辑）
+
+```python
+def run_with_fault_tolerance(agent_func, agent_name, input_data, timeout=15):
+    for attempt in range(3):
+        try:
+            result = agent_func(input_data, timeout=timeout)
+            if is_output_valid(result):
+                return result
+            else:
+                log_warning(f"{agent_name} 输出质量低")
+        except Exception as e:
+            log_error(f"{agent_name} 第{attempt+1}次失败", e)
+            await asyncio.sleep(1 * (2 ** attempt))  # 指数退避
+
+    # 故障后降级
+    return fallback_strategy(agent_name, input_data)
+
+def multi_agent_with_fault_handling(incident_id):
+    results = {}
+
+    for agent_name, agent_func in agents.items():
+        results[agent_name] = run_with_fault_tolerance(
+            agent_func, agent_name, current_context
+        )
+
+    # 仲裁前检查
+    if count_failed_agents(results) >= 3:
+        log_critical("多智能体严重故障，切换人工模式")
+        trigger_human_takeover(incident_id, reason="多Agent故障")
+        return None
+
+    # 正常仲裁
+    final_plan = arbitrator.run(results)
+    return final_plan
+```
+
+---
+
+## 6. 监控与告警配置
+
+### 关键指标
+- Agent成功率（过去1小时）
+- 平均仲裁时间
+- 故障率（轻/中/重）
+- 人工接管比例
+
+### 告警规则
+- 任意Agent成功率 < 90% → 黄色警告
+- 人工接管率 > 15% → 橙色警告
+- 连续3次重度故障 → 红色告警 + 推送值班长
+
+---
+
+## 7. 故障恢复与持续优化
+
+- 所有故障数据进入**经验回放池**
+- 每周使用故障案例对Agent和仲裁Prompt进行微调
+- 建立**故障知识库**，供未来类似场景快速恢复

@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "stats": {
+    "total_sources_ingested": 6,
+    "total_pages": 200
+  },
+  "sources": [
+    {
+      "path": "README.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 7546,
+      "modified_at": "2026-04-28T00:00:00Z",
+      "content_hash": "34600b1703b16f49d7740152bc94b1659eed218df1485ca07597b64ee9bde189",
+      "source_type": "document",
+      "project": "null",
+      "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "01_Projects/FireDispatchEngine/index.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 15480,
+      "modified_at": "2026-04-30T00:00:00Z",
+      "content_hash": "13f6b21a828ed9fec5be88d85e42e58903e4dd3f3d2706ce6868ad0b1eb23bb7",
+      "source_type": "document",
+      "project": "FireDispatchEngine",
+      "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "05_MOCs/MOC-Index.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 8060,
+      "modified_at": "2026-04-26T00:00:00Z",
+      "content_hash": "aaec1ddc6e23f11e442c7c3c19aef97fa94dfcd2bb0e4c7198730708383b9d61",
+      "source_type": "document",
+      "project": "null",
+      "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "00_GlobalNavigation/项目导航.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 5318,
+      "modified_at": "2026-04-30T00:00:00Z",
+      "content_hash": "4be16a96ff0f9c00567e0f622ca8dead6973de2404ee34dc92acd109e0bd8fb1",
+      "source_type": "document",
+      "project": "null",
+      "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "02_Areas/KnowledgeManagement/DIKW_Framework.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 5003,
+      "modified_at": "2026-04-30T00:00:00Z",
+      "content_hash": "ce94b47ecb94f1e0657555a38e7afbd37d75cd4c63b7203c8d9810fc233e7ca4",
+      "source_type": "document",
+      "project": "null",
+      "pages_created": [],
+      "pages_updated": []
+    },
+    {
+      "path": "02_Areas/KnowledgeManagement/PARA_System.md",
+      "ingested_at": "2026-04-30T00:00:00Z",
+      "size_bytes": 2800,
+      "modified_at": "2026-04-30T00:00:00Z",
+      "content_hash": "26306f0763eab5637af72dba5dfc9fd12db80a7fb2e46b0f3681315c3d77593a",
+      "source_type": "document",
+      "project": "null",
+      "pages_created": [],
+      "pages_updated": []
+    }
+  ]
+}

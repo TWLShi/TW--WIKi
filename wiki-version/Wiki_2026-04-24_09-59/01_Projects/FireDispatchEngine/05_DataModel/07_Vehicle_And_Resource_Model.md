@@ -1,0 +1,12 @@
+# 06_车辆与资源模型
+
+**最后更新**：2026-04-23
+
+## 1. VehicleType 字典表
+- vehicle_code、name、combat_function、capacity 等
+
+## 2. FireStationVehicle 库存模型
+- 实时状态（可用/维修/出动）
+- GPS + 人员排班关联
+
+**约束模型**：人员约束、道路约束、空防约束

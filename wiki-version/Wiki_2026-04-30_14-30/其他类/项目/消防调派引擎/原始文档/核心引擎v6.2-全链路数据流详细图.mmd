@@ -1,0 +1,107 @@
+flowchart TD
+    Start((🚨 119接警开始)):::start
+
+    subgraph 核心引擎 ["🔥 消防调派智能系统 全链路数据流 v6.2"]
+        direction TB
+
+        S1[1. 警情接收与初步解析]:::step
+        S2[2. Query_Routing 智能问询]:::step
+        S3[3. 多维要素识别与画像]:::step
+        S4[4. 警情等级判定]:::step
+        S5[5. 调派规模计算]:::step
+        S6[6. 队站车辆匹配]:::step
+        S7[7. 约束校验机制]:::step
+        S8[8. 反向模拟与冲突解决]:::step
+        S9[9. AI多智能体决策]:::ai
+        S10[10. 人工二次确认]:::human
+        S11[11. 调派方案生成与下达]:::step
+        S12[12. 审计留痕与责任记录]:::end
+    end
+
+    %% ==================== 输入输出字段标注 ====================
+    In1[输入: caller_phone, raw_audio, call_time]:::input
+    Out1[输出: incident_id, structured_alert<br/>(address, building_type, tags, geo)]:::output
+
+    In2[输入: structured_alert + missing_info]:::input
+    Out2[输出: updated_structured_alert<br/>+ query_history]:::output
+
+    In3[输入: updated_structured_alert]:::input
+    Out3[输出: incident_portrait<br/>(spatial, temporal, scale, risk, vector)]:::output
+
+    In4[输入: incident_portrait]:::input
+    Out4[输出: alert_level, confidence, ml_prob, explanation]:::output
+
+    In5[输入: alert_level + portrait + resource_status]:::input
+    Out5[输出: scale_result<br/>(recommended_vehicles, composition, ml_coefficient)]:::output
+
+    In6[输入: scale_result]:::input
+    Out6[输出: matching_result<br/>(primary_plan, stations, vehicles, ETA)]:::output
+
+    In7[输入: matching_result + scale_result]:::input
+    Out7[输出: validation_report<br/>(status, checks, suggestions)]:::output
+
+    In8[输入: validation_report]:::input
+    Out8[输出: simulation_result<br/>(feasibility, conflicts, adjusted_plans)]:::output
+
+    In9[输入: simulation_result + portrait]:::input
+    Out9[输出: command_plan<br/>(tactical, force_assignment, timeline, prediction)]:::output
+
+    In10[输入: command_plan]:::input
+    Out10[输出: final_approved_plan<br/>(modifications, approved_by, signature)]:::output
+
+    In11[输入: final_approved_plan]:::input
+    Out11[输出: dispatch_package<br/>(command_doc, routes, push_status)]:::output
+
+    In12[输入: 全流程快照]:::input
+    Out12[输出: audit_trace<br/>(trace_hash, responsibility, feedback)]:::output
+
+    %% ==================== 数据流连接 ====================
+    Start --> In1
+    In1 --> S1
+    S1 --> Out1 --> In2
+    In2 --> S2
+    S2 --> Out2 --> In3
+    In3 --> S3
+    S3 --> Out3 --> In4
+    In4 --> S4
+    S4 --> Out4 --> In5
+    In5 --> S5
+    S5 --> Out5 --> In6
+    In6 --> S6
+    S6 --> Out6 --> In7
+    In7 --> S7
+    S7 --> Out7 --> In8
+    In8 --> S8
+    S8 --> Out8 --> In9
+    In9 --> S9
+    S9 --> Out9 --> In10
+    In10 --> S10
+    S10 --> Out10 --> In11
+    In11 --> S11
+    S11 --> Out11 --> In12
+    In12 --> S12
+    S12 --> Out12
+
+    %% ==================== 回退循环 ====================
+    S7 -.->|Warning/Fail| Back1[回退 → S5/S6]:::loop
+    S8 -.->|严重冲突| Back2[回退 → S5/S6]:::loop
+    S10 -.->|重大修改| Back3[回退 → S7]:::loop
+
+    %% ==================== 样式 ====================
+    classDef start fill:#22c55e,stroke:#166534,color:#fff,stroke-width:4px
+    classDef step fill:#f59e0b,stroke:#b45309,color:#000,stroke-width:3px
+    classDef ai fill:#a855f7,stroke:#6b21a8,color:#fff,stroke-width:3px
+    classDef human fill:#3b82f6,stroke:#1e40af,color:#fff,stroke-width:4px
+    classDef end fill:#ef4444,stroke:#991b1b,color:#fff,stroke-width:4px
+    classDef input fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+    classDef output fill:#22d3ee,stroke:#164e63,color:#000,stroke-width:2px
+    classDef loop fill:#f97316,stroke:#c2410c,color:#fff,stroke-width:2px
+
+    class Start start
+    class S1,S2,S3,S4,S5,S6,S7,S8,S11 step
+    class S9 ai
+    class S10 human
+    class S12 end
+    class In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12 input
+    class Out1,Out2,Out3,Out4,Out5,Out6,Out7,Out8,Out9,Out10,Out11,Out12 output
+    class Back1,Back2,Back3 loop
