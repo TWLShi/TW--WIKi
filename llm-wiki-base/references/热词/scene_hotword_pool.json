@@ -1,0 +1,846 @@
+{
+  "meta": {
+    "name": "消防接警场景热词池",
+    "version": "1.0.0",
+    "description": "按灾情场景组织的热词池，支撑不同灾情场景的语音识别优化。每个场景包含触发词、要素热词、场景特征短语及场景专属纠错词对",
+    "created": "2026-05-11",
+    "total_scenes": 12,
+    "total_hotwords": 320,
+    "total_scene_phrases": 78,
+    "total_correction_pairs": 46,
+    "scene_priority_levels": {
+      "critical": ["高层建筑火灾", "厂房仓库火灾", "危化品火灾", "电动车/电池火灾"],
+      "high": ["厨房火灾", "车辆火灾", "地下空间火灾", "人员被困救助", "商业场所火灾"],
+      "medium": ["电气火灾", "户外/山林火灾", "自然灾害次生事故"]
+    }
+  },
+
+  "scenes": {
+
+    "kitchen_fire": {
+      "label": "厨房火灾",
+      "scene_id": "kitchen_fire",
+      "priority": "high",
+      "description": "居民厨房、餐饮后厨、食堂等烹饪场所的油锅起火、燃气泄漏火灾场景",
+      "trigger_keywords": {
+        "primary": ["厨房", "油锅", "灶台", "油烟", "炒菜", "做饭"],
+        "secondary": ["燃气灶", "煤气灶", "电磁炉", "微波炉", "抽油烟机", "排烟道", "烟囱"],
+        "action": ["炒菜时着火", "炸东西", "炖汤烧干", "忘了关火", "锅里烧干了"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "厨房", "weight": 2.2, "synonyms": ["灶房", "伙房", "后厨", "厨房间"]},
+          {"word": "灶台", "weight": 2.0, "synonyms": ["炉灶", "灶具", "燃气灶", "灶头"]},
+          {"word": "油烟机", "weight": 1.8, "synonyms": ["抽油烟机", "排烟机", "吸油烟机"]},
+          {"word": "排烟道", "weight": 1.7, "synonyms": ["烟道", "排烟管道", "油烟管道", "烟囱"]},
+          {"word": "操作间", "weight": 1.6, "synonyms": ["后厨操作间", "烹饪间"]},
+          {"word": "食堂", "weight": 1.7, "synonyms": ["饭堂", "单位食堂", "学校食堂", "员工餐厅"]},
+          {"word": "煤气罐", "weight": 2.2, "synonyms": ["液化气罐", "燃气罐", "气罐", "罐装气"]},
+          {"word": "燃气管道", "weight": 2.2, "synonyms": ["天然气管道", "煤气管", "气管"]},
+          {"word": "煤气表", "weight": 1.7, "synonyms": ["燃气表", "气表"]}
+        ],
+        "fire_behavior": [
+          {"word": "油锅着火", "weight": 2.5, "synonyms": ["油锅起火", "炒菜着火", "油炸开了", "锅里烧起来", "油起火了"]},
+          {"word": "燃气泄漏", "weight": 2.8, "synonyms": ["煤气泄漏", "漏气", "气管漏了", "天然气泄漏", "闻到煤气味"]},
+          {"word": "爆燃", "weight": 2.5, "synonyms": ["轰燃", "燃气爆燃", "瞬间烧起来", "火一下子着了"]},
+          {"word": "油烟起火", "weight": 2.0, "synonyms": ["油烟着火", "抽油烟机着火", "油烟管道烧了"]},
+          {"word": "烧干锅", "weight": 1.9, "synonyms": ["锅烧干了", "炖干了", "忘了关火", "熬干了"]},
+          {"word": "灶台着火", "weight": 2.2, "synonyms": ["炉灶着火", "灶具起火"]}
+        ],
+        "smoke_features": [
+          {"word": "油烟", "weight": 2.0, "synonyms": ["油烟气", "炒菜烟", "油腻烟"]},
+          {"word": "焦糊味", "weight": 1.8, "synonyms": ["烧焦味", "糊味", "焦味", "烧糊了"]},
+          {"word": "煤气味", "weight": 2.3, "synonyms": ["燃气味", "煤气味很重", "瓦斯味", "臭气"]},
+          {"word": "黑烟", "weight": 1.8, "synonyms": ["浓黑烟", "黑滚滚的烟"]},
+          {"word": "往外冒烟", "weight": 1.9, "synonyms": ["窗口冒烟", "门口冒烟", "排烟口冒烟"]}
+        ],
+        "people_status": [
+          {"word": "被困", "weight": 2.0, "synonyms": ["出不来", "困在厨房"]},
+          {"word": "烧伤", "weight": 2.2, "synonyms": ["烫伤", "被油溅到", "被火烧到"]},
+          {"word": "中毒", "weight": 2.3, "synonyms": ["煤气中毒", "烟气中毒", "头晕", "恶心"]},
+          {"word": "一个人在家", "weight": 1.6, "synonyms": ["就我一个人", "家里没人帮"]}
+        ],
+        "hazards": [
+          {"word": "液化气罐", "weight": 2.5, "synonyms": ["煤气罐", "液化石油气罐", "气罐", "罐子"]},
+          {"word": "天然气", "weight": 2.3, "synonyms": ["管道气", "燃气", "天然气管道"]},
+          {"word": "煤气", "weight": 2.3, "synonyms": ["管道煤气", "瓦斯"]},
+          {"word": "食用油", "weight": 1.7, "synonyms": ["菜油", "色拉油", "花生油", "起火的油"]},
+          {"word": "酒精", "weight": 1.8, "synonyms": ["乙醇", "火锅酒精", "固体酒精"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "厨房着火了", "weight": 2.5, "note": "高频报警语句"},
+        {"phrase": "油锅起火了", "weight": 2.5, "note": "高频报警语句"},
+        {"phrase": "炒菜时油锅着了", "weight": 2.3, "note": "事故过程描述"},
+        {"phrase": "闻到很浓的煤气味", "weight": 2.5, "note": "燃气泄漏典型描述"},
+        {"phrase": "锅里烧干了没关火", "weight": 2.0, "note": "干锅引发"},
+        {"phrase": "油烟机烧起来了", "weight": 2.0, "note": "设备着火"},
+        {"phrase": "煤气罐阀门没关", "weight": 2.3, "note": "泄漏原因描述"},
+        {"phrase": "做饭做到一半着火了", "weight": 2.0, "note": "烹饪中断描述"}
+      ]
+    },
+
+    "highrise_fire": {
+      "label": "高层建筑火灾",
+      "scene_id": "highrise_fire",
+      "priority": "critical",
+      "description": "高层住宅、写字楼、大厦等7层以上建筑的火灾，关注烟囱效应、电梯被困、避难层疏散等特征",
+      "trigger_keywords": {
+        "primary": ["高层", "超高层", "高楼", "大厦", "写字楼", "商住楼"],
+        "secondary": ["电梯困人", "避难层", "楼梯间", "消防电梯", "正压送风"],
+        "action": ["烟往上窜", "楼梯全是烟", "电梯停了", "下不去", "上不去"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "高层建筑", "weight": 2.2, "synonyms": ["高楼", "高层", "高楼层", "大厦", "塔楼"]},
+          {"word": "超高层", "weight": 2.3, "synonyms": ["摩天大楼", "百米以上", "超高建筑"]},
+          {"word": "写字楼", "weight": 2.0, "synonyms": ["办公楼", "商务楼", "办公大厦"]},
+          {"word": "商住楼", "weight": 2.0, "synonyms": ["商住一体", "底商楼上住"]},
+          {"word": "避难层", "weight": 2.2, "synonyms": ["避难间", "安全层", "紧急避难层", "避险层"]},
+          {"word": "楼梯间", "weight": 2.0, "synonyms": ["楼道", "消防楼梯", "步行梯", "安全通道"]},
+          {"word": "消防电梯", "weight": 2.0, "synonyms": ["消防梯", "消防救援梯"]},
+          {"word": "管道井", "weight": 1.9, "synonyms": ["竖井", "电缆井", "通风井", "管道竖井"]},
+          {"word": "玻璃幕墙", "weight": 1.8, "synonyms": ["幕墙", "玻璃外墙", "全玻璃大厦"]},
+          {"word": "消防控制室", "weight": 2.1, "synonyms": ["消控室", "消防中心", "中控室"]}
+        ],
+        "fire_behavior": [
+          {"word": "向上蔓延", "weight": 2.3, "synonyms": ["往上烧", "向上烧", "火往上窜", "往楼上蔓延"]},
+          {"word": "竖向蔓延", "weight": 2.0, "synonyms": ["垂直蔓延", "上下蔓延", "立体燃烧"]},
+          {"word": "烟囱效应", "weight": 2.2, "synonyms": ["拔风效应", "烟气上窜", "烟快速上升"]},
+          {"word": "立体火", "weight": 2.0, "synonyms": ["多层燃烧", "上下都烧", "竖向火"]},
+          {"word": "跳跃式蔓延", "weight": 1.8, "synonyms": ["跳着烧", "隔层燃烧", "间隔着火"]},
+          {"word": "外墙燃烧", "weight": 2.0, "synonyms": ["外立面着火", "外墙着火", "外面烧起来"]},
+          {"word": "保温层着火", "weight": 2.2, "synonyms": ["外墙保温着火", "保温板烧了", "保温材料燃烧"]}
+        ],
+        "smoke_features": [
+          {"word": "浓烟滚滚", "weight": 2.3, "synonyms": ["滚滚浓烟", "大股烟", "黑烟冲天"]},
+          {"word": "烟往上走", "weight": 2.0, "synonyms": ["烟往上窜", "烟向上冲", "烟气上升"]},
+          {"word": "楼道全是烟", "weight": 2.2, "synonyms": ["走廊全是烟", "过道弥漫烟"]},
+          {"word": "看不清", "weight": 2.0, "synonyms": ["什么也看不见", "能见度为零", "烟太浓看不清"]},
+          {"word": "烟柱", "weight": 1.8, "synonyms": ["烟柱冲天", "烟柱子", "冲天烟柱"]}
+        ],
+        "people_status": [
+          {"word": "被困高层", "weight": 2.5, "synonyms": ["困在楼上", "下不去", "楼梯不通", "逃生通道堵了"]},
+          {"word": "被困电梯", "weight": 2.5, "synonyms": ["电梯困人", "卡在电梯", "电梯停了出不"]},
+          {"word": "在楼顶", "weight": 2.2, "synonyms": ["天台上面", "屋顶上", "跑到楼顶了"]},
+          {"word": "在窗口呼救", "weight": 2.3, "synonyms": ["窗户求救", "窗口喊救命", "在窗口挥手"]},
+          {"word": "疏散困难", "weight": 2.0, "synonyms": ["人太多不好疏散", "楼梯太窄", "疏散慢"]},
+          {"word": "老人下不去", "weight": 2.2, "synonyms": ["老年人行动不便", "老人走不了楼梯"]},
+          {"word": "多人被困", "weight": 2.3, "synonyms": ["好多人困在里面", "十几个人出不来"]}
+        ],
+        "hazards": [
+          {"word": "保温材料", "weight": 2.2, "synonyms": ["外墙保温", "保温层", "EPS板", "挤塑板"]},
+          {"word": "聚氨酯泡沫", "weight": 2.2, "synonyms": ["PU泡沫", "发泡材料", "聚氨酯"]},
+          {"word": "电缆井", "weight": 2.0, "synonyms": ["电缆竖井", "电线井", "强电井"]},
+          {"word": "配电房", "weight": 2.0, "synonyms": ["配电室", "变电房", "高压配电"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "高层着火了烟很大", "weight": 2.5, "note": "典型高层报警"},
+        {"phrase": "电梯困住人了", "weight": 2.5, "note": "电梯困人"},
+        {"phrase": "楼道全是浓烟下不去", "weight": 2.5, "note": "逃生通道被堵"},
+        {"phrase": "我们在XX楼出不去", "weight": 2.5, "note": "高层被困"},
+        {"phrase": "火从下面往上烧", "weight": 2.2, "note": "火势蔓延方向"},
+        {"phrase": "外墙保温层烧起来了", "weight": 2.3, "note": "保温材料火灾"},
+        {"phrase": "避难层能不能用", "weight": 2.0, "note": "询问避难层"},
+        {"phrase": "消防车进不来", "weight": 2.0, "note": "消防通道问题"}
+      ]
+    },
+
+    "factory_fire": {
+      "label": "厂房仓库火灾",
+      "scene_id": "factory_fire",
+      "priority": "critical",
+      "description": "工业厂房、生产车间、仓储物流、化工园区等工业场所火灾，关注危化品、大跨度空间、钢结构耐火等特征",
+      "trigger_keywords": {
+        "primary": ["工厂", "厂房", "车间", "仓库", "工业园", "厂区"],
+        "secondary": ["彩钢板", "钢结构", "流水线", "仓储", "物流园"],
+        "action": ["正在生产时着火", "电焊火花", "机器着火", "化学品泄漏着火"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "厂房", "weight": 2.3, "synonyms": ["工业厂房", "生产车间", "制造车间", "厂区"]},
+          {"word": "仓库", "weight": 2.3, "synonyms": ["库房", "仓储", "货仓", "储运仓库", "物流仓库"]},
+          {"word": "车间", "weight": 2.2, "synonyms": ["生产车间", "加工车间", "装配车间", "流水线车间"]},
+          {"word": "彩钢板房", "weight": 2.0, "synonyms": ["彩钢瓦房", "铁皮房", "夹芯板房", "活动板房"]},
+          {"word": "钢结构厂房", "weight": 2.2, "synonyms": ["钢构厂房", "钢架厂房", "钢结构车间"]},
+          {"word": "工业园区", "weight": 2.0, "synonyms": ["工业园", "产业园", "开发区", "工业区"]},
+          {"word": "化工园区", "weight": 2.3, "synonyms": ["化工区", "化学工业园", "化工集中区"]},
+          {"word": "物流中心", "weight": 2.0, "synonyms": ["物流园", "快递中转站", "分拨中心"]},
+          {"word": "冷库", "weight": 2.2, "synonyms": ["冷藏库", "冷冻库", "制冷库", "冷链仓库"]},
+          {"word": "锅炉房", "weight": 2.2, "synonyms": ["锅炉间", "蒸汽房", "供热站"]},
+          {"word": "配电房", "weight": 2.2, "synonyms": ["配电室", "变电所", "高压配电间"]},
+          {"word": "危化品仓库", "weight": 2.5, "synonyms": ["危险品库", "化工库", "危化库", "化学危险品仓库"]},
+          {"word": "储油罐区", "weight": 2.5, "synonyms": ["油罐区", "储油库", "油库", "油品储存区"]}
+        ],
+        "fire_behavior": [
+          {"word": "爆炸", "weight": 2.8, "synonyms": ["炸了", "爆了", "砰的一声", "巨响后着火"]},
+          {"word": "爆燃", "weight": 2.5, "synonyms": ["轰燃", "瞬间燃烧", "快速爆燃", "火一下子窜起来"]},
+          {"word": "大面积燃烧", "weight": 2.3, "synonyms": ["大片着火", "大面积着火", "火焰面积大"]},
+          {"word": "流淌火", "weight": 2.2, "synonyms": ["液体流火", "燃料流淌", "流火蔓延"]},
+          {"word": "喷射火", "weight": 2.2, "synonyms": ["喷火", "喷射燃烧", "火焰喷出"]},
+          {"word": "钢结构坍塌", "weight": 2.5, "synonyms": ["钢构倒塌", "钢架塌了", "厂房塌了"]},
+          {"word": "猛烈燃烧", "weight": 2.3, "synonyms": ["烧得很大", "火势凶猛", "大火冲天"]},
+          {"word": "电焊火花引燃", "weight": 2.0, "synonyms": ["焊接着火", "焊渣引燃", "电焊起火"]},
+          {"word": "粉尘爆炸", "weight": 2.5, "synonyms": ["粉尘爆了", "粉末爆炸", "粉尘炸了"]}
+        ],
+        "smoke_features": [
+          {"word": "黑烟", "weight": 2.2, "synonyms": ["浓黑烟", "黑色浓烟", "黑烟滚滚"]},
+          {"word": "黄烟", "weight": 2.0, "synonyms": ["黄色烟", "黄褐色烟", "化学黄烟"]},
+          {"word": "绿烟", "weight": 2.0, "synonyms": ["绿色烟", "黄绿色毒烟"]},
+          {"word": "化学品味道", "weight": 2.3, "synonyms": ["化学味", "奇怪刺鼻味", "药味", "有毒气味"]},
+          {"word": "刺鼻", "weight": 2.0, "synonyms": ["味道很冲", "难闻", "呛人"]},
+          {"word": "毒烟", "weight": 2.5, "synonyms": ["有毒烟气", "毒性烟雾", "毒气混在烟里"]}
+        ],
+        "people_status": [
+          {"word": "工人被困", "weight": 2.5, "synonyms": ["职工困在里面", "员工出不来", "工人还在里面"]},
+          {"word": "多人被困", "weight": 2.5, "synonyms": ["好多人", "十几个工人", "几十人"]},
+          {"word": "中毒", "weight": 2.5, "synonyms": ["毒气中毒", "化学品中毒", "烟气中毒", "晕倒"]},
+          {"word": "受伤", "weight": 2.3, "synonyms": ["有人受伤", "烧伤", "被砸伤"]},
+          {"word": "埋压", "weight": 2.5, "synonyms": ["被压在下面", "塌了埋住了", "被砸在下面"]},
+          {"word": "人数不明", "weight": 2.0, "synonyms": ["不知道多少人", "说不清几个人"]}
+        ],
+        "hazards": [
+          {"word": "危化品", "weight": 2.8, "synonyms": ["危险化学品", "危险品", "危货", "毒害品"]},
+          {"word": "储油罐", "weight": 2.5, "synonyms": ["油罐", "储油库", "大油罐"]},
+          {"word": "电石", "weight": 2.3, "synonyms": ["碳化钙", "电石粉", "遇水燃烧品"]},
+          {"word": "乙炔", "weight": 2.3, "synonyms": ["电石气", "乙炔气瓶", "焊接气"]},
+          {"word": "氧气瓶", "weight": 2.3, "synonyms": ["氧气罐", "高压氧瓶", "工业氧气"]},
+          {"word": "油漆", "weight": 2.0, "synonyms": ["涂料", "油性漆", "防锈漆", "稀释剂"]},
+          {"word": "粉尘", "weight": 2.2, "synonyms": ["可燃粉尘", "煤尘", "木粉", "金属粉尘", "铝粉"]},
+          {"word": "硝酸铵", "weight": 2.5, "synonyms": ["硝铵", "化肥原料", "炸药原料"]},
+          {"word": "锂电池", "weight": 2.3, "synonyms": ["锂电", "锂离子电池", "储能电池"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "工厂着火了浓烟很大", "weight": 2.5, "note": "典型工厂火灾报警"},
+        {"phrase": "厂房里面爆炸了", "weight": 2.8, "note": "爆炸+火灾"},
+        {"phrase": "彩钢板房烧起来了", "weight": 2.3, "note": "彩钢板建筑"},
+        {"phrase": "车间里面有危化品", "weight": 2.8, "note": "危化品关键信息"},
+        {"phrase": "仓库里堆了很多货全烧了", "weight": 2.3, "note": "仓库火灾"},
+        {"phrase": "电焊的时候火花溅到上面着了", "weight": 2.2, "note": "电焊引发"},
+        {"phrase": "钢架结构厂房快塌了", "weight": 2.5, "note": "结构安全预警"},
+        {"phrase": "里面有油罐怕爆炸", "weight": 2.8, "note": "油罐爆炸风险"},
+        {"phrase": "粉尘爆炸了", "weight": 2.5, "note": "粉尘爆炸"}
+      ]
+    },
+
+    "vehicle_fire": {
+      "label": "车辆火灾",
+      "scene_id": "vehicle_fire",
+      "priority": "high",
+      "description": "各类车辆火灾，包括燃油车自燃、新能源电动车起火、货车/危化品车火灾、隧道内车辆火灾等",
+      "trigger_keywords": {
+        "primary": ["车着火", "汽车着火", "电动车着火", "货车着火", "车自燃"],
+        "secondary": ["引擎盖", "底盘", "油箱", "电池", "充电", "冒烟"],
+        "action": ["开着开着冒烟", "停着自燃", "碰撞后着火", "充电时着火"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "路上", "weight": 1.8, "synonyms": ["马路上", "公路", "道路上", "大街上"]},
+          {"word": "高速", "weight": 2.0, "synonyms": ["高速公路上", "高速路段", "高速路"]},
+          {"word": "隧道", "weight": 2.2, "synonyms": ["隧道里", "隧道内", "穿山隧道"]},
+          {"word": "停车场", "weight": 2.0, "synonyms": ["车库", "地下车库", "地面停车场"]},
+          {"word": "服务区", "weight": 1.8, "synonyms": ["高速服务区", "休息区"]},
+          {"word": "加油站", "weight": 2.5, "synonyms": ["油站", "加油点", "加油岛"]},
+          {"word": "充电站", "weight": 2.0, "synonyms": ["充电桩旁", "充电车位", "快充站"]},
+          {"word": "桥下", "weight": 1.8, "synonyms": ["立交桥下", "高架桥下"]},
+          {"word": "匝道", "weight": 1.8, "synonyms": ["高速匝道", "出入口匝道"]},
+          {"word": "路口", "weight": 1.8, "synonyms": ["十字路口", "交叉口", "红绿灯处"]}
+        ],
+        "vehicle_type": [
+          {"word": "小轿车", "weight": 2.0, "synonyms": ["小汽车", "轿车", "私家车", "小车"]},
+          {"word": "SUV", "weight": 1.8, "synonyms": ["越野车", "运动型车"]},
+          {"word": "新能源车", "weight": 2.3, "synonyms": ["电动车", "电动汽车", "纯电车", "混动车"]},
+          {"word": "电动自行车", "weight": 2.2, "synonyms": ["电瓶车", "电动车", "小电驴", "两轮电动车"]},
+          {"word": "货车", "weight": 2.2, "synonyms": ["大货车", "卡车", "载货车", "物流车"]},
+          {"word": "油罐车", "weight": 2.8, "synonyms": ["槽罐车", "油车", "运油车", "危化品运输车"]},
+          {"word": "危化品车", "weight": 2.8, "synonyms": ["危险品运输车", "危货车", "化危车"]},
+          {"word": "公交车", "weight": 2.2, "synonyms": ["公共汽车", "大巴", "公交"]},
+          {"word": "大巴", "weight": 2.0, "synonyms": ["大型客车", "长途车", "旅游大巴"]},
+          {"word": "工程车", "weight": 2.0, "synonyms": ["渣土车", "搅拌车", "吊车", "推土机"]},
+          {"word": "摩托车", "weight": 1.8, "synonyms": ["摩托", "机车", "两轮摩托"]},
+          {"word": "老年代步车", "weight": 1.7, "synonyms": ["四轮代步车", "老人电动车"]}
+        ],
+        "fire_behavior": [
+          {"word": "自燃", "weight": 2.3, "synonyms": ["自己着", "突然着火", "无缘无故着"]},
+          {"word": "引擎盖冒烟", "weight": 2.2, "synonyms": ["车头冒烟", "发动机舱冒烟", "前盖冒烟"]},
+          {"word": "底盘着火", "weight": 2.0, "synonyms": ["车底着火", "底部烧起来"]},
+          {"word": "油箱着火", "weight": 2.5, "synonyms": ["油箱起火了", "油箱漏油着火"]},
+          {"word": "电池冒烟", "weight": 2.3, "synonyms": ["电池冒烟", "电池组冒烟", "电池热失控"]},
+          {"word": "碰撞着火", "weight": 2.2, "synonyms": ["撞了后着火", "追尾着火", "碰撞起火"]},
+          {"word": "轮胎着火", "weight": 1.9, "synonyms": ["轮胎烧了", "轮子着火"]},
+          {"word": "全车着火", "weight": 2.3, "synonyms": ["整车烧了", "车子全着了", "烧成架子"]}
+        ],
+        "smoke_features": [
+          {"word": "白烟", "weight": 1.8, "synonyms": ["白色烟", "白蒙蒙", "水蒸气白烟"]},
+          {"word": "黑烟", "weight": 2.0, "synonyms": ["浓黑烟", "黑滚滚的烟", "黑烟冲天"]},
+          {"word": "刺鼻", "weight": 2.0, "synonyms": ["味道很冲", "塑料烧焦味", "化学品味道"]},
+          {"word": "有毒烟", "weight": 2.3, "synonyms": ["毒烟", "电池毒烟", "有毒气体"]}
+        ],
+        "people_status": [
+          {"word": "司机被困", "weight": 2.5, "synonyms": ["驾驶员卡住了", "人困在车里", "司机出不来"]},
+          {"word": "有人受伤", "weight": 2.3, "synonyms": ["驾驶员受伤", "乘客受伤", "路人被撞"]},
+          {"word": "车门打不开", "weight": 2.2, "synonyms": ["门卡死了", "开不了门", "锁住了"]},
+          {"word": "车里有人", "weight": 2.5, "synonyms": ["里面有人", "人还没出来", "人在车里面"]}
+        ],
+        "hazards": [
+          {"word": "汽油", "weight": 2.3, "synonyms": ["燃油", "油箱漏油", "汽油泄漏"]},
+          {"word": "锂电池", "weight": 2.5, "synonyms": ["动力电池", "电池组", "三元锂电池"]},
+          {"word": "天然气", "weight": 2.3, "synonyms": ["CNG", "天然气车", "气瓶"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "我的车在路上着火了", "weight": 2.5, "note": "典型车辆火灾报警"},
+        {"phrase": "高速上有辆货车着火了", "weight": 2.5, "note": "高速货车火灾"},
+        {"phrase": "电动车充电的时候烧起来了", "weight": 2.5, "note": "电动车充电火灾"},
+        {"phrase": "车头冒烟然后着火了", "weight": 2.3, "note": "自燃过程描述"},
+        {"phrase": "隧道里面有车着火了", "weight": 2.5, "note": "隧道车辆火灾"},
+        {"phrase": "油罐车着火了怕爆炸", "weight": 3.0, "note": "油罐车极危场景"},
+        {"phrase": "新能源车电池冒烟了", "weight": 2.5, "note": "新能源车火灾"},
+        {"phrase": "人被卡在驾驶室里面出不来", "weight": 2.5, "note": "人员被困"}
+      ]
+    },
+
+    "rescue_scene": {
+      "label": "人员被困救助",
+      "scene_id": "rescue_scene",
+      "priority": "high",
+      "description": "各类人员被困、被卡、被埋压的救助场景，包括电梯困人、坍塌埋压、高处被困、儿童被卡、溺水等",
+      "trigger_keywords": {
+        "primary": ["被困", "困在", "卡住", "出不来", "救命", "救人", "被压", "被埋"],
+        "secondary": ["电梯坏了", "掉下去了", "塌了", "被夹住", "手被卡", "脚被卡"],
+        "action": ["困在电梯里", "从楼上掉下来", "手卡在机器里", "掉进井里"]
+      },
+      "hotwords": {
+        "rescue_type": {
+          "label": "救助类型",
+          "words": [
+            {"word": "电梯困人", "weight": 2.8, "synonyms": ["电梯坏了困人", "卡在电梯", "电梯故障", "困电梯里面"]},
+            {"word": "坍塌埋压", "weight": 2.8, "synonyms": ["塌了埋住了", "被压在下面", "房子塌了", "楼板塌了"]},
+            {"word": "高处被困", "weight": 2.5, "synonyms": ["下不来", "在楼顶下不来", "塔吊上困人", "脚手架困人"]},
+            {"word": "肢体被卡", "weight": 2.3, "synonyms": ["手卡住了", "脚卡住了", "手指卡住", "卡在机器里"]},
+            {"word": "儿童被卡", "weight": 2.5, "synonyms": ["小孩卡住了", "孩子手卡了", "儿童手指卡住"]},
+            {"word": "戒指卡手", "weight": 2.0, "synonyms": ["戒指取不下来", "手指肿了戒指卡住"]},
+            {"word": "溺水", "weight": 2.8, "synonyms": ["掉水里", "落水", "淹水", "不会游泳"]},
+            {"word": "坠井", "weight": 2.8, "synonyms": ["掉井里", "掉进下水道", "坠入深井"]},
+            {"word": "车祸被困", "weight": 2.5, "synonyms": ["撞车了人出不来", "交通事故被困", "车翻了困人"]},
+            {"word": "施工被困", "weight": 2.3, "synonyms": ["工地困人", "基坑被困", "管道被困"]},
+            {"word": "跳楼", "weight": 3.0, "synonyms": ["要跳楼", "想跳楼", "站在楼顶", "有人要自杀"]},
+            {"word": "煤气中毒昏迷", "weight": 2.8, "synonyms": ["煤气中毒了", "人昏迷不醒", "叫不醒", "一氧化碳中毒"]}
+          ]
+        },
+        "trapped_location": {
+          "label": "被困位置",
+          "words": [
+            {"word": "电梯里", "weight": 2.5, "synonyms": ["电梯里面", "卡在电梯", "电梯轿厢"]},
+            {"word": "废墟下", "weight": 2.5, "synonyms": ["塌了的下面", "埋在下面", "瓦砾下"]},
+            {"word": "楼顶", "weight": 2.3, "synonyms": ["天台", "屋顶", "楼顶上"]},
+            {"word": "阳台上", "weight": 2.0, "synonyms": ["露台上", "晒台", "窗外平台"]},
+            {"word": "井下", "weight": 2.5, "synonyms": ["井里面", "下水道", "深井里"]},
+            {"word": "车里", "weight": 2.3, "synonyms": ["车内", "驾驶室", "车厢里"]},
+            {"word": "树上", "weight": 1.8, "synonyms": ["爬树上下不来", "挂树上"]},
+            {"word": "山上", "weight": 2.0, "synonyms": ["困在山里", "山上迷路", "悬崖上"]},
+            {"word": "水里", "weight": 2.5, "synonyms": ["河中", "湖里", "海里", "积水里"]},
+            {"word": "夹缝里", "weight": 2.3, "synonyms": ["缝隙里面", "夹在中间", "卡在缝里"]}
+          ]
+        },
+        "injury_status": {
+          "label": "伤情状态",
+          "words": [
+            {"word": "昏迷", "weight": 2.8, "synonyms": ["晕倒了", "不省人事", "没反应", "叫不醒"]},
+            {"word": "出血", "weight": 2.5, "synonyms": ["流血", "大出血", "血流不止"]},
+            {"word": "骨折", "weight": 2.3, "synonyms": ["骨头断了", "腿断了", "胳膊断了"]},
+            {"word": "窒息", "weight": 2.8, "synonyms": ["喘不上气", "憋气", "透不过气", "呼吸困难"]},
+            {"word": "休克", "weight": 2.8, "synonyms": ["没有意识", "心跳微弱"]},
+            {"word": "中毒", "weight": 2.5, "synonyms": ["煤气中毒", "毒气中毒", "食物中毒"]},
+            {"word": "没有心跳", "weight": 3.0, "synonyms": ["心跳停止", "心脏停了", "没生命体征"]},
+            {"word": "意识模糊", "weight": 2.3, "synonyms": ["神志不清", "说胡话", "认不得人"]}
+          ]
+        },
+        "people_description": {
+          "label": "人员描述",
+          "words": [
+            {"word": "老人", "weight": 2.0, "synonyms": ["老年人", "大爷", "大妈", "高龄老人", "八九十岁"]},
+            {"word": "小孩", "weight": 2.0, "synonyms": ["儿童", "小孩子", "小朋友", "幼儿", "婴儿", "宝宝"]},
+            {"word": "孕妇", "weight": 2.3, "synonyms": ["怀孕", "大肚子", "准妈妈", "快生了"]},
+            {"word": "残疾人", "weight": 2.0, "synonyms": ["残障", "坐轮椅", "行动不便", "盲人", "聋哑人"]},
+            {"word": "病人", "weight": 2.0, "synonyms": ["患者", "病号", "重病", "心脏病"]},
+            {"word": "卧床不起", "weight": 2.3, "synonyms": ["瘫痪", "不能动", "长期卧床", "无法行动"]},
+            {"word": "一个人", "weight": 1.8, "synonyms": ["就一个人", "独自一人", "单人"]},
+            {"word": "一家老小", "weight": 2.0, "synonyms": ["一家人", "全家老小", "老老少少好几口"]}
+          ]
+        },
+        "urgency_signal": {
+          "label": "紧急信号词",
+          "words": [
+            {"word": "救命", "weight": 3.0, "synonyms": ["救命啊", "快救命", "救救我", "救人啊"]},
+            {"word": "快来", "weight": 3.0, "synonyms": ["快点来", "快来啊", "赶紧来", "马上来"]},
+            {"word": "不行了", "weight": 2.8, "synonyms": ["撑不住了", "快不行了", "顶不住了", "受不住了"]},
+            {"word": "要死了", "weight": 3.0, "synonyms": ["快要死了", "要没命了", "活不成了"]},
+            {"word": "来不及了", "weight": 2.8, "synonyms": ["来不及", "赶不上了", "时间不够了"]},
+            {"word": "危险", "weight": 2.5, "synonyms": ["好危险", "太危险", "非常危险", "危急"]},
+            {"word": "憋死了", "weight": 2.8, "synonyms": ["喘不上气", "透不过气", "要憋死了"]},
+            {"word": "要塌了", "weight": 2.8, "synonyms": ["快塌了", "撑不住了", "马上要塌"]}
+          ]
+        }
+      },
+      "scene_phrases": [
+        {"phrase": "有人被困在电梯里面了", "weight": 2.8, "note": "电梯困人"},
+        {"phrase": "房子塌了有人压在下面", "weight": 3.0, "note": "坍塌埋压"},
+        {"phrase": "小孩子手卡在机器里面了", "weight": 2.5, "note": "儿童被卡"},
+        {"phrase": "有个人掉到井里面去了", "weight": 2.8, "note": "坠井"},
+        {"phrase": "河里面有人喊救命", "weight": 3.0, "note": "溺水求救"},
+        {"phrase": "楼上有人要跳楼", "weight": 3.0, "note": "跳楼警情"},
+        {"phrase": "煤气中毒人已经昏迷了", "weight": 2.8, "note": "煤气中毒"},
+        {"phrase": "有人在山上迷路下不来了", "weight": 2.3, "note": "山地被困"},
+        {"phrase": "脚手架上困了一个工人", "weight": 2.5, "note": "高处被困"},
+        {"phrase": "手指被戒指卡住了肿得很厉害", "weight": 2.0, "note": "戒指卡手"}
+      ]
+    },
+
+    "underground_fire": {
+      "label": "地下空间火灾",
+      "scene_id": "underground_fire",
+      "priority": "high",
+      "description": "地下室、地下车库、地下商业街等地下空间火灾，关注烟气聚集、排烟困难、疏散困难",
+      "trigger_keywords": {
+        "primary": ["地下室", "地下车库", "地库", "地下", "负一层", "地下商业"],
+        "secondary": ["排烟", "烟气倒灌", "地下空间", "采光井"],
+        "action": ["烟往下面灌", "排不出去烟", "找不到出口"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "地下室", "weight": 2.3, "synonyms": ["地下", "地下空间", "负层"]},
+          {"word": "地下一层", "weight": 2.3, "synonyms": ["-1层", "负一层", "B1"]},
+          {"word": "地下二层", "weight": 2.3, "synonyms": ["-2层", "负二层", "B2"]},
+          {"word": "地下车库", "weight": 2.3, "synonyms": ["地库", "地下停车场", "B1车库"]},
+          {"word": "地下商业街", "weight": 2.0, "synonyms": ["地下商场", "地下步行街", "地下街"]}
+        ],
+        "fire_behavior": [
+          {"word": "阴燃", "weight": 2.0, "synonyms": ["闷烧", "没有明火", "暗烧"]},
+          {"word": "烟气倒灌", "weight": 2.2, "synonyms": ["烟往下走", "烟气下沉", "烟气倒流"]},
+          {"word": "排烟困难", "weight": 2.2, "synonyms": ["烟排不出去", "烟积在里面"]}
+        ],
+        "smoke_features": [
+          {"word": "浓烟聚集", "weight": 2.3, "synonyms": ["全是烟", "烟散不掉", "烟弥漫整个地下室"]},
+          {"word": "看不清出口", "weight": 2.3, "synonyms": ["找不到出口", "什么也看不见"]},
+          {"word": "一氧化碳", "weight": 2.3, "synonyms": ["CO", "无味毒气", "窒息气体"]}
+        ],
+        "people_status": [
+          {"word": "被困地下室", "weight": 2.5, "synonyms": ["困在地下", "出不来", "找不到楼梯"]},
+          {"word": "窒息", "weight": 2.8, "synonyms": ["喘不上气", "呼吸困难", "缺氧"]},
+          {"word": "昏迷", "weight": 2.5, "synonyms": ["晕倒了", "不省人事", "被烟熏晕"]}
+        ],
+        "hazards": [
+          {"word": "汽油", "weight": 2.2, "synonyms": ["车辆燃油", "油箱"]},
+          {"word": "电动车电池", "weight": 2.3, "synonyms": ["电瓶车", "电池充电"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "地下车库着火了烟很大", "weight": 2.5, "note": "典型地下火灾"},
+        {"phrase": "地下室里全是烟找不到出口", "weight": 2.5, "note": "烟气聚集"},
+        {"phrase": "地库里面有车着火了", "weight": 2.3, "note": "地库车辆火灾"},
+        {"phrase": "地下二层有人在里面出不来", "weight": 2.5, "note": "人员被困"}
+      ]
+    },
+
+    "ev_battery_fire": {
+      "label": "电动车/电池火灾",
+      "scene_id": "ev_battery_fire",
+      "priority": "critical",
+      "description": "电动自行车、新能源车、储能电池、充电宝等锂电池相关火灾，关注热失控、喷射火、复燃、毒烟",
+      "trigger_keywords": {
+        "primary": ["电动车", "电瓶车", "电池", "充电", "锂电池", "新能源"],
+        "secondary": ["电瓶", "充电器", "电池组", "储能", "充电桩"],
+        "action": ["充电时着火", "电池冒烟", "砰的一声电池炸了"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "楼道", "weight": 2.3, "synonyms": ["走廊", "过道", "楼梯间"]},
+          {"word": "车库", "weight": 2.3, "synonyms": ["停车库", "地下车库", "车棚"]},
+          {"word": "家里", "weight": 2.3, "synonyms": ["家里客厅", "房间", "屋内"]},
+          {"word": "充电站", "weight": 2.2, "synonyms": ["充电桩", "充电点", "快充站"]}
+        ],
+        "fire_behavior": [
+          {"word": "热失控", "weight": 2.5, "synonyms": ["电池热失控", "电池过热", "温度失控"]},
+          {"word": "喷射火", "weight": 2.3, "synonyms": ["电池喷射", "火焰喷射", "喷火"]},
+          {"word": "爆燃", "weight": 2.5, "synonyms": ["瞬间燃烧", "快速爆燃", "砰的一下"]},
+          {"word": "复燃", "weight": 2.3, "synonyms": ["又着了", "重新烧起来", "灭了又着"]},
+          {"word": "爆炸", "weight": 2.5, "synonyms": ["电池爆炸", "炸了", "砰的一声"]}
+        ],
+        "smoke_features": [
+          {"word": "白烟", "weight": 2.0, "synonyms": ["白色浓烟", "白蒙蒙的烟"]},
+          {"word": "毒烟", "weight": 2.5, "synonyms": ["有毒烟气", "电池毒烟", "化学毒烟"]},
+          {"word": "刺鼻", "weight": 2.3, "synonyms": ["味道很冲", "难闻", "化学品味"]},
+          {"word": "快速弥漫", "weight": 2.2, "synonyms": ["烟很快充满", "迅速扩散"]}
+        ],
+        "people_status": [
+          {"word": "被困", "weight": 2.5, "synonyms": ["困在里面", "出不去", "烟太大跑不掉"]},
+          {"word": "中毒", "weight": 2.5, "synonyms": ["烟气中毒", "头晕", "恶心"]},
+          {"word": "烧伤", "weight": 2.3, "synonyms": ["被火烧伤", "电池液烧伤"]}
+        ],
+        "hazards": [
+          {"word": "锂电池", "weight": 2.5, "synonyms": ["锂离子电池", "三元锂电池", "磷酸铁锂电池"]},
+          {"word": "电动车电池", "weight": 2.5, "synonyms": ["电瓶", "铅酸电池", "蓄电池", "电瓶车电池"]},
+          {"word": "充电宝", "weight": 2.0, "synonyms": ["移动电源", "充电电池"]},
+          {"word": "储能电池", "weight": 2.3, "synonyms": ["储能柜", "大型锂电池", "UPS电池"]},
+          {"word": "汽车动力电池", "weight": 2.3, "synonyms": ["新能源电池", "车载电池", "动力锂电池"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "电动车充电着火了", "weight": 2.8, "note": "电动车充电典型场景"},
+        {"phrase": "电瓶车在楼道里烧起来了", "weight": 2.8, "note": "楼道电动车火灾"},
+        {"phrase": "电池冒烟然后砰的一声炸了", "weight": 2.5, "note": "电池热失控过程"},
+        {"phrase": "新能源车停在那边电池冒烟了", "weight": 2.5, "note": "新能源车电池"},
+        {"phrase": "锂电池厂着火了", "weight": 2.5, "note": "锂电池生产火灾"},
+        {"phrase": "充电宝在沙发上烧起来了", "weight": 2.0, "note": "充电宝火灾"}
+      ]
+    },
+
+    "electrical_fire": {
+      "label": "电气火灾",
+      "scene_id": "electrical_fire",
+      "priority": "medium",
+      "description": "电线短路、电器故障、配电设施等电气原因引发的火灾，关注带电灭火风险",
+      "trigger_keywords": {
+        "primary": ["电线", "短路", "电器", "插座", "配电", "电路", "电缆"],
+        "secondary": ["跳闸", "电火花", "冒火星", "漏电", "变压器"],
+        "action": ["插头冒火星", "电线滋滋响", "一插电就跳闸冒烟"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "配电房", "weight": 2.2, "synonyms": ["配电室", "变电房", "高压配电间"]},
+          {"word": "机房", "weight": 2.0, "synonyms": ["服务器房", "数据中心", "电脑房"]},
+          {"word": "电缆井", "weight": 2.0, "synonyms": ["电缆竖井", "强电井", "弱电井"]},
+          {"word": "电表箱", "weight": 2.0, "synonyms": ["电表", "电表间", "计量箱"]},
+          {"word": "变压器", "weight": 2.2, "synonyms": ["变电器", "变压器房", "室外变压器"]}
+        ],
+        "fire_behavior": [
+          {"word": "电线短路", "weight": 2.5, "synonyms": ["短路着火", "线路短路", "电线碰线"]},
+          {"word": "电器着火", "weight": 2.3, "synonyms": ["电器起火", "电视机着火", "空调着火", "冰箱着火"]},
+          {"word": "插座烧了", "weight": 2.2, "synonyms": ["插座着火", "插排烧了", "插线板着火"]},
+          {"word": "电火花", "weight": 2.0, "synonyms": ["冒火星", "滋滋响", "电花"]},
+          {"word": "线路过载", "weight": 1.9, "synonyms": ["负荷过大", "超负荷", "用电太多"]},
+          {"word": "漏电着火", "weight": 2.2, "synonyms": ["漏电起火", "漏电保护没跳"]}
+        ],
+        "smoke_features": [
+          {"word": "塑料烧焦味", "weight": 2.0, "synonyms": ["电线烧焦味", "胶皮味", "塑胶燃烧味"]},
+          {"word": "黑烟", "weight": 2.0, "synonyms": ["黑烟", "浓黑烟"]},
+          {"word": "电路冒烟", "weight": 2.2, "synonyms": ["电线冒烟", "插座冒烟", "电器冒烟"]}
+        ],
+        "people_status": [
+          {"word": "触电", "weight": 2.8, "synonyms": ["被电到了", "电击", "电伤了"]},
+          {"word": "被困", "weight": 2.0, "synonyms": ["出不来", "跑不出来"]}
+        ],
+        "hazards": [
+          {"word": "变压器油", "weight": 2.2, "synonyms": ["绝缘油", "变压器油泄漏"]},
+          {"word": "高压电", "weight": 2.5, "synonyms": ["高压线", "高压设备", "一万伏", "十千伏"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "电线短路着火了", "weight": 2.5, "note": "典型电气火灾"},
+        {"phrase": "插座冒烟然后烧起来了", "weight": 2.3, "note": "插座火灾"},
+        {"phrase": "配电房里面着火了", "weight": 2.5, "note": "配电设施火灾"},
+        {"phrase": "空调外机着火了", "weight": 2.0, "note": "电器火灾"},
+        {"phrase": "整个楼的电表箱都烧了", "weight": 2.3, "note": "电表箱火灾"}
+      ]
+    },
+
+    "commercial_fire": {
+      "label": "商业场所火灾",
+      "scene_id": "commercial_fire",
+      "priority": "high",
+      "description": "商场、超市、酒店、饭店、娱乐场所等商业经营场所火灾，关注人员密集、疏散困难",
+      "trigger_keywords": {
+        "primary": ["商场", "超市", "酒店", "饭店", "餐厅", "KTV", "网吧", "影院", "酒吧"],
+        "secondary": ["顾客", "营业中", "打烊", "包厢", "大厅"],
+        "action": ["营业时着火", "客人还在里面", "正在吃饭着火了"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "商场", "weight": 2.2, "synonyms": ["商城", "购物中心", "百货", "商厦"]},
+          {"word": "超市", "weight": 2.0, "synonyms": ["大超市", "便利店", "商店"]},
+          {"word": "酒店", "weight": 2.2, "synonyms": ["宾馆", "旅馆", "招待所", "民宿"]},
+          {"word": "饭店", "weight": 2.0, "synonyms": ["餐厅", "餐馆", "酒楼", "饭馆"]},
+          {"word": "KTV", "weight": 2.2, "synonyms": ["卡拉OK", "练歌房", "歌城"]},
+          {"word": "网吧", "weight": 2.2, "synonyms": ["网咖", "电竞馆", "游戏厅"]},
+          {"word": "影院", "weight": 2.0, "synonyms": ["电影院", "影城", "剧场"]},
+          {"word": "酒吧", "weight": 2.0, "synonyms": ["夜店", "夜总会", "迪厅"]},
+          {"word": "菜市场", "weight": 2.0, "synonyms": ["农贸市场", "集市", "批发市场"]}
+        ],
+        "fire_behavior": [
+          {"word": "着火", "weight": 2.5, "synonyms": ["起火", "烧起来了", "失火"]},
+          {"word": "蔓延", "weight": 2.2, "synonyms": ["扩散", "烧到", "蔓延到"]},
+          {"word": "爆炸", "weight": 2.5, "synonyms": ["爆了", "炸了", "燃气爆炸"]}
+        ],
+        "smoke_features": [
+          {"word": "浓烟", "weight": 2.3, "synonyms": ["烟很大", "烟很多", "全是烟"]},
+          {"word": "弥漫", "weight": 2.2, "synonyms": ["充满", "到处是烟", "笼罩"]}
+        ],
+        "people_status": [
+          {"word": "人员密集", "weight": 2.5, "synonyms": ["人很多", "顾客多", "好多人"]},
+          {"word": "疏散", "weight": 2.5, "synonyms": ["撤离", "转移", "往外跑"]},
+          {"word": "踩踏风险", "weight": 2.3, "synonyms": ["人挤人", "推挤", "慌不择路"]},
+          {"word": "被困包间", "weight": 2.3, "synonyms": ["困在包厢", "包厢里面出不来"]}
+        ],
+        "hazards": [
+          {"word": "液化气", "weight": 2.3, "synonyms": ["液化石油气", "煤气罐", "罐装气"]},
+          {"word": "酒精", "weight": 2.0, "synonyms": ["乙醇", "高度酒", "火锅酒精"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "商场着火了里面人很多", "weight": 2.8, "note": "人员密集场所火灾"},
+        {"phrase": "饭店厨房着火了客人还在里面", "weight": 2.5, "note": "餐饮场所火灾"},
+        {"phrase": "KTV包厢里面着火了", "weight": 2.3, "note": "娱乐场所火灾"},
+        {"phrase": "酒店楼上着火了客人还在睡觉", "weight": 2.5, "note": "酒店火灾"}
+      ]
+    },
+
+    "outdoor_wildland_fire": {
+      "label": "户外/山林火灾",
+      "scene_id": "outdoor_wildland_fire",
+      "priority": "medium",
+      "description": "山林、草地、荒地、垃圾堆场等户外火灾，关注蔓延速度、风向、接近建筑",
+      "trigger_keywords": {
+        "primary": ["山火", "山林", "草地", "荒地", "垃圾", "树林"],
+        "secondary": ["风大", "蔓延快", "烧山", "火星", "烧荒"],
+        "action": ["火烧山了", "草地烧了一大片", "烟飘过来"]
+      },
+      "hotwords": {
+        "location": [
+          {"word": "山林", "weight": 2.2, "synonyms": ["山上", "树林", "林区", "山坡"]},
+          {"word": "草地", "weight": 2.0, "synonyms": ["草坪", "绿化带", "荒地", "芦苇荡"]},
+          {"word": "垃圾堆", "weight": 2.0, "synonyms": ["垃圾场", "废品站", "堆场"]},
+          {"word": "山脚", "weight": 2.2, "synonyms": ["山下", "山根", "山底"]}
+        ],
+        "fire_behavior": [
+          {"word": "蔓延快", "weight": 2.5, "synonyms": ["扩散很快", "迅速蔓延", "越烧越大"]},
+          {"word": "顺风蔓延", "weight": 2.3, "synonyms": ["风助火势", "顺着风烧"]},
+          {"word": "跳跃式蔓延", "weight": 2.0, "synonyms": ["火星飞散", "飞火蔓延"]},
+          {"word": "烧向建筑", "weight": 2.5, "synonyms": ["快烧到房子了", "接近民房"]},
+          {"word": "飞火", "weight": 2.0, "synonyms": ["火星飘散", "火种飞散"]}
+        ],
+        "smoke_features": [
+          {"word": "烟柱", "weight": 2.0, "synonyms": ["冲天烟柱", "浓烟冲天"]},
+          {"word": "大面积烟", "weight": 2.2, "synonyms": ["烟雾弥漫", "远处可见浓烟"]}
+        ],
+        "people_status": [
+          {"word": "被困山上", "weight": 2.5, "synonyms": ["困在山里", "下不了山"]},
+          {"word": "烧伤", "weight": 2.3, "synonyms": ["被山火烧伤", "烫伤"]}
+        ],
+        "hazards": [
+          {"word": "枯草", "weight": 1.8, "synonyms": ["干草", "枯枝", "落叶"]},
+          {"word": "秸秆", "weight": 1.8, "synonyms": ["稻草", "麦秆", "庄稼秆"]}
+        ]
+      },
+      "scene_phrases": [
+        {"phrase": "山上着火了火势很大", "weight": 2.5, "note": "山林火灾"},
+        {"phrase": "风太大火蔓延得很快", "weight": 2.5, "note": "风助火势"},
+        {"phrase": "山火快烧到村子了", "weight": 2.8, "note": "山火威胁建筑"},
+        {"phrase": "垃圾场着火了烟很大", "weight": 2.2, "note": "垃圾场火灾"},
+        {"phrase": "有人困在山上下不来", "weight": 2.5, "note": "山林被困"}
+      ]
+    },
+
+    "collapse_scene": {
+      "label": "建筑坍塌事故",
+      "scene_id": "collapse_scene",
+      "priority": "critical",
+      "description": "建筑物、施工工地、桥梁等坍塌事故，关注埋压人员搜救、二次坍塌风险",
+      "trigger_keywords": {
+        "primary": ["塌了", "坍塌", "倒塌", "塌方", "垮塌", "楼塌了"],
+        "secondary": ["裂缝", "倾斜", "变形", "危房", "承重墙"],
+        "action": ["听到巨响后塌了", "正在拆的时候塌了", "地震后塌了"]
+      },
+      "hotwords": {
+        "collapse_type": {
+          "label": "坍塌类型",
+          "words": [
+            {"word": "楼房坍塌", "weight": 2.8, "synonyms": ["楼塌了", "房子塌了", "楼房倒塌", "住宅坍塌"]},
+            {"word": "厂房坍塌", "weight": 2.8, "synonyms": ["厂房塌了", "车间倒塌", "钢结构坍塌"]},
+            {"word": "工地坍塌", "weight": 2.5, "synonyms": ["基坑坍塌", "脚手架倒塌", "模板坍塌"]},
+            {"word": "桥梁坍塌", "weight": 2.8, "synonyms": ["桥塌了", "桥梁倒塌", "桥面坍塌"]},
+            {"word": "土方坍塌", "weight": 2.5, "synonyms": ["土方塌方", "边坡坍塌", "基坑塌方"]},
+            {"word": "墙体坍塌", "weight": 2.5, "synonyms": ["墙塌了", "围墙倒了", "挡墙坍塌"]},
+            {"word": "顶棚坍塌", "weight": 2.3, "synonyms": ["天花板塌了", "屋顶坍塌", "吊顶塌了"]},
+            {"word": "山体滑坡", "weight": 2.5, "synonyms": ["泥石流", "滑坡", "山体坍塌"]}
+          ]
+        },
+        "building_structure": {
+          "label": "结构状态",
+          "words": [
+            {"word": "裂缝", "weight": 2.0, "synonyms": ["开裂", "有裂纹", "墙体裂缝"]},
+            {"word": "倾斜", "weight": 2.3, "synonyms": ["歪了", "倾斜了", "变形了"]},
+            {"word": "承重墙", "weight": 2.2, "synonyms": ["承重结构", "主墙", "被打掉的承重墙"]},
+            {"word": "预制板", "weight": 2.0, "synonyms": ["预制楼板", "空心板"]},
+            {"word": "危房", "weight": 2.3, "synonyms": ["危险房屋", "老旧危房", "D级危房"]}
+          ]
+        },
+        "people_status": {
+          "label": "人员状况",
+          "words": [
+            {"word": "埋压", "weight": 3.0, "synonyms": ["被压在下面", "被埋了", "压在废墟下", "被砸在里面"]},
+            {"word": "被困废墟", "weight": 3.0, "synonyms": ["困在废墟下", "困在瓦砾中", "压在下面出不来"]},
+            {"word": "人数不明", "weight": 2.5, "synonyms": ["不知道埋了几个人", "说不清几个人在下面"]},
+            {"word": "听到呼救声", "weight": 2.8, "synonyms": ["有人在喊", "听到求救", "下面有声音"]},
+            {"word": "二次坍塌风险", "weight": 2.5, "synonyms": ["还在掉东西", "结构不稳", "随时可能再塌"]}
+          ]
+        },
+        "hazards": {
+          "label": "次生危险",
+          "words": [
+            {"word": "燃气泄漏", "weight": 2.8, "synonyms": ["煤气管道破裂", "漏气", "闻到煤气味"]},
+            {"word": "水管破裂", "weight": 2.0, "synonyms": ["漏水", "水管爆了", "积水"]},
+            {"word": "电线外露", "weight": 2.3, "synonyms": ["电线断了", "电线裸露", "有电危险"]}
+          ]
+        }
+      },
+      "scene_phrases": [
+        {"phrase": "楼塌了有人压在下面", "weight": 3.0, "note": "楼房坍塌埋压"},
+        {"phrase": "工地脚手架塌了工人掉下去了", "weight": 2.8, "note": "工地坍塌"},
+        {"phrase": "听到下面有人在喊救命", "weight": 3.0, "note": "废墟求救声"},
+        {"phrase": "房子裂缝越来越大快要塌了", "weight": 2.5, "note": "坍塌前兆"},
+        {"phrase": "山体滑坡把房子埋了", "weight": 2.8, "note": "滑坡埋房"},
+        {"phrase": "燃气管道可能断了闻到味道", "weight": 2.8, "note": "次生燃气泄漏"}
+      ]
+    },
+
+    "natural_disaster": {
+      "label": "自然灾害次生事故",
+      "scene_id": "natural_disaster",
+      "priority": "medium",
+      "description": "洪涝、暴雨、台风、地震等自然灾害引发的次生火灾及人员被困",
+      "trigger_keywords": {
+        "primary": ["洪涝", "暴雨", "台风", "地震", "泥石流", "内涝"],
+        "secondary": ["积水", "被淹", "断电", "断水", "通讯中断"],
+        "action": ["水淹进来了", "房子进水了", "水涨得很快"]
+      },
+      "hotwords": {
+        "disaster_type": {
+          "label": "灾害类型",
+          "words": [
+            {"word": "洪涝", "weight": 2.3, "synonyms": ["洪水", "涝灾", "发大水", "水灾"]},
+            {"word": "暴雨", "weight": 2.0, "synonyms": ["大雨", "强降雨", "大暴雨", "特大暴雨"]},
+            {"word": "内涝", "weight": 2.3, "synonyms": ["积水", "淹水", "水浸", "城市内涝"]},
+            {"word": "泥石流", "weight": 2.5, "synonyms": ["泥流", "山体滑坡", "山洪"]},
+            {"word": "台风", "weight": 2.0, "synonyms": ["飓风", "大风", "狂风"]},
+            {"word": "地震", "weight": 2.5, "synonyms": ["地动", "地震了", "震感强烈"]},
+            {"word": "冰雹", "weight": 1.8, "synonyms": ["下冰雹", "雹子"]}
+          ]
+        },
+        "secondary_hazards": {
+          "label": "次生灾害",
+          "words": [
+            {"word": "电线断落", "weight": 2.5, "synonyms": ["电线掉地上", "高压线断了", "电线泡水里"]},
+            {"word": "燃气管道破裂", "weight": 2.8, "synonyms": ["气管断裂", "漏气", "水里有煤气味"]},
+            {"word": "房屋进水", "weight": 2.3, "synonyms": ["家里进水了", "水淹进来了", "被淹了"]},
+            {"word": "车辆被淹", "weight": 2.3, "synonyms": ["车被水淹了", "车泡水里", "车里有人"]},
+            {"word": "断电", "weight": 2.0, "synonyms": ["停电", "没电了", "电线断了"]}
+          ]
+        },
+        "people_status": {
+          "label": "人员状况",
+          "words": [
+            {"word": "被困家中", "weight": 2.5, "synonyms": ["困在家里", "被水围困", "出不了门"]},
+            {"word": "被困楼顶", "weight": 2.5, "synonyms": ["水涨到二楼", "跑到楼顶", "在屋顶等救援"]},
+            {"word": "溺水", "weight": 2.8, "synonyms": ["被水冲走", "掉进水里", "不会游泳"]},
+            {"word": "被困车内", "weight": 2.5, "synonyms": ["水淹到车里", "困在车顶"]},
+            {"word": "失联", "weight": 2.5, "synonyms": ["联系不上", "手机打不通", "不知道人在哪"]}
+          ]
+        }
+      },
+      "scene_phrases": [
+        {"phrase": "水淹到一楼了人困在二楼", "weight": 2.8, "note": "洪涝被困"},
+        {"phrase": "泥石流把房子冲了有人埋在里面", "weight": 3.0, "note": "泥石流埋压"},
+        {"phrase": "电线断了掉在水里很危险", "weight": 2.8, "note": "触电风险"},
+        {"phrase": "整个村都进水了出不來", "weight": 2.5, "note": "大面积内涝"},
+        {"phrase": "地震后房子裂了不敢住了", "weight": 2.3, "note": "地震次生"}
+      ]
+    }
+  },
+
+  "correction_pairs": {
+    "label": "场景识别纠错词对",
+    "description": "按场景分组的ASR误识别纠错词对，帮助正确识别灾情场景类型",
+    "total_pairs": 68,
+    "categories": {
+      "kitchen_correction": {
+        "label": "厨房火灾类纠错",
+        "pairs": [
+          {"error": "除房", "correct": "厨房", "context": "chú/chú同音"},
+          {"error": "油果", "correct": "油锅", "context": "guō/guǒ声调"},
+          {"error": "油炸开了", "correct": "油锅着火了", "context": "口语→标准描述"},
+          {"error": "煤气罐", "correct": "液化气罐", "context": "口语通用→标准词"},
+          {"error": "灶台着火了", "correct": "灶台着火", "context": "冗余→标准"},
+          {"error": "燃气炉", "correct": "燃气灶", "context": "方言/口语→标准"}
+        ]
+      },
+      "highrise_correction": {
+        "label": "高层火灾类纠错",
+        "pairs": [
+          {"error": "高称建筑", "correct": "高层建筑", "context": "chéng/céng混淆"},
+          {"error": "草高层", "correct": "超高层", "context": "cǎo/chāo声母混淆"},
+          {"error": "逼难层", "correct": "避难层", "context": "bì/bī声调混淆"},
+          {"error": "烟葱效应", "correct": "烟囱效应", "context": "cōng/chōng混淆"},
+          {"error": "数向蔓延", "correct": "竖向蔓延", "context": "shù/shù 翘舌混淆"},
+          {"error": "补温层", "correct": "保温层", "context": "bǔ/bǎo 混淆"},
+          {"error": "木墙", "correct": "幕墙", "context": "mù/mù 同音混淆"}
+        ]
+      },
+      "factory_correction": {
+        "label": "厂房火灾类纠错",
+        "pairs": [
+          {"error": "超方", "correct": "厂房", "context": "chǎng/fǎng混淆"},
+          {"error": "仓裤", "correct": "仓库", "context": "kù/kù 同音"},
+          {"error": "彩钢板房", "correct": "彩钢板房", "context": "cǎi/tǎi 方言"},
+          {"error": "危化品", "correct": "危化品", "context": "wēi/wéi 声调混淆"},
+          {"error": "化公仓库", "correct": "化工仓库", "context": "gōng/gōng 同音"},
+          {"error": "油贯", "correct": "油罐", "context": "guàn/guán声调"},
+          {"error": "分尘爆炸", "correct": "粉尘爆炸", "context": "fěn/fēn 声调混淆"},
+          {"error": "电汉", "correct": "电焊", "context": "hàn/hán声调混淆"}
+        ]
+      },
+      "vehicle_correction": {
+        "label": "车辆火灾类纠错",
+        "pairs": [
+          {"error": "车自燃", "correct": "自燃", "context": "保留——zì/zhì混淆"},
+          {"error": "新能原车", "correct": "新能源车", "context": "yuán/yuán 源/原混淆"},
+          {"error": "电瓶车", "correct": "电动自行车", "context": "口语→标准"},
+          {"error": "油罐扯", "correct": "油罐车", "context": "chē/chě混淆"},
+          {"error": "因情盖", "correct": "引擎盖", "context": "yǐn/yīn 混淆"},
+          {"error": "底盆着火", "correct": "底盘着火", "context": "pén/pán 盆/盘混淆"},
+          {"error": "隧道里车着了", "correct": "隧道内车辆着火", "context": "口语→标准"},
+          {"error": "冲电桩", "correct": "充电桩", "context": "chōng/chòng混淆"}
+        ]
+      },
+      "rescue_correction": {
+        "label": "救助类纠错",
+        "pairs": [
+          {"error": "被捆", "correct": "被困", "context": "kǔn/kùn 韵母混淆"},
+          {"error": "电梯坏人", "correct": "电梯坏了", "context": "huài/huài 坏/坏人"},
+          {"error": "手卡住了", "correct": "手被卡住", "context": "口语→标准"},
+          {"error": "跳漏", "correct": "跳楼", "context": "lóu/lòu 楼/漏混淆"},
+          {"error": "掉井里", "correct": "坠井", "context": "口语→标准词"},
+          {"error": "逆水", "correct": "溺水", "context": "nì/ní 混淆"},
+          {"error": "塌了", "correct": "坍塌", "context": "口语→标准词"},
+          {"error": "被压在下面", "correct": "被埋压", "context": "口语→标准词"},
+          {"error": "叫不醒", "correct": "昏迷", "context": "口语→标准词"},
+          {"error": "没气了", "correct": "无呼吸", "context": "口语→标准词"},
+          {"error": "快不行了", "correct": "生命危急", "context": "口语→标准分级词"}
+        ]
+      },
+      "scene_misclassify": {
+        "label": "场景误分类纠错",
+        "pairs": [
+          {"error": "厨房着火→燃气泄漏", "correct": "需二分类判断", "context": "可能同时是厨房火灾和燃气泄漏"},
+          {"error": "电动车着火→电池火灾", "correct": "电动车/电池火灾", "context": "电动车火灾需关注电池"},
+          {"error": "工厂着火→危化品火灾", "correct": "厂房火灾→升级危化品", "context": "工厂内含危化品→触发危化品场景"},
+          {"error": "车着火→危化品运输", "correct": "车辆火灾→升级危化品", "context": "油罐车/危化品车需升级场景"},
+          {"error": "商场着火→人员密集", "correct": "商业场所+人员密集", "context": "需叠加人员密集场景"},
+          {"error": "地下车库着火→车辆火灾", "correct": "地下空间+车辆火灾", "context": "需叠加两种场景特征"}
+        ]
+      }
+    }
+  }
+}
