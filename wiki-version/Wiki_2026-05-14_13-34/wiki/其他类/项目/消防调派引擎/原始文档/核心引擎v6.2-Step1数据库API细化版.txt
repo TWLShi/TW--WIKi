@@ -1,0 +1,131 @@
+# 消防调派智能系统核心引擎 - v6.2 数据库表结构 + API接口定义（第1步）
+
+## 1. 数据库表结构（PostgreSQL推荐）
+
+### 主表：incidents（警情主表）
+```sql
+CREATE TABLE incidents (
+    incident_id          VARCHAR(32) PRIMARY KEY,           -- INC-20250424-173512-XXXX
+    call_time            TIMESTAMP NOT NULL,
+    caller_phone         VARCHAR(20),
+    raw_audio_url        TEXT,
+    asr_text             TEXT,                               -- 原始转写文本
+    processing_status    VARCHAR(20) DEFAULT 'processing',  -- processing / completed / failed
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 详细结构化信息表：alert_structured
+```sql
+CREATE TABLE alert_structured (
+    incident_id          VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    address_raw          TEXT,
+    address_std          TEXT,                    -- 标准化地址
+    address_confidence   NUMERIC(4,3),
+    geo_lng              NUMERIC(12,8),
+    geo_lat              NUMERIC(12,8),
+    geo_precision        VARCHAR(10),             -- high / medium / low
+    building_type        VARCHAR(30),             -- 住宅、高层、地下、化工等
+    fire_description     TEXT,
+    preliminary_tags     TEXT[],                  -- 数组标签
+    personnel_status     VARCHAR(50),
+    hazmat_mention       BOOLEAN DEFAULT FALSE,
+    risk_level           VARCHAR(10),             -- low/medium/high/urgent
+    missing_info         TEXT[],
+    suggested_questions  TEXT[],
+    overall_confidence   NUMERIC(4,3),
+    need_immediate_query BOOLEAN DEFAULT FALSE
+);
+```
+
+### 日志与审计表：alert_processing_log
+```sql
+CREATE TABLE alert_processing_log (
+    log_id               BIGSERIAL PRIMARY KEY,
+    incident_id          VARCHAR(32) REFERENCES incidents(incident_id),
+    step_name            VARCHAR(50),             -- 'Step1_Receive' / 'ASR' / 'NER'
+    action               TEXT,
+    input_snapshot       JSONB,
+    output_snapshot      JSONB,
+    duration_ms          INTEGER,
+    success              BOOLEAN,
+    error_message        TEXT,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 音频与文件表：alert_media
+```sql
+CREATE TABLE alert_media (
+    media_id             BIGSERIAL PRIMARY KEY,
+    incident_id          VARCHAR(32) REFERENCES incidents(incident_id),
+    media_type           VARCHAR(20),             -- raw_audio / asr_result
+    file_url             TEXT,
+    file_size            BIGINT,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 索引建议
+- `incidents(call_time, processing_status)`
+- `alert_structured(building_type, risk_level)`
+- `alert_processing_log(incident_id, created_at)`
+
+---
+
+## 2. API接口定义（REST + OpenAPI风格）
+
+### 主要接口：接收警情（核心入口）
+
+**POST /api/v1/alerts/receive**
+
+请求体：
+```json
+{
+  "caller_phone": "13812345678",
+  "call_time": "2025-04-24T17:35:12+08:00",
+  "raw_audio": "base64字符串或文件流",
+  "initial_text": "可选：人工预转写文本"
+}
+```
+
+响应体（成功）：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-20250424-173512-7K9P2M",
+    "status": "processing",
+    "structured_alert": {
+      "address_std": "上海市浦东新区XX小区8栋2单元",
+      "building_type": "住宅",
+      "preliminary_tags": ["明火", "居民住宅", "地址精度:中"],
+      "risk_level": "medium",
+      "need_immediate_query": true
+    },
+    "processing_time_ms": 12450,
+    "next_step": "query_routing"
+  }
+}
+```
+
+### 辅助接口
+
+1. **GET /api/v1/alerts/{incident_id}/status**
+   查询当前处理状态
+
+2. **POST /api/v1/alerts/{incident_id}/manual-override**
+   人工干预接口（用于ASR失败时）
+
+3. **GET /api/v1/alerts/{incident_id}/structured**
+   获取完整结构化警情卡片
+
+---
+
+## 3. 关键数据流总结（第1步）
+
+- **输入** → 原始电话 + 音频流
+- **处理** → ASR → NER → 标签 → 评估
+- **输出** → incidents + alert_structured + 日志
+- **触发** → 若 need_immediate_query = true 则自动进入第2步

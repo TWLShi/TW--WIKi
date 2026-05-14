@@ -1,0 +1,106 @@
+# 消防调派智能系统核心引擎 - 全流程总览 v6.2
+
+## 12步整体流程 Mermaid 图
+
+```mermaid
+flowchart TD
+    %% ==================== 标题与图例 ====================
+    Start((🚨 119接警开始)):::start
+
+    subgraph 核心引擎 ["🔥 消防调派智能系统核心引擎 全流程 v6.2"]
+        direction TB
+
+        S1[1. 警情接收与初步解析<br/>ASR + NER + 初步标签]:::step
+        S2[2. Query_Routing<br/>智能问询路由 + 补全]:::step
+        S3[3. 多维要素识别<br/>空间/时间/规模/风险画像]:::step
+        S4[4. 警情等级判定<br/>规则 + ML混合]:::step
+        S5[5. 调派规模计算<br/>规则 + ML系数]:::step
+        S6[6. 队站车辆匹配<br/>GIS + 优化]:::step
+        S7[7. 约束校验机制<br/>多维度检查]:::step
+        S8[8. 反向模拟与冲突解决]:::step
+        S9[9. AI多智能体决策<br/>感知+决策+执行+预测]:::ai
+        S10[10. 人工二次确认<br/>责任关口]:::human
+        S11[11. 调派方案生成与多端下达]:::step
+        S12[12. 审计留痕与责任记录<br/>不可篡改闭环]:::end
+    end
+
+    %% ==================== 主流程连接 ====================
+    Start --> S1
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    S5 --> S6
+    S6 --> S7
+    S7 --> S8
+    S8 --> S9
+    S9 --> S10
+    S10 --> S11
+    S11 --> S12
+
+    %% ==================== 决策循环与分支 ====================
+    S7 -.->|Warning/Fail| Back1[回退调整<br/>→ 第5或第6步]:::loop
+    Back1 --> S5
+
+    S8 -.->|严重冲突| Back2[回退重算<br/>→ 第5/6步]:::loop
+    Back2 --> S5
+
+    S10 -.->|重大修改| Back3[重新校验<br/>→ 第7步]:::loop
+    Back3 --> S7
+
+    S10 -->|拒绝/重大变更| Back4[返回问询<br/>→ 第2步]:::loop
+    Back4 --> S2
+
+    %% ==================== 样式定义 ====================
+    classDef start fill:#22c55e,stroke:#166534,color:#fff,stroke-width:4px
+    classDef step fill:#f59e0b,stroke:#b45309,color:#000,stroke-width:3px
+    classDef ai fill:#a855f7,stroke:#6b21a8,color:#fff,stroke-width:3px
+    classDef human fill:#3b82f6,stroke:#1e40af,color:#fff,stroke-width:4px
+    classDef end fill:#ef4444,stroke:#991b1b,color:#fff,stroke-width:4px
+    classDef loop fill:#f97316,stroke:#c2410c,color:#fff,stroke-width:2px
+
+    class Start start
+    class S1,S2,S3,S4,S5,S6,S7,S8,S11 step
+    class S9 ai
+    class S10 human
+    class S12 end
+    class Back1,Back2,Back3,Back4 loop
+```
+
+---
+
+## 12步整体流程总览说明
+
+| 步骤 | 核心目标 | 关键技术 | 是否有回退循环 |
+|------|----------|----------|----------------|
+| 1 | 警情接收与结构化 | ASR + NER | - |
+| 2 | 智能补全问询 | 路由树 + 话术 | 是（低补全率） |
+| 3 | 多维画像构建 | 特征工程 | 是 |
+| 4 | 等级判定 | 规则 + ML混合 | - |
+| 5 | 规模计算 | 规则表 + ML系数 | 是 |
+| 6 | 队站车辆匹配 | GIS + 优化 | 是 |
+| 7 | 约束校验 | 多维度规则 | 是（主要回退点） |
+| 8 | 反向模拟 | 时间线 + 冲突检测 | 是 |
+| 9 | AI多智能体决策 | 4-Agent + 仲裁 | - |
+| 10 | 人工二次确认 | 责任关口 | 是（重大修改） |
+| 11 | 方案生成与下达 | 模板 + 多端推送 | - |
+| 12 | 审计留痕 | 不可篡改日志 + 反馈 | - |
+
+---
+
+## 核心闭环逻辑
+
+- **AI驱动**（步骤1-9）→ **人工把关**（步骤10）→ **执行闭环**（步骤11-12）
+- 主要回退点集中在**约束校验（7）**和**人工确认（10）**，保证安全第一
+- 全流程支持**持续学习**（人工反馈 → 模型优化）
+
+---
+
+## 使用方法
+
+直接复制上方 Mermaid 代码到以下工具即可渲染：
+- Typora
+- Obsidian（需Mermaid插件）
+- 飞书文档
+- GitBook
+- 任何支持Mermaid的Markdown编辑器

@@ -1,0 +1,202 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第4步）
+
+## 第4步：警情等级自动判定（目标耗时：5-15秒）
+
+### 4.1 规则引擎加载
+- 4.1.1 加载最新《消防警情等级映射规则表》（配置化、可热更新）
+- 4.1.2 加载当前全局权重配置（季节、区域、政策调整）
+
+### 4.2 多因子综合打分
+- 4.2.1 基础分（按第3步等级建议）
+- 4.2.2 空间维度加权（建筑类型 × 系数）
+- 4.2.3 时间维度加权（延迟、夜间等）
+- 4.2.4 规模维度加权（面积、烟雾）
+- 4.2.5 风险维度加权（人员、危化、次生灾害）
+- 4.2.6 历史相似案例修正分
+
+### 4.3 等级判定与置信度计算
+- 4.3.1 计算总分 → 映射到1-4级
+- 4.3.2 计算置信度（规则匹配度 + 画像完整度）
+- 4.3.3 特殊场景标签强化（城中村、高层医院、化工园区等）
+- 4.3.4 生成判定解释文本（可解释AI）
+
+### 4.4 阈值与人工干预决策
+- 4.4.1 置信度 ≥ 85% → 自动通过
+- 4.4.2 置信度 70-85% → Warning + 建议人工复核
+- 4.4.3 置信度 < 70% → 强制人工复核
+- 4.4.4 特殊高危关键词 → 直接提升至四级并告警
+
+### 4.5 输出与持久化
+- 4.5.1 更新警情等级
+- 4.5.2 写入完整判定日志
+- 4.5.3 触发第5步（调派规模计算）
+
+---
+
+## 1. 代码伪代码
+
+```python
+def alert_level_mapping(incident_id: str):
+    # 读取前三步画像
+    portrait = get_portrait(incident_id)
+    rules = load_latest_rules()  # 从配置中心加载
+
+    score = 0.0
+    explanations = []
+
+    # 4.2 多因子打分
+    base_score = get_base_score(portrait.get('suggested_level', 1))
+    score += base_score * rules.base_weight
+
+    score += spatial_scoring(portrait.spatial) * rules.spatial_weight
+    score += temporal_scoring(portrait.temporal) * rules.temporal_weight
+    score += scale_scoring(portrait.scale) * rules.scale_weight
+    score += risk_scoring(portrait.risk) * rules.risk_weight
+
+    # 历史案例修正
+    similar_correction = calculate_similar_case_correction(portrait.historical_matches)
+    score += similar_correction
+
+    # 4.3 最终等级与置信度
+    final_level = score_to_level(score)  # 1-4级
+    confidence = calculate_confidence(portrait, score, rules)
+
+    special_tags = detect_special_scenarios(portrait)
+    if special_tags:
+        final_level = max(final_level, special_tags.highest_level)
+
+    # 4.4 决策
+    review_required = confidence < 0.85 or any_high_risk_keywords(portrait)
+
+    result = {
+        "incident_id": incident_id,
+        "alert_level": final_level,
+        "confidence": confidence,
+        "total_score": score,
+        "explanation": generate_explanation(explanations),
+        "special_tags": special_tags,
+        "need_human_review": review_required
+    }
+
+    # 持久化
+    save_level_result(incident_id, result)
+    log_audit("Step4_LevelMapping", result)
+
+    # 分流
+    trigger_next_step(incident_id, "Step5_ScaleCalculation")
+
+    return result
+```
+
+---
+
+## 2. Prompt模板
+
+### 等级判定解释Prompt（供LLM生成自然语言解释）
+```text
+你是一名消防指挥专家。根据以下多维画像，判定警情等级并给出详细理由。
+
+画像数据：
+{{portrait_json}}
+
+当前计算总分：{{total_score}}（满分100）
+
+请输出JSON：
+{
+  "final_level": 1-4,
+  "confidence": 0.XX,
+  "main_reasons": ["高层建筑", "人员密集", "起火已超过15分钟"],
+  "risk_points": ["可能发生坍塌", "烟雾扩散快"],
+  "recommendation": "建议立即调派...级力量"
+}
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 画像置信度极低              | 强制标记为"待人工判定"                | 推送给高级调度员             | 最高   |
+| 规则表版本冲突              | 使用备用规则集 + 告警                | 通知规则维护人员             | 高     |
+| 特殊场景冲突（多标签）      | 取最高风险等级                        | 记录冲突原因                 | 高     |
+| 历史案例匹配失败            | 使用纯规则打分                        | 标记"新场景类型"             | 中     |
+| 计算分数超出正常范围        | 截断处理 + 标记异常                   | 人工复核                     | 高     |
+| 规则引擎加载失败            | 回退到第3步画像默认等级               | 通知运维 + 降级模式          | 最高   |
+
+---
+
+## 4. 数据库表结构
+
+### 等级判定结果表：alert_level_result
+```sql
+CREATE TABLE alert_level_result (
+    incident_id          VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    alert_level          SMALLINT NOT NULL CHECK (alert_level BETWEEN 1 AND 4),
+    total_score          NUMERIC(6,2),
+    confidence           NUMERIC(4,3),
+    explanation          TEXT,
+    special_tags         TEXT[],
+    need_human_review    BOOLEAN DEFAULT FALSE,
+    reviewed_by          VARCHAR(50),
+    review_time          TIMESTAMP,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 评分明细表：level_scoring_details
+```sql
+CREATE TABLE level_scoring_details (
+    detail_id            BIGSERIAL PRIMARY KEY,
+    incident_id          VARCHAR(32) REFERENCES incidents(incident_id),
+    dimension            VARCHAR(20),           -- spatial/temporal/scale/risk/base
+    sub_factor           VARCHAR(50),
+    score                NUMERIC(5,2),
+    weight               NUMERIC(4,3),
+    contribution          NUMERIC(5,2),
+    created_at           TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/level/mapping
+
+请求体：
+```json
+{
+  "force_recalculate": false,
+  "override_level": null
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "alert_level": 3,
+    "confidence": 0.91,
+    "total_score": 78.5,
+    "explanation": "高层住宅 + 人员密集 + 夜间，综合判定为三级",
+    "special_tags": ["高层", "夜间"],
+    "need_human_review": false,
+    "next_step": "Step5_ScaleCalculation"
+  }
+}
+```
+
+### 其他接口
+- GET /api/v1/alerts/{incident_id}/level
+- POST /api/v1/alerts/{incident_id}/level/manual-override （人工改等级，必须留痕）
+- GET /api/v1/rules/level-mapping （查看当前规则表）
+
+---
+
+## 第4步与前后衔接
+- **输入**：第3步完整多维画像
+- **输出**：alert_level + 详细评分记录
+- **触发**：第5步调派规模计算模型

@@ -1,0 +1,630 @@
+{
+  "meta": {
+    "name": "消防接警地址热词池",
+    "version": "1.0.0",
+    "description": "专用于119消防接警场景的地址识别热词池，覆盖行政区、街道、道路、小区、楼栋、楼层、门牌号等核心地址要素，提升ASR地址识别准确率",
+    "created": "2026-05-11",
+    "total_hotwords": 269,
+    "total_correction_pairs": 81,
+    "total_address_patterns": 36,
+    "weight_range": "1.0~2.5，紧急地址要素权重偏高"
+  },
+
+  "administrative_divisions": {
+    "label": "行政区划",
+    "description": "省/市/区/县/镇/乡/村各级行政单位及开发区、园区等功能区划",
+    "word_count": 45,
+    "subgroups": {
+      "district_level": {
+        "label": "区县级",
+        "words": [
+          {"word": "区", "weight": 1.3, "synonyms": ["市辖区", "城区", "XX区"], "pattern": "XX区"},
+          {"word": "县", "weight": 1.2, "synonyms": ["县城", "XX县"], "pattern": "XX县"},
+          {"word": "县级市", "weight": 1.2, "synonyms": ["市", "XX市"], "pattern": "XX市"},
+          {"word": "开发区", "weight": 1.4, "synonyms": ["经济开发区", "经开区", "高新区", "XX开发区"], "pattern": "XX开发区"},
+          {"word": "新区", "weight": 1.3, "synonyms": ["XX新区", "新城区"], "pattern": "XX新区"},
+          {"word": "自贸区", "weight": 1.3, "synonyms": ["自由贸易区", "XX自贸区"], "pattern": "XX自贸区"},
+          {"word": "保税区", "weight": 1.3, "synonyms": ["保税港区", "综合保税区"], "pattern": "XX保税区"},
+          {"word": "示范区", "weight": 1.2, "synonyms": ["先行示范区", "试验区"], "pattern": "XX示范区"},
+          {"word": "园区", "weight": 1.4, "synonyms": ["工业园区", "产业园区", "科技园区", "物流园区", "XX园区"], "pattern": "XX园区"}
+        ]
+      },
+      "subdistrict_level": {
+        "label": "街道/镇/乡级",
+        "words": [
+          {"word": "街道", "weight": 1.3, "synonyms": ["街道办事处", "XX街道", "大街"], "pattern": "XX街道"},
+          {"word": "镇", "weight": 1.3, "synonyms": ["乡镇", "集镇", "XX镇"], "pattern": "XX镇"},
+          {"word": "乡", "weight": 1.2, "synonyms": ["XX乡", "民族乡"], "pattern": "XX乡"},
+          {"word": "社区", "weight": 1.4, "synonyms": ["居委会", "社区居民委员会", "XX社区"], "pattern": "XX社区"},
+          {"word": "村", "weight": 1.2, "synonyms": ["村庄", "自然村", "行政村", "XX村"], "pattern": "XX村"},
+          {"word": "行政村", "weight": 1.2, "synonyms": ["村委会", "XX行政村"], "pattern": "XX行政村"},
+          {"word": "自然村", "weight": 1.1, "synonyms": ["村组", "XX自然村"], "pattern": "XX自然村"},
+          {"word": "管委会", "weight": 1.3, "synonyms": ["管理委员会", "XX管委会"], "pattern": "XX管委会"},
+          {"word": "居委会", "weight": 1.3, "synonyms": ["居民委员会", "XX居委会"], "pattern": "XX居委会"},
+          {"word": "村委会", "weight": 1.2, "synonyms": ["村民委员会", "XX村委会"], "pattern": "XX村委会"}
+        ]
+      },
+      "special_zone": {
+        "label": "特殊片区",
+        "words": [
+          {"word": "高新区", "weight": 1.4, "synonyms": ["高新技术产业开发区", "高新技术区"]},
+          {"word": "经开区", "weight": 1.4, "synonyms": ["经济技术开发区", "经济开发区"]},
+          {"word": "保税港区", "weight": 1.4, "synonyms": ["保税港", "保税物流园区"]},
+          {"word": "大学城", "weight": 1.4, "synonyms": ["高校园区", "大学园区"]},
+          {"word": "新城区", "weight": 1.3, "synonyms": ["新城", "城市新区"]},
+          {"word": "老城区", "weight": 1.3, "synonyms": ["老城", "旧城区", "旧城"]},
+          {"word": "市中心", "weight": 1.4, "synonyms": ["主城区", "城市中心", "市区中心"]},
+          {"word": "城郊", "weight": 1.3, "synonyms": ["郊区", "城外", "城乡结合部"]},
+          {"word": "工业区", "weight": 1.4, "synonyms": ["工业集中区", "XX工业区"], "pattern": "XX工业区"},
+          {"word": "物流园区", "weight": 1.3, "synonyms": ["物流基地", "物流中心"], "pattern": "XX物流园"},
+          {"word": "产业园区", "weight": 1.3, "synonyms": ["产业基地", "XX产业园"], "pattern": "XX产业园"},
+          {"word": "化工园区", "weight": 1.5, "synonyms": ["化工集中区", "化学工业园"], "pattern": "XX化工园"},
+          {"word": "片区", "weight": 1.3, "synonyms": ["XX片区", "一片区", "二片区"], "pattern": "XX片区"}
+        ]
+      }
+    }
+  },
+
+  "road_and_street": {
+    "label": "道路与街道",
+    "description": "各类道路类型、道路命名模式、桥梁隧道、高速国道省道等交通路网词汇",
+    "word_count": 72,
+    "subgroups": {
+      "road_type": {
+        "label": "道路类型",
+        "words": [
+          {"word": "路", "weight": 1.4, "synonyms": ["马路", "公路", "道路", "XX路"], "pattern": "XX路"},
+          {"word": "街", "weight": 1.3, "synonyms": ["街道", "大街", "XX街"], "pattern": "XX街"},
+          {"word": "大道", "weight": 1.4, "synonyms": ["主干道", "大马路", "XX大道"], "pattern": "XX大道"},
+          {"word": "巷", "weight": 1.2, "synonyms": ["小巷", "胡同", "弄堂", "里弄", "XX巷"], "pattern": "XX巷"},
+          {"word": "胡同", "weight": 1.2, "synonyms": ["XX胡同", "巷子", "小胡同"], "pattern": "XX胡同"},
+          {"word": "弄", "weight": 1.2, "synonyms": ["弄堂", "XX弄", "里弄"], "pattern": "XX弄"},
+          {"word": "支路", "weight": 1.2, "synonyms": ["XX支路", "分支道路"], "pattern": "XX支路"},
+          {"word": "辅路", "weight": 1.3, "synonyms": ["XX辅路", "辅道", "辅助道路"], "pattern": "XX辅路"},
+          {"word": "环路", "weight": 1.3, "synonyms": ["XX环路", "一环路", "二环路", "三环路", "环城路"], "pattern": "XX环路"},
+          {"word": "快速路", "weight": 1.3, "synonyms": ["XX快速路", "城市快速路"], "pattern": "XX快速路"},
+          {"word": "高架路", "weight": 1.4, "synonyms": ["XX高架", "高架桥路", "高架"], "pattern": "XX高架"},
+          {"word": "沿江路", "weight": 1.3, "synonyms": ["XX沿江路", "江边路"], "pattern": "XX沿江路"},
+          {"word": "滨河路", "weight": 1.3, "synonyms": ["XX滨河路", "河边路"], "pattern": "XX滨河路"},
+          {"word": "步行街", "weight": 1.3, "synonyms": ["XX步行街", "商业步行街"], "pattern": "XX步行街"},
+          {"word": "单行道", "weight": 1.3, "synonyms": ["单向行驶", "单行线"]},
+          {"word": "断头路", "weight": 1.3, "synonyms": ["死胡同", "尽头路", "走不通"]}
+        ]
+      },
+      "road_numbering": {
+        "label": "道路编号",
+        "words": [
+          {"word": "高速", "weight": 1.4, "synonyms": ["高速公路", "XX高速", "GXX高速"], "pattern": "XX高速"},
+          {"word": "国道", "weight": 1.3, "synonyms": ["GXXX国道", "XX国道"], "pattern": "XX国道"},
+          {"word": "省道", "weight": 1.3, "synonyms": ["SXXX省道", "XX省道"], "pattern": "XX省道"},
+          {"word": "县道", "weight": 1.2, "synonyms": ["XXXX县道", "XX县道"], "pattern": "XX县道"},
+          {"word": "乡道", "weight": 1.2, "synonyms": ["XXXX乡道", "XX乡道"], "pattern": "XX乡道"}
+        ]
+      },
+      "bridge_tunnel": {
+        "label": "桥梁隧道",
+        "words": [
+          {"word": "桥", "weight": 1.4, "synonyms": ["大桥", "小桥", "XX桥"], "pattern": "XX桥"},
+          {"word": "大桥", "weight": 1.4, "synonyms": ["XX大桥", "跨江大桥"], "pattern": "XX大桥"},
+          {"word": "立交桥", "weight": 1.5, "synonyms": ["立交", "互通立交", "高架桥", "XX立交桥"], "pattern": "XX立交桥"},
+          {"word": "人行天桥", "weight": 1.3, "synonyms": ["天桥", "过街天桥", "人行桥"], "pattern": "XX天桥"},
+          {"word": "高架桥", "weight": 1.4, "synonyms": ["高架", "XX高架桥", "高架道路"], "pattern": "XX高架桥"},
+          {"word": "跨线桥", "weight": 1.3, "synonyms": ["上跨桥", "XX跨线桥"], "pattern": "XX跨线桥"},
+          {"word": "隧道", "weight": 1.5, "synonyms": ["涵洞", "XX隧道", "过江隧道", "穿山隧道"], "pattern": "XX隧道"},
+          {"word": "地下通道", "weight": 1.4, "synonyms": ["地下道", "人行地道", "过街地道"], "pattern": "XX地下通道"},
+          {"word": "匝道", "weight": 1.4, "synonyms": ["上匝道", "下匝道", "出入口", "XX匝道"], "pattern": "XX匝道"}
+        ]
+      },
+      "intersection": {
+        "label": "交叉口/节点",
+        "words": [
+          {"word": "路口", "weight": 1.4, "synonyms": ["交叉口", "XX路口", "十字路口", "丁字路口"], "pattern": "XX路口"},
+          {"word": "十字路口", "weight": 1.4, "synonyms": ["十字路", "交叉路口", "四条路交叉"]},
+          {"word": "丁字路口", "weight": 1.4, "synonyms": ["T字路口", "三岔路口", "T型路口", "丁字路"]},
+          {"word": "三岔路口", "weight": 1.3, "synonyms": ["三岔", "三叉路口", "Y字路口"]},
+          {"word": "环岛", "weight": 1.3, "synonyms": ["转盘", "交通岛", "大转盘", "XX环岛"], "pattern": "XX环岛"},
+          {"word": "红绿灯", "weight": 1.4, "synonyms": ["信号灯", "交通信号灯", "红绿灯路口"]},
+          {"word": "交叉口", "weight": 1.3, "synonyms": ["交汇处", "XX交叉口", "交口"], "pattern": "XX交叉口"},
+          {"word": "出口", "weight": 1.4, "synonyms": ["XX出口", "高速出口", "匝道出口", "几号出口"], "pattern": "XX出口"},
+          {"word": "入口", "weight": 1.4, "synonyms": ["XX入口", "高速入口", "匝道入口"], "pattern": "XX入口"},
+          {"word": "服务区", "weight": 1.4, "synonyms": ["XX服务区", "高速服务区", "休息区"], "pattern": "XX服务区"},
+          {"word": "收费站", "weight": 1.4, "synonyms": ["XX收费站", "高速收费站", "收费口"], "pattern": "XX收费站"},
+          {"word": "检查站", "weight": 1.3, "synonyms": ["XX检查站", "公安检查站"], "pattern": "XX检查站"}
+        ]
+      },
+      "common_road_names": {
+        "label": "常见道路命名",
+        "words": [
+          {"word": "人民路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "建设路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "解放路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "中山路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "和平路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "长江路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "黄河路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "环城路", "weight": 1.3, "synonyms": ["环城西路", "环城东路", "环城南路", "环城北路"]},
+          {"word": "二环路", "weight": 1.3, "synonyms": ["二环", "二环东路", "二环西路", "二环南路", "二环北路"]},
+          {"word": "三环路", "weight": 1.3, "synonyms": ["三环", "三环东路", "三环西路"]},
+          {"word": "迎宾路", "weight": 1.2, "synonyms": [], "note": "各地普遍存在的道路名"},
+          {"word": "学府路", "weight": 1.3, "synonyms": [], "note": "学校附近常见路名"},
+          {"word": "工业大道", "weight": 1.3, "synonyms": [], "note": "工业园区常见路名"},
+          {"word": "创业路", "weight": 1.2, "synonyms": [], "note": "开发区常见路名"}
+        ]
+      }
+    }
+  },
+
+  "residential_compounds": {
+    "label": "小区与社区",
+    "description": "住宅小区命名、社区类型、建筑群组名称等居住区地址表达",
+    "word_count": 52,
+    "subgroups": {
+      "compound_type": {
+        "label": "小区类型词",
+        "words": [
+          {"word": "小区", "weight": 1.6, "synonyms": ["住宅小区", "居民小区", "XX小区"], "pattern": "XX小区"},
+          {"word": "新村", "weight": 1.3, "synonyms": ["XX新村", "工人新村"], "pattern": "XX新村"},
+          {"word": "花园", "weight": 1.5, "synonyms": ["XX花园", "花园小区", "花园新村"], "pattern": "XX花园"},
+          {"word": "家园", "weight": 1.4, "synonyms": ["XX家园", "住宅家园"], "pattern": "XX家园"},
+          {"word": "花苑", "weight": 1.4, "synonyms": ["XX花苑", "花苑小区"], "pattern": "XX花苑"},
+          {"word": "公寓", "weight": 1.5, "synonyms": ["XX公寓", "青年公寓", "老年公寓", "人才公寓"], "pattern": "XX公寓"},
+          {"word": "苑", "weight": 1.4, "synonyms": ["XX苑", "XX雅苑", "XX佳苑", "XX名苑"], "pattern": "XX苑"},
+          {"word": "庭", "weight": 1.3, "synonyms": ["XX庭", "XX华庭", "XX豪庭"], "pattern": "XX庭"},
+          {"word": "湾", "weight": 1.3, "synonyms": ["XX湾", "XX水湾", "XX海湾"], "pattern": "XX湾"},
+          {"word": "城", "weight": 1.5, "synonyms": ["XX城", "XX新城", "XX花园城"], "pattern": "XX城"},
+          {"word": "府", "weight": 1.3, "synonyms": ["XX府", "XX华府", "XX悦府"], "pattern": "XX府"},
+          {"word": "里", "weight": 1.2, "synonyms": ["XX里", "XX坊里"], "pattern": "XX里"},
+          {"word": "家属院", "weight": 1.3, "synonyms": ["XX家属院", "单位家属院"], "pattern": "XX家属院"},
+          {"word": "宿舍区", "weight": 1.2, "synonyms": ["XX宿舍区", "单位宿舍", "职工宿舍"], "pattern": "XX宿舍"},
+          {"word": "安置房", "weight": 1.3, "synonyms": ["XX安置房", "回迁房", "拆迁安置"], "pattern": "XX安置房"},
+          {"word": "公租房", "weight": 1.3, "synonyms": ["XX公租房", "廉租房", "保障房"], "pattern": "XX公租房"},
+          {"word": "经适房", "weight": 1.2, "synonyms": ["经济适用房", "XX经适房"], "pattern": "XX经适房"},
+          {"word": "大院", "weight": 1.3, "synonyms": ["XX大院", "部队大院", "机关大院"], "pattern": "XX大院"},
+          {"word": "别墅区", "weight": 1.4, "synonyms": ["XX别墅", "排屋区", "洋房区"], "pattern": "XX别墅区"},
+          {"word": "农民公寓", "weight": 1.3, "synonyms": ["XX农民公寓", "村公寓"]}
+        ]
+      },
+      "compound_scope": {
+        "label": "小区区域词",
+        "words": [
+          {"word": "一期", "weight": 1.4, "synonyms": ["一期工程", "一区", "第一区", "南一区"], "pattern": "XX一期"},
+          {"word": "二期", "weight": 1.4, "synonyms": ["二期工程", "二区", "第二区"], "pattern": "XX二期"},
+          {"word": "三期", "weight": 1.3, "synonyms": ["三期工程", "三区"], "pattern": "XX三期"},
+          {"word": "东区", "weight": 1.3, "synonyms": ["东片区", "东部", "东边"], "pattern": "XX东区"},
+          {"word": "西区", "weight": 1.3, "synonyms": ["西片区", "西部", "西边"], "pattern": "XX西区"},
+          {"word": "南区", "weight": 1.3, "synonyms": ["南片区", "南部", "南边"], "pattern": "XX南区"},
+          {"word": "北区", "weight": 1.3, "synonyms": ["北片区", "北部", "北边"], "pattern": "XX北区"},
+          {"word": "中区", "weight": 1.2, "synonyms": ["中心区", "中部"], "pattern": "XX中区"},
+          {"word": "A区", "weight": 1.3, "synonyms": ["A片区"], "pattern": "XXA区"},
+          {"word": "B区", "weight": 1.3, "synonyms": ["B片区"], "pattern": "XXB区"},
+          {"word": "C区", "weight": 1.2, "synonyms": ["C片区"], "pattern": "XXC区"},
+          {"word": "D区", "weight": 1.2, "synonyms": ["D片区"], "pattern": "XXD区"}
+        ]
+      },
+      "compound_number": {
+        "label": "小区编号表达",
+        "words": [
+          {"word": "一区", "weight": 1.3, "synonyms": ["1区", "第一区"]},
+          {"word": "二区", "weight": 1.3, "synonyms": ["2区", "第二区"]},
+          {"word": "三区", "weight": 1.3, "synonyms": ["3区", "第三区"]},
+          {"word": "一号院", "weight": 1.3, "synonyms": ["1号院", "1院"]},
+          {"word": "二号院", "weight": 1.3, "synonyms": ["2号院", "2院"]}
+        ]
+      }
+    }
+  },
+
+  "building_identifiers": {
+    "label": "楼栋标识",
+    "description": "楼栋编号、栋/幢/座/号等建筑标识表达及层数描述",
+    "word_count": 58,
+    "subgroups": {
+      "building_unit_words": {
+        "label": "楼栋量词与标识",
+        "words": [
+          {"word": "栋", "weight": 1.5, "synonyms": ["幢", "座", "号楼", "XX栋"], "pattern": "X栋"},
+          {"word": "幢", "weight": 1.4, "synonyms": ["栋", "座", "XX幢"], "pattern": "X幢"},
+          {"word": "座", "weight": 1.4, "synonyms": ["栋", "幢", "XX座"], "pattern": "X座"},
+          {"word": "号楼", "weight": 1.5, "synonyms": ["XX号楼", "X号"], "pattern": "X号楼"},
+          {"word": "楼", "weight": 1.4, "synonyms": ["XX楼"], "pattern": "X楼"},
+          {"word": "塔楼", "weight": 1.3, "synonyms": ["XX塔楼", "高层塔楼"], "pattern": "X塔楼"},
+          {"word": "板楼", "weight": 1.3, "synonyms": ["XX板楼", "板式楼"], "pattern": "X板楼"},
+          {"word": "主楼", "weight": 1.3, "synonyms": ["主塔楼", "主体楼"], "pattern": "主楼"},
+          {"word": "裙楼", "weight": 1.4, "synonyms": ["裙房", "配楼", "副楼"], "pattern": "裙楼"},
+          {"word": "附楼", "weight": 1.3, "synonyms": ["配楼", "侧楼", "偏楼"], "pattern": "附楼"},
+          {"word": "写字楼", "weight": 1.5, "synonyms": ["办公楼", "商务楼", "XX写字楼"], "pattern": "XX写字楼"},
+          {"word": "大厦", "weight": 1.5, "synonyms": ["大楼", "商务大厦", "XX大厦"], "pattern": "XX大厦"},
+          {"word": "综合楼", "weight": 1.4, "synonyms": ["XX综合楼", "综楼"], "pattern": "XX综合楼"},
+          {"word": "商住楼", "weight": 1.5, "synonyms": ["XX商住楼", "商住一体"], "pattern": "XX商住楼"}
+        ]
+      },
+      "building_numbering": {
+        "label": "楼栋编号模式",
+        "words": [
+          {"word": "一栋", "weight": 1.5, "synonyms": ["1栋", "1幢", "1座", "1号楼", "1楼", "一号楼"]},
+          {"word": "二栋", "weight": 1.4, "synonyms": ["2栋", "2幢", "2座", "2号楼", "2楼", "二号楼"]},
+          {"word": "三栋", "weight": 1.4, "synonyms": ["3栋", "3幢", "3座", "3号楼", "3楼", "三号楼"]},
+          {"word": "四栋", "weight": 1.3, "synonyms": ["4栋", "4幢", "4座", "4号楼", "4楼"]},
+          {"word": "五栋", "weight": 1.3, "synonyms": ["5栋", "5幢", "5座", "5号楼", "5楼"]},
+          {"word": "几栋", "weight": 1.5, "synonyms": ["哪栋", "第几栋", "几号楼", "哪一栋"]},
+          {"word": "A栋", "weight": 1.5, "synonyms": ["A座", "A幢", "A号楼"]},
+          {"word": "B栋", "weight": 1.5, "synonyms": ["B座", "B幢", "B号楼"]},
+          {"word": "C栋", "weight": 1.4, "synonyms": ["C座", "C幢", "C号楼"]},
+          {"word": "D栋", "weight": 1.4, "synonyms": ["D座", "D幢", "D号楼"]},
+          {"word": "E栋", "weight": 1.3, "synonyms": ["E座", "E幢", "E号楼"]},
+          {"word": "F栋", "weight": 1.3, "synonyms": ["F座", "F幢", "F号楼"]}
+        ]
+      },
+      "unit_identifiers": {
+        "label": "单元标识",
+        "words": [
+          {"word": "单元", "weight": 1.5, "synonyms": ["XX单元", "X单元", "单元楼"], "pattern": "X单元"},
+          {"word": "门洞", "weight": 1.3, "synonyms": ["XX门洞", "X门洞"], "pattern": "X门洞"},
+          {"word": "梯", "weight": 1.3, "synonyms": ["XX梯", "X梯", "一梯", "二梯"], "pattern": "X梯"},
+          {"word": "一单元", "weight": 1.5, "synonyms": ["1单元", "第一单元", "东单元"]},
+          {"word": "二单元", "weight": 1.5, "synonyms": ["2单元", "第二单元", "西单元"]},
+          {"word": "三单元", "weight": 1.4, "synonyms": ["3单元", "第三单元"]},
+          {"word": "四单元", "weight": 1.3, "synonyms": ["4单元", "第四单元"]},
+          {"word": "东单元", "weight": 1.4, "synonyms": ["东面单元", "东边单元"]},
+          {"word": "西单元", "weight": 1.4, "synonyms": ["西面单元", "西边单元"]},
+          {"word": "几单元", "weight": 1.5, "synonyms": ["哪个单元", "第几单元", "哪一个单元"]}
+        ]
+      },
+      "entrance_identifiers": {
+        "label": "入口标识",
+        "words": [
+          {"word": "正门", "weight": 1.4, "synonyms": ["大门", "正大门", "主入口"], "pattern": "正门"},
+          {"word": "侧门", "weight": 1.3, "synonyms": ["偏门", "边门", "小门"], "pattern": "侧门"},
+          {"word": "后门", "weight": 1.3, "synonyms": ["后门出口", "安全后门"], "pattern": "后门"},
+          {"word": "东门", "weight": 1.3, "synonyms": ["东大门", "东侧门"], "pattern": "东门"},
+          {"word": "南门", "weight": 1.3, "synonyms": ["南大门", "南侧门"], "pattern": "南门"},
+          {"word": "西门", "weight": 1.3, "synonyms": ["西大门", "西侧门"], "pattern": "西门"},
+          {"word": "北门", "weight": 1.3, "synonyms": ["北大门", "北侧门"], "pattern": "北门"},
+          {"word": "消防通道门", "weight": 1.5, "synonyms": ["消防门", "救援通道入口"]}
+        ]
+      }
+    }
+  },
+
+  "floor_expressions": {
+    "label": "楼层表达",
+    "description": "楼层数、楼层方位、地下楼层、夹层/阁楼等各类楼层描述",
+    "word_count": 48,
+    "subgroups": {
+      "floor_number": {
+        "label": "楼层数字表达",
+        "words": [
+          {"word": "一楼", "weight": 1.5, "synonyms": ["1楼", "1层", "一层", "底楼", "首层"]},
+          {"word": "二楼", "weight": 1.5, "synonyms": ["2楼", "2层", "二层"]},
+          {"word": "三楼", "weight": 1.5, "synonyms": ["3楼", "3层", "三层"]},
+          {"word": "四楼", "weight": 1.4, "synonyms": ["4楼", "4层", "四层"]},
+          {"word": "五楼", "weight": 1.4, "synonyms": ["5楼", "5层", "五层"]},
+          {"word": "六楼", "weight": 1.4, "synonyms": ["6楼", "6层", "六层"]},
+          {"word": "七楼", "weight": 1.4, "synonyms": ["7楼", "7层", "七层"]},
+          {"word": "八楼", "weight": 1.4, "synonyms": ["8楼", "8层", "八层"]},
+          {"word": "九楼", "weight": 1.3, "synonyms": ["9楼", "9层", "九层"]},
+          {"word": "十楼", "weight": 1.4, "synonyms": ["10楼", "10层", "十层"]},
+          {"word": "十一楼", "weight": 1.3, "synonyms": ["11楼", "11层", "十一层"]},
+          {"word": "十二楼", "weight": 1.3, "synonyms": ["12楼", "12层", "十二层"]},
+          {"word": "十几楼", "weight": 1.4, "synonyms": ["十几层", "十楼以上"]},
+          {"word": "二十几楼", "weight": 1.4, "synonyms": ["二十几层", "二十楼以上"]},
+          {"word": "三十几楼", "weight": 1.4, "synonyms": ["三十几层", "三十楼以上"]},
+          {"word": "顶楼", "weight": 1.5, "synonyms": ["顶层", "最顶层", "楼顶那层"]}
+        ]
+      },
+      "underground_floor": {
+        "label": "地下楼层",
+        "words": [
+          {"word": "地下室", "weight": 1.7, "synonyms": ["地下", "地下空间", "地窖"], "pattern": "地下室"},
+          {"word": "地下一层", "weight": 1.7, "synonyms": ["-1层", "负一层", "B1", "地下1层", "负1楼"], "pattern": "地下一层"},
+          {"word": "地下二层", "weight": 1.7, "synonyms": ["-2层", "负二层", "B2", "地下2层", "负2楼"], "pattern": "地下二层"},
+          {"word": "地下三层", "weight": 1.6, "synonyms": ["-3层", "负三层", "B3", "地下3层"], "pattern": "地下三层"},
+          {"word": "地下车库", "weight": 1.7, "synonyms": ["地库", "地下停车场", "车库", "B1车库", "B2车库"]},
+          {"word": "半地下室", "weight": 1.5, "synonyms": ["半地下", "半截地下"], "pattern": "半地下室"}
+        ]
+      },
+      "special_floor": {
+        "label": "特殊楼层",
+        "words": [
+          {"word": "阁楼", "weight": 1.4, "synonyms": ["顶阁楼", "尖顶层", "屋顶间"], "pattern": "阁楼"},
+          {"word": "夹层", "weight": 1.5, "synonyms": ["设备夹层", "技术夹层", "中夹层"], "pattern": "夹层"},
+          {"word": "架空层", "weight": 1.4, "synonyms": ["架空", "底层架空", "首层架空"], "pattern": "架空层"},
+          {"word": "避难层", "weight": 1.7, "synonyms": ["避难间", "安全层", "紧急避险层"], "pattern": "避难层"},
+          {"word": "设备层", "weight": 1.5, "synonyms": ["机电层", "管道层", "技术层"], "pattern": "设备层"},
+          {"word": "天台", "weight": 1.5, "synonyms": ["楼顶", "屋顶", "天面", "房顶平台"], "pattern": "天台"},
+          {"word": "阳台", "weight": 1.5, "synonyms": ["露台", "晒台", "凉台"], "pattern": "阳台"},
+          {"word": "转换层", "weight": 1.4, "synonyms": ["结构转换层"], "pattern": "转换层"}
+        ]
+      },
+      "floor_relative": {
+        "label": "楼层相对表达",
+        "words": [
+          {"word": "楼上", "weight": 1.5, "synonyms": ["上面楼层", "上层", "上一层", "往上几层"]},
+          {"word": "楼下", "weight": 1.5, "synonyms": ["下面楼层", "底层", "下一层", "往下几层"]},
+          {"word": "中间层", "weight": 1.3, "synonyms": ["中楼层", "不高不低", "中间那层"]},
+          {"word": "最高层", "weight": 1.4, "synonyms": ["最上面一层", "顶楼", "最高那层"]},
+          {"word": "最低层", "weight": 1.3, "synonyms": ["最下面一层", "一楼", "底楼"]},
+          {"word": "第几层", "weight": 1.5, "synonyms": ["几楼", "哪一层", "哪个楼层"]},
+          {"word": "一共几层", "weight": 1.4, "synonyms": ["总共几层", "楼有几层", "这栋楼几层"]}
+        ]
+      }
+    }
+  },
+
+  "door_plate_expressions": {
+    "label": "门牌号表达",
+    "description": "房号、室号、门牌编号等房屋精确标识表达",
+    "word_count": 35,
+    "subgroups": {
+      "room_number": {
+        "label": "房号表达",
+        "words": [
+          {"word": "号房", "weight": 1.5, "synonyms": ["XX号房", "X号房", "第X号房"], "pattern": "X号房"},
+          {"word": "室", "weight": 1.5, "synonyms": ["XX室", "X室", "第X室"], "pattern": "X室"},
+          {"word": "号", "weight": 1.4, "synonyms": ["XX号", "第X号"], "pattern": "X号"},
+          {"word": "房间号", "weight": 1.4, "synonyms": ["房号", "室号", "房编号"], "pattern": "XX房间"},
+          {"word": "门牌号", "weight": 1.4, "synonyms": ["门牌", "门号", "牌号"], "pattern": "XX号门牌"},
+          {"word": "几号房", "weight": 1.5, "synonyms": ["哪号房", "哪个房间", "第几号"]},
+          {"word": "101室", "weight": 1.4, "synonyms": ["101号", "101房"], "pattern": "101"},
+          {"word": "102室", "weight": 1.4, "synonyms": ["102号", "102房"], "pattern": "102"},
+          {"word": "201室", "weight": 1.4, "synonyms": ["201号", "201房"], "pattern": "201"},
+          {"word": "301室", "weight": 1.4, "synonyms": ["301号", "301房"], "pattern": "301"}
+        ]
+      },
+      "room_number_pattern": {
+        "label": "房号组合模式",
+        "words": [
+          {"word": "X零X", "weight": 1.4, "synonyms": ["X0X", "X百零X"], "note": "如101、201、301等模式"},
+          {"word": "X百零X", "weight": 1.3, "synonyms": ["X0X"], "note": "如一百零一、二百零三等"},
+          {"word": "X零X室", "weight": 1.4, "synonyms": ["X0X号"], "note": "如101室、202室等"},
+          {"word": "X楼X号", "weight": 1.5, "synonyms": ["X层X号"], "note": "如3楼5号、三楼五号"},
+          {"word": "X栋X室", "weight": 1.5, "synonyms": ["X号楼X室"], "note": "如3栋101室"}
+        ]
+      },
+      "floor_room_combined": {
+        "label": "楼层+房号组合",
+        "words": [
+          {"word": "一楼101", "weight": 1.5, "synonyms": ["1楼101", "一层101室"]},
+          {"word": "二楼201", "weight": 1.5, "synonyms": ["2楼201", "二层201室"]},
+          {"word": "三楼301", "weight": 1.5, "synonyms": ["3楼301", "三层301室"]},
+          {"word": "一楼东户", "weight": 1.4, "synonyms": ["1楼东", "一层东户"]},
+          {"word": "一楼西户", "weight": 1.4, "synonyms": ["1楼西", "一层西户"]},
+          {"word": "左户", "weight": 1.3, "synonyms": ["左边那户", "左手边房"], "pattern": "X层左户"},
+          {"word": "右户", "weight": 1.3, "synonyms": ["右边那户", "右手边房"], "pattern": "X层右户"},
+          {"word": "中间户", "weight": 1.3, "synonyms": ["中间那户", "中户"], "pattern": "X层中间户"},
+          {"word": "边户", "weight": 1.3, "synonyms": ["边套", "边上的房"], "pattern": "边户"},
+          {"word": "几零几", "weight": 1.5, "synonyms": ["哪一个房间", "房号多少"], "note": "询问房号的口语"}
+        ]
+      },
+      "special_location_in_building": {
+        "label": "楼内位置",
+        "words": [
+          {"word": "楼道", "weight": 1.5, "synonyms": ["走廊", "过道", "楼道里"], "pattern": "X楼楼道"},
+          {"word": "楼梯间", "weight": 1.5, "synonyms": ["楼梯口", "楼道", "楼梯旁"], "pattern": "楼梯间"},
+          {"word": "电梯口", "weight": 1.5, "synonyms": ["电梯旁", "电梯门前"], "pattern": "X楼电梯口"},
+          {"word": "门口", "weight": 1.5, "synonyms": ["大门", "入口", "门跟前"], "pattern": "XX门口"},
+          {"word": "窗口", "weight": 1.5, "synonyms": ["窗户旁", "窗边", "窗户"], "pattern": "X楼窗口"}
+        ]
+      }
+    }
+  },
+
+  "directional_expressions": {
+    "label": "方位表达",
+    "description": "东西南北、前后左右、里外上下等地址中常用的方位指示词",
+    "word_count": 48,
+    "subgroups": {
+      "cardinal_directions": {
+        "label": "四向八位",
+        "words": [
+          {"word": "东", "weight": 1.3, "synonyms": ["东边", "东面", "东部", "朝东", "东侧"]},
+          {"word": "南", "weight": 1.3, "synonyms": ["南边", "南面", "南部", "朝南", "南侧"]},
+          {"word": "西", "weight": 1.3, "synonyms": ["西边", "西面", "西部", "朝西", "西侧"]},
+          {"word": "北", "weight": 1.3, "synonyms": ["北边", "北面", "北部", "朝北", "北侧"]},
+          {"word": "东南", "weight": 1.2, "synonyms": ["东南方向", "东南角", "朝东南"]},
+          {"word": "东北", "weight": 1.2, "synonyms": ["东北方向", "东北角", "朝东北"]},
+          {"word": "西南", "weight": 1.2, "synonyms": ["西南方向", "西南角", "朝西南"]},
+          {"word": "西北", "weight": 1.2, "synonyms": ["西北方向", "西北角", "朝西北"]},
+          {"word": "东南角", "weight": 1.4, "synonyms": ["东南拐角", "东南转角处"]},
+          {"word": "东北角", "weight": 1.4, "synonyms": ["东北拐角", "东北转角处"]},
+          {"word": "西南角", "weight": 1.4, "synonyms": ["西南拐角", "西南转角处"]},
+          {"word": "西北角", "weight": 1.4, "synonyms": ["西北拐角", "西北转角处"]}
+        ]
+      },
+      "relative_position": {
+        "label": "相对方位",
+        "words": [
+          {"word": "对面", "weight": 1.5, "synonyms": ["正对面", "斜对面", "对过", "马路对面"]},
+          {"word": "隔壁", "weight": 1.5, "synonyms": ["旁边", "紧挨着", "相邻", "挨着"]},
+          {"word": "附近", "weight": 1.4, "synonyms": ["周边", "不远", "跟前", "旁边"]},
+          {"word": "旁边", "weight": 1.4, "synonyms": ["边儿上", "一侧", "一旁", "紧邻"]},
+          {"word": "拐角", "weight": 1.4, "synonyms": ["转角", "拐弯处", "弯角", "拐弯"]},
+          {"word": "交叉口", "weight": 1.4, "synonyms": ["交口", "交汇处", "交叉点"]},
+          {"word": "沿线", "weight": 1.3, "synonyms": ["一路", "沿途", "顺路"]},
+          {"word": "往前", "weight": 1.4, "synonyms": ["向前", "朝前", "直走", "往前走"]},
+          {"word": "往后", "weight": 1.3, "synonyms": ["向后", "朝后", "往回走"]},
+          {"word": "靠左", "weight": 1.3, "synonyms": ["左边", "左侧", "左手边", "往左"]},
+          {"word": "靠右", "weight": 1.3, "synonyms": ["右边", "右侧", "右手边", "往右"]},
+          {"word": "尽头", "weight": 1.4, "synonyms": ["到底", "最里面", "顶端", "走到底"]},
+          {"word": "往里走", "weight": 1.4, "synonyms": ["向里走", "朝里走", "走进去"]},
+          {"word": "往外来", "weight": 1.3, "synonyms": ["往外出", "朝外来", "走出去"]},
+          {"word": "拐进去", "weight": 1.4, "synonyms": ["转进去", "弯进去", "拐弯进去"]},
+          {"word": "直走", "weight": 1.4, "synonyms": ["一直走", "直行", "往前直走", "往前开"]},
+          {"word": "掉头", "weight": 1.3, "synonyms": ["调头", "回头", "掉转方向"]}
+        ]
+      },
+      "vertical_position": {
+        "label": "上下位",
+        "words": [
+          {"word": "上面", "weight": 1.4, "synonyms": ["上边", "上头", "高层"]},
+          {"word": "下面", "weight": 1.4, "synonyms": ["下边", "下头", "底层", "低处"]},
+          {"word": "顶上", "weight": 1.4, "synonyms": ["顶端", "最上面", "最高处"]},
+          {"word": "底下", "weight": 1.4, "synonyms": ["最底下", "最低处", "底部"]}
+        ]
+      }
+    }
+  },
+
+  "address_patterns": {
+    "label": "地址组合模式",
+    "description": "报警人口语中常见的地址表达组合模板，用于识别长地址序列",
+    "pattern_count": 36,
+    "patterns": [
+      {"pattern": "XX区XX街道XX路XX号", "example": "XX区XX街道XX路XX号", "weight": 1.6, "components": ["区", "街道", "路", "号"]},
+      {"pattern": "XX路XX号XX小区", "example": "XX路XX号XX小区", "weight": 1.6, "components": ["路", "号", "小区"]},
+      {"pattern": "XX小区XX栋XX单元XX号", "example": "XX小区XX栋XX单元XX号", "weight": 1.8, "components": ["小区", "栋", "单元", "号"]},
+      {"pattern": "XX栋XX单元XX层XX号", "example": "XX栋XX单元XX层XX号", "weight": 1.7, "components": ["栋", "单元", "层", "号"]},
+      {"pattern": "XX区XX镇XX村", "example": "XX区XX镇XX村", "weight": 1.5, "components": ["区", "镇", "村"]},
+      {"pattern": "XX大道与XX路交叉口", "example": "XX大道与XX路交叉口", "weight": 1.6, "components": ["大道", "路", "交叉口"]},
+      {"pattern": "XX路和XX路交叉口往X走", "example": "XX路和XX路交叉口往东走", "weight": 1.6, "components": ["路", "交叉口", "往"]},
+      {"pattern": "XX路XX号XX大厦X楼", "example": "XX路XX号XX大厦X楼", "weight": 1.6, "components": ["路", "号", "大厦", "楼"]},
+      {"pattern": "XX小区X期X栋", "example": "XX小区二期3栋", "weight": 1.7, "components": ["小区", "期", "栋"]},
+      {"pattern": "XX小区X号院X号楼", "example": "XX小区1号院2号楼", "weight": 1.7, "components": ["小区", "号院", "号楼"]},
+      {"pattern": "XX路XX小区X号门", "example": "XX路XX小区X号门", "weight": 1.6, "components": ["路", "小区", "号门"]},
+      {"pattern": "XX高速XX出口往X方向", "example": "XX高速XX出口往东方向", "weight": 1.7, "components": ["高速", "出口", "往"]},
+      {"pattern": "XX国道XX公里处", "example": "XX国道XX公里处", "weight": 1.5, "components": ["国道", "公里"]},
+      {"pattern": "XX地铁站X号出口旁", "example": "XX地铁站3号出口旁", "weight": 1.6, "components": ["地铁站", "号出口"]},
+      {"pattern": "XX路XX号XX厂区内", "example": "XX路XX号XX厂区内", "weight": 1.6, "components": ["路", "号", "厂区"]},
+      {"pattern": "XX小区负一层车库", "example": "XX小区地下一层车库", "weight": 1.7, "components": ["小区", "地下", "车库"]},
+      {"pattern": "XX区XX产业园XX栋", "example": "XX区XX产业园XX栋", "weight": 1.6, "components": ["区", "产业园", "栋"]},
+      {"pattern": "XX路XX市场内", "example": "XX路XX市场内", "weight": 1.5, "components": ["路", "市场"]},
+      {"pattern": "XX大厦X座X层", "example": "XX大厦A座12层", "weight": 1.7, "components": ["大厦", "座", "层"]},
+      {"pattern": "XX大道XX立交旁", "example": "XX大道XX立交旁", "weight": 1.5, "components": ["大道", "立交"]},
+      {"pattern": "XX小区XX号楼X单元X室", "example": "XX小区3号楼2单元1501室", "weight": 1.8, "components": ["小区", "号楼", "单元", "室"]},
+      {"pattern": "XX区XX街道XX社区XX栋", "example": "XX区XX街道XX社区XX栋", "weight": 1.7, "components": ["区", "街道", "社区", "栋"]},
+      {"pattern": "XX路XX桥下", "example": "XX路XX桥下", "weight": 1.5, "components": ["路", "桥"]},
+      {"pattern": "XX路XX隧道口", "example": "XX路XX隧道口", "weight": 1.5, "components": ["路", "隧道"]},
+      {"pattern": "XX路XX号对面", "example": "XX路XX号对面", "weight": 1.6, "components": ["路", "号", "对面"]},
+      {"pattern": "XX路往X约X米", "example": "XX路往东约200米", "weight": 1.5, "components": ["路", "往", "米"]},
+      {"pattern": "XX路靠近XX路路口", "example": "XX路靠近XX路路口", "weight": 1.6, "components": ["路", "靠近", "路口"]},
+      {"pattern": "XX路与XX路交汇", "example": "XX路与XX路交汇处", "weight": 1.6, "components": ["路", "交汇"]},
+      {"pattern": "XX路XX大厦地下停车场", "example": "XX路XX大厦地下停车场", "weight": 1.7, "components": ["路", "大厦", "地下", "停车场"]},
+      {"pattern": "XX路XX号XX院", "example": "XX路XX号XX院", "weight": 1.5, "components": ["路", "号", "院"]},
+      {"pattern": "XX街道XX号往里走", "example": "XX街道XX号往里走", "weight": 1.5, "components": ["街道", "号", "往里走"]},
+      {"pattern": "XX区XX路XX医院旁", "example": "XX区XX路XX医院旁边", "weight": 1.6, "components": ["区", "路", "医院", "旁"]},
+      {"pattern": "XX路XX号XX楼地下X层", "example": "XX路XX号XX楼地下一层", "weight": 1.7, "components": ["路", "号", "楼", "地下"]},
+      {"pattern": "XX小区后门进来第X栋", "example": "XX小区后门进来第3栋", "weight": 1.6, "components": ["小区", "后门", "栋"]},
+      {"pattern": "XX大道XX交叉口向东", "example": "XX大道XX交叉口向东", "weight": 1.5, "components": ["大道", "交叉口", "向"]},
+      {"pattern": "XX路XX里XX号", "example": "XX路XX里XX号", "weight": 1.5, "components": ["路", "里", "号"]}
+    ]
+  },
+
+  "correction_pairs": {
+    "label": "地址识别纠错词对",
+    "description": "将ASR常见同音/近音/方言误识别结果映射为正确地址词汇，按类别分组",
+    "total_pairs": 78,
+    "categories": {
+      "district_correction": {
+        "label": "行政区纠错",
+        "pairs": [
+          {"error": "小曲", "correct": "小区", "context": "qū/qǔ混淆"},
+          {"error": "小屈", "correct": "小区", "context": "同音误识别"},
+          {"error": "接道", "correct": "街道", "context": "jiē/jiē声调"},
+          {"error": "街到", "correct": "街道", "context": "dào/dào同音"},
+          {"error": "正", "correct": "镇", "context": "zhèn/zhèng混淆"},
+          {"error": "想", "correct": "乡", "context": "xiāng/xiǎng声调"},
+          {"error": "村", "correct": "村", "context": "cūn/chūn混淆"},
+          {"error": "开罚区", "correct": "开发区", "context": "fā/fá混淆"},
+          {"error": "圆区", "correct": "园区", "context": "yuán/qū——二次确认"},
+          {"error": "高薪区", "correct": "高新区", "context": "xīn/xīng混淆"}
+        ]
+      },
+      "road_correction": {
+        "label": "道路纠错",
+        "pairs": [
+          {"error": "漏", "correct": "路", "context": "lù/lòu韵母混淆"},
+          {"error": "鹿", "correct": "路", "context": "完全同音"},
+          {"error": "节", "correct": "街", "context": "jiē/jié声调混淆"},
+          {"error": "达到", "correct": "大道", "context": "dá/dà声调"},
+          {"error": "打道", "correct": "大道", "context": "同音混淆"},
+          {"error": "想", "correct": "巷", "context": "xiàng/xiǎng声调"},
+          {"error": "互动", "correct": "胡同", "context": "hú/hù声调"},
+          {"error": "龙", "correct": "弄", "context": "lòng/nòng/nóng方言"},
+          {"error": "高架", "correct": "高架", "context": "jià/jiǎ声调"},
+          {"error": "虽到", "correct": "隧道", "context": "suì/shuì翘舌混淆"},
+          {"error": "suidao", "correct": "隧道", "context": "拼音误识"},
+          {"error": "力交桥", "correct": "立交桥", "context": "lì/nì混淆"},
+          {"error": "立交巧", "correct": "立交桥", "context": "qiáo/qiǎo声调"},
+          {"error": "扎道", "correct": "匝道", "context": "zā/zhā混淆"},
+          {"error": "搞素", "correct": "高速", "context": "gāo/gǎo声调"},
+          {"error": "环岛", "correct": "环岛", "context": "dǎo/dào声调"},
+          {"error": "单人", "correct": "单行", "context": "rén/xíng误识"}
+        ]
+      },
+      "compound_correction": {
+        "label": "小区纠错",
+        "pairs": [
+          {"error": "小屈", "correct": "小区", "context": "qū/qǔ混淆"},
+          {"error": "新存", "correct": "新村", "context": "cún/cūn混淆"},
+          {"error": "花圆", "correct": "花园", "context": "yuán/yuán同音"},
+          {"error": "化园", "correct": "花园", "context": "huā/huà混淆"},
+          {"error": "佳园", "correct": "家园", "context": "jiā/jiā同音"},
+          {"error": "工人", "correct": "公寓", "context": "yù/gōng拆分"},
+          {"error": "宿社", "correct": "宿舍", "context": "shè/shě混淆"},
+          {"error": "别墅", "correct": "别墅", "context": "shù/shù同音"},
+          {"error": "别野", "correct": "别墅", "context": "常见口误"},
+          {"error": "大愿", "correct": "大院", "context": "yuàn/yuán混淆"},
+          {"error": "安子房", "correct": "安置房", "context": "zhì/zǐ混淆"},
+          {"error": "经适房", "correct": "经适房", "context": "shì/shī混淆"},
+          {"error": "贡祖房", "correct": "公租房", "context": "gōng/gòng声调+zū/zǔ"},
+          {"error": "一骑", "correct": "一期", "context": "qī/qí声调混淆"},
+          {"error": "二骑", "correct": "二期", "context": "qī/qí声调混淆"}
+        ]
+      },
+      "building_correction": {
+        "label": "楼栋纠错",
+        "pairs": [
+          {"error": "动", "correct": "栋", "context": "dòng/dòng同音"},
+          {"error": "懂", "correct": "栋", "context": "完全同音"},
+          {"error": "撞", "correct": "幢", "context": "zhuàng/chuáng混淆"},
+          {"error": "坐", "correct": "座", "context": "zuò/zuò同音"},
+          {"error": "露", "correct": "楼", "context": "lóu/lù韵母"},
+          {"error": "他楼", "correct": "塔楼", "context": "tǎ/tā声调"},
+          {"error": "裙漏", "correct": "裙楼", "context": "lóu/lòu"},
+          {"error": "大傻", "correct": "大厦", "context": "shà/shǎ混淆"},
+          {"error": "大下", "correct": "大厦", "context": "xià/shà"},
+          {"error": "写自楼", "correct": "写字楼", "context": "zì/zhì混淆"},
+          {"error": "商猪楼", "correct": "商住楼", "context": "zhù/zhū声调"},
+          {"error": "综和楼", "correct": "综合楼", "context": "hé/hé同音"}
+        ]
+      },
+      "floor_correction": {
+        "label": "楼层纠错",
+        "pairs": [
+          {"error": "一楼", "correct": "一楼", "context": "yī/yì声调"},
+          {"error": "意楼", "correct": "一楼", "context": "完全误识别"},
+          {"error": "尔楼", "correct": "二楼", "context": "èr/ěr混淆"},
+          {"error": "伞楼", "correct": "三楼", "context": "sān/sǎn混淆"},
+          {"error": "石楼", "correct": "十楼", "context": "shí/shī混淆"},
+          {"error": "顶漏", "correct": "顶楼", "context": "lóu/lòu韵母"},
+          {"error": "低下一层", "correct": "地下一层", "context": "dī/dì声调"},
+          {"error": "B one", "correct": "B1", "context": "中英混合误识"},
+          {"error": "B two", "correct": "B2", "context": "中英混合误识"},
+          {"error": "负二层", "correct": "负二层", "context": "fù/fú混淆"},
+          {"error": "付一层", "correct": "负一层", "context": "fù/fù同音"},
+          {"error": "搁漏", "correct": "阁楼", "context": "gé/gē声调+lóu"},
+          {"error": "夹曾", "correct": "夹层", "context": "céng/cēng混淆"},
+          {"error": "天台", "correct": "天台", "context": "tái/tāi混淆"},
+          {"error": "洋台", "correct": "阳台", "context": "yáng/yáng同音"}
+        ]
+      },
+      "doorplate_correction": {
+        "label": "门牌号纠错",
+        "pairs": [
+          {"error": "好房", "correct": "号房", "context": "hào/hǎo声调"},
+          {"error": "是", "correct": "室", "context": "shì/shì同音"},
+          {"error": "们派", "correct": "门牌", "context": "mén/mēn混淆+pái"},
+          {"error": "一零一", "correct": "101", "context": "数字口语→标准格式"},
+          {"error": "二零一", "correct": "201", "context": "数字口语→标准格式"},
+          {"error": "三零一", "correct": "301", "context": "数字口语→标准格式"},
+          {"error": "一百零一号", "correct": "101号", "context": "口语完整表达→标准"},
+          {"error": "东户", "correct": "东户", "context": "hù/fú混淆"},
+          {"error": "西湖", "correct": "西户", "context": "hú/hù混淆"},
+          {"error": "几号", "correct": "几号", "context": "jǐ/jí混淆"},
+          {"error": "那号", "correct": "哪号", "context": "nǎ/nà声调"},
+          {"error": "那个房", "correct": "哪个房", "context": "nǎ/nà声调"}
+        ]
+      }
+    }
+  }
+}

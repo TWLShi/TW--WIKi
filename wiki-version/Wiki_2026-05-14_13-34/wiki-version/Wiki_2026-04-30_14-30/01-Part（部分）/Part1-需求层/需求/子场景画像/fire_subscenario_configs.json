@@ -1,0 +1,601 @@
+{
+  "fireSubscenarios": [
+    {
+      "id": "sub_01",
+      "name": "普通住宅火灾",
+      "coverage": 0.42,
+      "alias": ["住宅火灾", "民宅火灾", "家庭火灾"],
+      "alertKeywords": ["家里着火", "厨房着火", "沙发着火", "住宅"],
+      "level": 1,
+      "nTotalRange": [2, 4],
+      "formula": {
+        "nBase": 2,
+        "alphaSub": 0,
+        "betaStruct": 0,
+        "gSpecial": 0,
+        "mSupport": 0
+      },
+      "slots": {
+        "energyMaterial": {
+          "typicalValue": "A类可燃物（家具、电器）",
+          "confidenceRequired": 0.85,
+          "note": "极少危化品"
+        },
+        "buildingStructure": {
+          "typicalValue": "普通多层/低层住宅",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "buildingHeight": {
+          "typicalValue": "<24m",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": "0-5",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "初起/发展阶段",
+          "confidenceRequired": 0.70,
+          "note": null
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 2,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 0,
+        "smokeExhaust": 0,
+        "medicalVehicle": 0,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 0
+      },
+      "triggerConditions": [
+        "报警描述含'家里着火''厨房着火''沙发着火'等",
+        "低置信度时优先确认被困人数"
+      ],
+      "priorityNote": "水罐主战 + 快速响应"
+    },
+    {
+      "id": "sub_02",
+      "name": "高层住宅火灾",
+      "coverage": 0.18,
+      "alias": ["高层火灾", "楼房火灾"],
+      "alertKeywords": ["高层", "楼上着火", "烟很大"],
+      "level": 3,
+      "nTotalRange": [8, 12],
+      "formula": {
+        "nBase": 4,
+        "alphaSub": 2,
+        "betaStruct": 2,
+        "gSpecial": 0,
+        "mSupport": 1
+      },
+      "slots": {
+        "energyMaterial": {
+          "typicalValue": "锂电池/电器/家具",
+          "confidenceRequired": 0.85,
+          "note": "锂电池权重最高"
+        },
+        "buildingStructure": {
+          "typicalValue": "高层住宅",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "buildingHeight": {
+          "typicalValue": "24-100m（重点85m）",
+          "confidenceRequired": 1.0,
+          "note": "每30m +1举高"
+        },
+        "trappedCount": {
+          "typicalValue": "5-30",
+          "confidenceRequired": 0.80,
+          "note": "恐慌时优先确认"
+        },
+        "developmentStage": {
+          "typicalValue": "发展→猛烈",
+          "confidenceRequired": 0.75,
+          "note": "浓烟描述"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 3,
+        "foamVehicle": 0,
+        "rescueVehicle": 1,
+        "smokeExhaust": 1,
+        "medicalVehicle": 0,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'高层''楼上着火''烟很大'等",
+        "优先确认被困楼层和人数",
+        "需注意内攻安全和供水保障"
+      ],
+      "priorityNote": "3+举高 + 细水雾 + 机器人"
+    },
+    {
+      "id": "sub_03",
+      "name": "地下车库/地下室火灾",
+      "coverage": 0.09,
+      "alias": ["地下停车场火灾", "车库火灾", "地下室火灾"],
+      "alertKeywords": ["地下停车场", "车库", "地下室"],
+      "level": { "min": 2, "max": 3 },
+      "nTotalRange": [7, 10],
+      "formula": {
+        "nBase": 3,
+        "alphaSub": 1,
+        "betaStruct": 2,
+        "gSpecial": 1,
+        "mSupport": 1
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "地下、大跨度",
+          "confidenceRequired": 1.0,
+          "note": "重点排烟"
+        },
+        "energyMaterial": {
+          "typicalValue": "车辆/轮胎/油类",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": "3-15",
+          "confidenceRequired": 0.80,
+          "note": "疏散困难"
+        },
+        "developmentStage": {
+          "typicalValue": "猛烈（浓烟）",
+          "confidenceRequired": 0.75,
+          "note": null
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 2,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 1,
+        "smokeExhaust": 2,
+        "medicalVehicle": 0,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'地下停车场''车库''地下室'等",
+        "浓烟大、能见度低，优先排烟",
+        "注意地面湿滑和结构坍塌风险"
+      ],
+      "priorityNote": "排烟 + 破拆 + 抢险"
+    },
+    {
+      "id": "sub_04",
+      "name": "商业综合体/商场火灾",
+      "coverage": 0.07,
+      "alias": ["商场火灾", "超市火灾", "综合体火灾"],
+      "alertKeywords": ["商场", "超市", "综合体"],
+      "level": 3,
+      "nTotalRange": [9, 13],
+      "formula": {
+        "nBase": 5,
+        "alphaSub": 1,
+        "betaStruct": 2,
+        "gSpecial": 2,
+        "mSupport": 2
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "大空间、商业建筑",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "A类可燃物（服装/家具）",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": ">10（人员密集）",
+          "confidenceRequired": 0.85,
+          "note": "优先搜救"
+        },
+        "developmentStage": {
+          "typicalValue": "发展→猛烈",
+          "confidenceRequired": 0.75,
+          "note": "快速蔓延"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 2,
+        "foamVehicle": 0,
+        "rescueVehicle": 2,
+        "smokeExhaust": 2,
+        "medicalVehicle": 1,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'商场''超市''综合体'等",
+        "人员密集场所，优先确认被困人数和位置",
+        "注意疏散秩序和医疗保障"
+      ],
+      "priorityNote": "搜救 + 医疗 + 大空间排烟"
+    },
+    {
+      "id": "sub_05",
+      "name": "工业厂房/仓库火灾",
+      "coverage": 0.06,
+      "alias": ["工厂火灾", "厂房火灾", "仓库火灾"],
+      "alertKeywords": ["工厂", "厂房", "仓库"],
+      "level": { "min": 3, "max": 4 },
+      "nTotalRange": [8, 14],
+      "formula": {
+        "nBase": 4,
+        "alphaSub": 2,
+        "betaStruct": 2,
+        "gSpecial": 2,
+        "mSupport": 1
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "钢结构、大跨度厂房",
+          "confidenceRequired": 1.0,
+          "note": "防坍塌"
+        },
+        "energyMaterial": {
+          "typicalValue": "易燃固体/液体",
+          "confidenceRequired": 0.85,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": "0-20",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "发展→猛烈",
+          "confidenceRequired": 0.75,
+          "note": "快速蔓延"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 2,
+        "foamVehicle": 2,
+        "rescueVehicle": 1,
+        "smokeExhaust": 0,
+        "medicalVehicle": 0,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'工厂''厂房''仓库'等",
+        "注意钢结构坍塌风险",
+        "确认是否有危化品"
+      ],
+      "priorityNote": "破拆 + 供水 + 防坍塌"
+    },
+    {
+      "id": "sub_06",
+      "name": "化工/危化品园区火灾",
+      "coverage": 0.04,
+      "alias": ["化工厂火灾", "化工园火灾", "危化品火灾"],
+      "alertKeywords": ["化工厂", "化工园", "危化品"],
+      "level": 4,
+      "nTotalRange": [13, 20],
+      "formula": {
+        "nBase": 5,
+        "alphaSub": 4,
+        "betaStruct": 2,
+        "gSpecial": 4,
+        "mSupport": 3
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "化工装置/储罐",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "易燃液体/气体、危化品",
+          "confidenceRequired": 0.90,
+          "note": "泄漏、爆炸风险"
+        },
+        "trappedCount": {
+          "typicalValue": "0-50",
+          "confidenceRequired": 0.85,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "猛烈、可能爆炸",
+          "confidenceRequired": 0.80,
+          "note": "高危"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 4,
+        "commandVehicle": 2,
+        "elevatedPlatform": 0,
+        "foamVehicle": 3,
+        "rescueVehicle": 0,
+        "smokeExhaust": 0,
+        "medicalVehicle": 1,
+        "robot": 0,
+        "hazardous": 2,
+        "decontamination": 2,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'化工厂''化工园''危化品'等",
+        "可能是泄漏+火灾+爆炸复合灾害",
+        "严格遵守危化品处置规程",
+        "划定安全距离，启动联动机制"
+      ],
+      "priorityNote": "抗溶泡沫 + 防化 + 大量供水"
+    },
+    {
+      "id": "sub_07",
+      "name": "锂电池集中仓库/充电站火灾",
+      "coverage": 0.03,
+      "alias": ["锂电池火灾", "电池仓库火灾", "充电站火灾"],
+      "alertKeywords": ["锂电池", "充电站", "电池仓库"],
+      "level": { "min": 3, "max": 4 },
+      "nTotalRange": [10, 15],
+      "formula": {
+        "nBase": 4,
+        "alphaSub": 3,
+        "betaStruct": 1,
+        "gSpecial": 2,
+        "mSupport": 2
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "仓库/充电站",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "锂电池（热失控）",
+          "confidenceRequired": 0.90,
+          "note": "高复燃风险"
+        },
+        "trappedCount": {
+          "typicalValue": "0-10",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "猛烈、复燃率高",
+          "confidenceRequired": 0.80,
+          "note": "持续降温"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 0,
+        "smokeExhaust": 1,
+        "medicalVehicle": 0,
+        "robot": 2,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'锂电池''充电站''电池仓库'等",
+        "锂电池火灾需大量水持续降温",
+        "高复燃风险，处置后需留力量值守",
+        "注意防毒面具（钴、锰等金属氧化物）"
+      ],
+      "priorityNote": "细水雾 + 机器人 + 隔离"
+    },
+    {
+      "id": "sub_08",
+      "name": "电动车/新能源汽车火灾",
+      "coverage": 0.03,
+      "alias": ["电瓶车火灾", "充电桩火灾", "新能源汽车火灾"],
+      "alertKeywords": ["电动车", "新能源汽车", "充电桩"],
+      "level": 2,
+      "nTotalRange": [4, 8],
+      "formula": {
+        "nBase": 2,
+        "alphaSub": 2,
+        "betaStruct": 1,
+        "gSpecial": 1,
+        "mSupport": 1
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "停车场/充电桩",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "锂电池",
+          "confidenceRequired": 0.90,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": "0-5",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "初期→猛烈",
+          "confidenceRequired": 0.75,
+          "note": "快速蔓延"
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 2,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 1,
+        "smokeExhaust": 0,
+        "medicalVehicle": 0,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 0
+      },
+      "triggerConditions": [
+        "报警描述含'电动车''新能源汽车''充电桩'等",
+        "快速控火，细水雾优于大量水",
+        "确认是否有人员被困",
+        "注意复燃，留守观察"
+      ],
+      "priorityNote": "细水雾 + 快速控火"
+    },
+    {
+      "id": "sub_09",
+      "name": "人员密集公共场所火灾",
+      "coverage": 0.02,
+      "alias": ["学校火灾", "医院火灾", "地铁火灾", "公共场所火灾"],
+      "alertKeywords": ["学校", "医院", "地铁", "商场"],
+      "level": { "min": 3, "max": 4 },
+      "nTotalRange": [10, 16],
+      "formula": {
+        "nBase": 5,
+        "alphaSub": 1,
+        "betaStruct": 2,
+        "gSpecial": 3,
+        "mSupport": 2
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "公共场所建筑",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "A类可燃物",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": ">20（人员密集）",
+          "confidenceRequired": 0.85,
+          "note": "优先搜救+疏散"
+        },
+        "developmentStage": {
+          "typicalValue": "发展→猛烈",
+          "confidenceRequired": 0.75,
+          "note": null
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 2,
+        "smokeExhaust": 2,
+        "medicalVehicle": 2,
+        "robot": 0,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'学校''医院''地铁''商场'等",
+        "人员密集，优先确认被困人数和位置",
+        "疏散压力大，需医疗保障",
+        "可能需要多部门联动"
+      ],
+      "priorityNote": "优先搜救 + 医疗保障"
+    },
+    {
+      "id": "sub_10",
+      "name": "大型物流/冷库火灾",
+      "coverage": 0.01,
+      "alias": ["物流园火灾", "冷库火灾", "仓库火灾"],
+      "alertKeywords": ["物流园", "冷库", "仓库"],
+      "level": 3,
+      "nTotalRange": [9, 14],
+      "formula": {
+        "nBase": 4,
+        "alphaSub": 2,
+        "betaStruct": 2,
+        "gSpecial": 1,
+        "mSupport": 2
+      },
+      "slots": {
+        "structureType": {
+          "typicalValue": "大空间/物流仓库",
+          "confidenceRequired": 1.0,
+          "note": null
+        },
+        "energyMaterial": {
+          "typicalValue": "包装材料/保温材料",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "trappedCount": {
+          "typicalValue": "0-10",
+          "confidenceRequired": 0.80,
+          "note": null
+        },
+        "developmentStage": {
+          "typicalValue": "发展→猛烈",
+          "confidenceRequired": 0.75,
+          "note": null
+        }
+      },
+      "recommendedComposition": {
+        "waterTanker": 3,
+        "commandVehicle": 1,
+        "elevatedPlatform": 0,
+        "foamVehicle": 0,
+        "rescueVehicle": 1,
+        "smokeExhaust": 2,
+        "medicalVehicle": 0,
+        "robot": 1,
+        "hazardous": 0,
+        "decontamination": 0,
+        "supportVehicle": 1
+      },
+      "triggerConditions": [
+        "报警描述含'物流园''冷库''仓库'等",
+        "大空间，烟雾聚集快",
+        "保温材料燃烧产生有毒气体",
+        "复燃风险高，需持续监控"
+      ],
+      "priorityNote": "破拆 + 排烟 + 防复燃"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2026-04-23",
+    "totalCoverage": 0.95,
+    "source": "火灾子场景分类.md",
+    "formulaNote": {
+      "nBase": "基础力量编成",
+      "alphaSub": "能量物质修正（锂电池、危化品等）",
+      "betaStruct": "建筑结构修正（高层、地下、大跨度等）",
+      "gSpecial": "特殊风险修正（人员密集、爆炸风险等）",
+      "mSupport": "发展阶段修正（猛烈、持续处置等）"
+    }
+  }
+}

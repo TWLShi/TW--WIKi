@@ -1,0 +1,58 @@
+{
+  "id": "sub_01",
+  "name": "普通住宅火灾",
+  "coverage": 0.42,
+  "alias": ["住宅火灾", "民宅火灾", "家庭火灾"],
+  "alertKeywords": ["家里着火", "厨房着火", "沙发着火", "住宅"],
+  "level": 1,
+  "nTotalRange": [2, 4],
+  "formula": {
+    "nBase": 2,
+    "alphaSub": 0,
+    "betaStruct": 0,
+    "gSpecial": 0,
+    "mSupport": 0,
+    "nTotal": "2-4"
+  },
+  "slots": {
+    "energyMaterial": {
+      "typicalValue": "A类可燃物（家具、电器）",
+      "confidenceRequired": 0.85,
+      "note": "极少危化品"
+    },
+    "buildingStructure": {
+      "typicalValue": "普通多层/低层住宅",
+      "confidenceRequired": 1.0
+    },
+    "buildingHeight": {
+      "typicalValue": "<24m",
+      "confidenceRequired": 1.0
+    },
+    "trappedCount": {
+      "typicalValue": "0-5",
+      "confidenceRequired": 0.80
+    },
+    "developmentStage": {
+      "typicalValue": "初起/发展阶段",
+      "confidenceRequired": 0.70
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 2,
+    "commandVehicle": 1,
+    "elevatedPlatform": 0,
+    "foamVehicle": 0,
+    "rescueVehicle": 0,
+    "smokeExhaust": 0,
+    "medicalVehicle": 0,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 0
+  },
+  "triggerConditions": [
+    "报警描述含'家里着火''厨房着火''沙发着火'等",
+    "低置信度时优先确认被困人数"
+  ],
+  "priorityNote": "水罐主战 + 快速响应"
+}

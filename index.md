@@ -29,6 +29,7 @@ title: Wiki Index
 | [wiki/03-Scene（场景）/](wiki/03-Scene（场景）/) | MOCs场景枢纽 |
 | [wiki/其他类/](wiki/其他类/) | PARA结构 + 其他内容 |
 | [wiki/原始材料/](wiki/原始材料/) | 原始资料 |
+| [wiki/应急响应与调度指挥手册/](wiki/应急响应与调度指挥手册/) | 天津消防应急响应与调度指挥手册 |
 
 ## Version Management (wiki-version/)
 

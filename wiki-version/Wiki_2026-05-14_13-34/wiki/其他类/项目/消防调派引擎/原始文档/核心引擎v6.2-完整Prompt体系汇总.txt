@@ -1,0 +1,240 @@
+# 消防调派智能系统核心引擎 - v6.2 完整Prompt体系汇总（第1-12步）
+
+## 第1-12步 整体Prompt体系汇总（v6.2 生产级完整版）
+
+---
+
+## 第1步：警情接收与初步解析
+
+### 主Prompt（ASR后结构化）
+```text
+你是一名专业消防接警员，正在处理119报警。
+
+原始报警内容：
+"""{{asr_text}}"""
+
+请严格按照以下JSON格式输出：
+{
+  "address": "完整标准化地址",
+  "building_type": "住宅|高层|地下|商业|化工|医院|...",
+  "fire_description": "简短火情描述",
+  "personnel_status": "被困/伤亡/未知",
+  "hazmat_mention": true/false,
+  "tags": ["明火","浓烟","爆炸风险",...],
+  "confidence": 0.XX,
+  "missing_info": ["地址不精确",...],
+  "suggested_questions": ["请问具体在哪栋..."]
+}
+```
+
+---
+
+## 第2步：Query_Routing 智能问询路由
+
+### 动态话术生成Prompt
+```text
+你是一名经验丰富的消防接警员。
+
+当前已知信息：{{structured_alert_summary}}
+缺失关键信息：{{missing_elements}}
+
+生成一条自然、简短、安抚性的话术（最多20字），优先询问最高优先级缺失项。
+```
+
+### 答案解析Prompt
+```text
+报警人回答："""{{answer_text}}"""
+
+提取以下字段并输出JSON：
+{
+  "address_detail": "...",
+  "fire_scale": "...",
+  "personnel": "...",
+  "hazmat": true/false,
+  "new_tags": [...],
+  "confidence": 0.XX
+}
+```
+
+---
+
+## 第3步：多维要素识别
+
+### 多维画像构建Prompt
+```text
+你是一名资深消防指挥员。请对以下警情进行多维分析并输出JSON：
+
+{{full_alert_json}}
+
+分析维度：
+1. 空间维度（地址、建筑、周边）
+2. 时间维度（起火时间、延迟）
+3. 规模维度（面积、烟雾、火势）
+4. 风险维度（人员、危化、次生灾害）
+
+输出JSON格式，包含confidence。
+```
+
+---
+
+## 第4步：警情等级判定
+
+### 等级判定解释Prompt
+```text
+你是一名消防指挥专家。根据以下多维画像判定警情等级并给出理由。
+
+画像数据：{{portrait_json}}
+当前计算总分：{{total_score}}
+
+输出JSON：
+{
+  "final_level": 1-4,
+  "confidence": 0.XX,
+  "main_reasons": [...],
+  "risk_points": [...],
+  "recommendation": "..."
+}
+```
+
+---
+
+## 第5步：调派规模计算模型
+
+### 规模计算解释Prompt
+```text
+你是一名消防调度专家。根据以下计算结果解释推荐规模（不超过60字）：
+
+等级：{{level}}级
+基础车辆：{{base}}
+ML系数：{{ml_coefficient}}（主要贡献：{{top_shap}}）
+
+输出自然语言解释，包含理由和注意事项。
+```
+
+---
+
+## 第6步：队站与车辆匹配
+
+### 匹配方案解释Prompt
+```text
+根据以下匹配结果，给调度员一段简洁推荐理由（不超过60字）：
+
+推荐方案：{{primary_plan}}
+总ETA：{{total_eta}}分钟
+主要优势：{{advantages}}
+潜在风险：{{risks}}
+```
+
+---
+
+## 第7步：约束校验机制
+
+### 约束校验解释Prompt
+```text
+根据以下校验报告，用简洁语言说明问题和建议（不超过70字）：
+
+{{validation_report}}
+
+重点说明：主要冲突点、推荐调整方案、是否需要人工介入。
+```
+
+---
+
+## 第8步：反向模拟与冲突解决
+
+### 模拟冲突解释Prompt
+```text
+根据以下反向模拟结果，说明当前方案的风险和建议（不超过80字）：
+
+模拟结果：{{simulation}}
+主要冲突：{{top_conflicts}}
+调整建议：{{adjusted_plans}}
+```
+
+---
+
+## 第9步：AI多智能体协同决策（最重要）
+
+### 系统协调Prompt（启动时）
+```text
+你是多智能体协调官。请协调以下四个Agent协同工作：
+1. PerceptionAgent 2. DecisionAgent 3. ExecutionAgent 4. PredictionAgent
+```
+
+### 仲裁Prompt（核心）
+```text
+你是最终消防指挥仲裁官。
+
+四个Agent输出：
+- Perception：{{perception}}
+- Decision：{{decision}}
+- Execution：{{execution}}
+- Prediction：{{prediction}}
+
+冲突点：{{conflicts}}
+
+输出最终指挥方案JSON（包含arbitration_reason和overall_confidence）。
+```
+
+（注：四个Agent专用Prompt详见 `核心引擎v6.2-Step9完整Prompt体系.txt`）
+
+---
+
+## 第10步：人工二次确认
+
+### 辅助决策Prompt（界面显示）
+```text
+AI建议方案总结：
+等级：{{level}} | 车辆：{{vehicles}} | ETA：{{eta}}
+
+主要风险：{{top_risks}}
+AI理由：{{explanation}}
+
+请确认或修改关键项，并填写修改理由（用于审计与模型学习）。
+```
+
+---
+
+## 第11步：调派方案生成与下达
+
+### 指挥单生成Prompt
+```text
+根据以下最终确认方案，生成一份标准消防指挥单（简洁、专业）：
+
+{{approved_plan}}
+
+包含：警情概况、力量编成、行车路线、战术要点、注意事项。
+输出Markdown格式。
+```
+
+---
+
+## 第12步：审计留痕与责任记录
+
+### 审计报告总结Prompt
+```text
+根据以下完整调派记录，生成一份简洁的审计总结报告（300字以内）：
+
+警情ID：{{incident_id}}
+最终等级：{{level}}
+AI vs 人工差异：{{modifications}}
+
+重点包含：责任链、主要决策点、改进建议。
+```
+
+---
+
+## 使用建议
+
+### 温度控制
+- 大部分步骤：0.2-0.3（稳定性优先）
+- 预测Agent：0.5
+
+### Few-shot
+- 可在每个Prompt中加入1-2个高质量历史示例
+
+### 版本管理
+- 所有Prompt建议放入配置文件，支持热更新
+
+### 持续优化
+- 每次人工确认后的修改，都作为Few-shot示例或微调数据

@@ -1,0 +1,156 @@
+来源：接警问询模块的路由规则和数据结构定义
+
+
+根据您提供的 `119 消防接警智能问话` 数据结构（v6.6），我为您生成了一份完整的问题路由规则。该规则以**节点状态机**的形式，明确了从接警开始到结束的每一步跳转条件、路由器匹配逻辑以及字段缺失时的追问机制。
+
+---
+
+## 一、全局路由概览
+
+流程从 `l0.root` 开始，依次经过：
+1. **位置确认**（`l0.pos`，按需触发）
+2. **人员威胁确认**（`l0.risk`）
+3. **警情大类路由**（`incident.router`）
+4. **各类分支内顺序问话**（可能嵌套 `building.router` / `rescue.router` / `assist.router`）
+5. 最终进入 `complete` 节点（结束会话）
+
+每个 `slot_fill` 节点会尝试从用户回答中提取 `requiredFields`，若缺失则立即追问 `subQuestion`，直到字段补全后再进入 `next` 节点。
+
+---
+
+## 二、节点路由表（主流程）
+
+| 当前节点 ID | 节点类型 | 下一节点 ID | 跳转条件 / 说明 |
+|------------|---------|-------------|----------------|
+| `l0.root` | slot_fill | `l0.pos` 或 `l0.risk` | 若未提取到 `community`（社区）→ `l0.pos`；否则直接 → `l0.risk` |
+| `l0.pos` | slot_fill | `l0.risk` | 补充位置后固定跳转 |
+| `l0.risk` | slot_fill | `incident.router` | 提取 `trappedCount` 后跳转 |
+| `incident.router` | router | 见“路由器匹配规则” | 根据 `incidentType` 匹配分支 |
+| `l0.fire.1` | slot_fill | `l0.fire.2` | 火灾分支入口 |
+| `l0.fire.2` | slot_fill | `l1.fire.1` | |
+| `l1.fire.1` | slot_fill | `l1.fire.2` | |
+| `l1.fire.2` | slot_fill | `l1.fire.3` | |
+| `l1.fire.3` | slot_fill | `l1.fire.4` | |
+| `l1.fire.4` | slot_fill | `l1.fire.5` | |
+| `l1.fire.5` | slot_fill | `l1.fire.6` | |
+| `l1.fire.6` | slot_fill | `l1.fire.7` | |
+| `l1.fire.7` | slot_fill | `building.router` | |
+| `building.router` | router | 见“路由器匹配规则” | 根据 `buildingScene` 匹配分支 |
+| `l2.highrisk.1` ~ `l2.highrisk.9` | slot_fill | 顺序链直至 `complete` | 高危分支顺序问话 |
+| `l2.crowded.1` ~ `l2.crowded.8` | slot_fill | 顺序链直至 `complete` | 人员密集分支 |
+| `l2.keyunit.1` ~ `l2.keyunit.8` | slot_fill | 顺序链直至 `complete` | 重点单位分支 |
+| `l2.water.1` ~ `l2.water.5` | slot_fill | 顺序链直至 `complete` | 水域灾害分支 |
+| `rescue.1` | slot_fill | `rescue.router` | 救援分支入口 |
+| `rescue.router` | router | 见“路由器匹配规则” | 根据 `rescueSubType` 匹配 |
+| `rescue.gas.1` / `rescue.collapse.1` / `rescue.elevator.1` | slot_fill | `complete` | 各子类完成后结束 |
+| `assist.1` | slot_fill | `assist.router` | 社会救助入口 |
+| `assist.router` | router | 见“路由器匹配规则” | 根据 `assistanceType` 匹配 |
+| `assist.body.1` / `assist.key.1` / `assist.animal.1` | slot_fill | `complete` | 各子类完成后结束 |
+
+---
+
+## 三、路由器匹配规则
+
+### 1. `incident.router` —— 警情类型路由
+
+**触发时机**：完成 `l0.risk` 后，根据用户回答中提取的 `incidentType` 字段匹配。
+
+**匹配顺序**（按优先级降序，数值越大越优先）：
+| 优先级 | `incidentType` 值 | 匹配关键词（部分示例） | 下一节点链（第一个节点） |
+|--------|------------------|----------------------|------------------------|
+| 5 | `水域灾害类` | 水灾、洪水、内涝、积水、山洪、车库进水、河水漫出…… | `l2.water.1` |
+| (无) | `火灾扑救类` | 着火、起火、冒烟、火烧、明火、火苗…… | `l0.fire.1` |
+| (无) | `应急救援类` | 被困、倒塌、坍塌、泄漏、车祸、脱轨、爆炸…… | `rescue.1` |
+| (无) | `社会救助类` | 钥匙、卡住、蜂窝、马蜂、开门、水管…… | `assist.1` |
+
+**默认路由**：若未匹配任何关键词 → `火灾扑救类`（`l0.fire.1`）
+
+---
+
+### 2. `building.router` —— 建筑场景分类路由
+
+**触发时机**：完成火灾分支的 `l1.fire.7` 后，根据用户回答中提取的 `buildingScene` 字段匹配。
+
+**匹配顺序**（按优先级降序）：
+| 优先级 | `buildingScene` 值 | 匹配关键词（部分示例） | 下一节点链（第一个节点） |
+|--------|--------------------|----------------------|------------------------|
+| 3 | `highrisk` | 高层、超高层、化工厂、危化品、油库、地下室、厂房、仓库…… | `l2.highrisk.1` |
+| 2 | `crowded` | 学校、医院、商场、影院、养老院、酒店、车站…… | `l2.crowded.1` |
+| 1 | `keyunit` | 政府、数据中心、档案馆、博物馆、通信枢纽、实验室…… | `l2.keyunit.1` |
+
+**默认路由**：若未匹配任何关键词 → `ordinary`（无额外问题 → 直接 `complete`）
+
+---
+
+### 3. `rescue.router` —— 救援场景路由
+
+**触发时机**：完成 `rescue.1` 后，根据用户回答中提取的 `rescueSubType` 或 `rescueSceneType` 匹配。
+
+**匹配顺序**（按routes定义顺序）：
+| `rescueSubType` | 匹配关键词（部分示例） | 下一节点 |
+|----------------|----------------------|----------|
+| `gas` | 燃气、漏气、煤气、天然气 | `rescue.gas.1` |
+| `collapse` | 倒塌、坍塌、塌了 | `rescue.collapse.1` |
+| `elevator` | 电梯、扶梯、升降梯、困在 | `rescue.elevator.1` |
+
+**默认路由**：`collapse`（`rescue.collapse.1`）
+
+---
+
+### 4. `assist.router` —— 社会救助场景路由
+
+**触发时机**：完成 `assist.1` 后，根据用户回答中提取的 `assistanceType` 匹配。
+
+**匹配顺序**（按routes定义顺序）：
+| `assistanceType` | 匹配关键词（部分示例） | 下一节点 |
+|-----------------|----------------------|----------|
+| `trapped_body` | 卡住、卡手、卡脚、被卡 | `assist.body.1` |
+| `key_lockout` | 钥匙、忘带、反锁、进不去 | `assist.key.1` |
+| `animal_removal` | 马蜂、蜂窝、蛇、动物、狗 | `assist.animal.1` |
+
+**默认路由**：`trapped_body`（`assist.body.1`）
+
+---
+
+## 四、字段缺失时的追问规则（subQuestion）
+
+每个 `slot_fill` 节点都有自己的 `requiredFields` 列表。若在该节点无法从用户回答中提取到任一必填字段，系统**不会跳转**，而是**在当前节点内**发出 `subQuestion`（或节点内置的 `subQuestion`）继续追问，直到所有 `requiredFields` 均被成功提取，才进入 `next` 节点。
+
+示例：
+
+- `l0.risk` 需要 `trappedCount`，若用户未说人数，系统追问：“被困人员在什么位置？状态怎么样？”
+- `l0.fire.1` 需要 `fireStage`，若未说明火势大小，追问：“是只有烟、看到明火，还是火势已经很大？”
+- `l2.keyunit.2` 需要 `criticalArea`，若未明确，追问：“是否涉及机房、实验室、配电室、控制室、仓库？”
+
+> 注意：`subExtractFields` 是提取补充信息时使用的字段，不参与路由跳转判断。
+
+---
+
+## 五、完整对话流程示例（火灾+高层建筑）
+
+1. **l0.root**：问位置+情况 → 用户说“xx小区3号楼着火”  
+   → 提取 `incidentType=火灾`，位置 `community=xx小区`，`fireStage` 缺失 → 因位置已有 `community`，直接进入 `l0.risk`
+
+2. **l0.risk**：问是否有人被困 → 用户说“有两个老人” → 提取 `trappedCount=2` → 进入 `incident.router`
+
+3. **incident.router**：匹配 “着火” → 火灾分支 → `l0.fire.1`
+
+4. **l0.fire.1**：缺少 `fireStage` → 追问“是只有烟、看到明火，还是火势已经很大？” → 用户说“明火很大” → 提取 `fireStage=明火很大` → 进入 `l0.fire.2`
+
+5. **l0.fire.2**：问燃烧物 → 用户说“电动车电池” → 提取 `burningMaterial=电动车电池`，`hasDangerousItem=yes` → 进入 `l1.fire.1`
+
+6. **l1.fire.1** → `l1.fire.2` → … → `l1.fire.7` → 进入 `building.router`
+
+7. **building.router**：根据“高层”“3号楼”等 → 匹配 `highrisk` → 进入 `l2.highrisk.1`
+
+8. **l2.highrisk.1**：问起火楼层、总层数 → 用户说“18楼，总共26层” → 提取 `fireFloor=18, totalFloors=26` → 进入 `l2.highrisk.2` …… 依次问完9个高危问题 → 进入 `complete`
+
+---
+
+## 六、特殊说明
+
+- **重复追问**：同一 `slot_fill` 节点可能因为用户回答不完整而多次发出 `subQuestion`，直到字段齐全。
+- **默认值**：若用户始终无法提供某必填字段（如社区名称），系统应允许人工介入或记录为“未知”，但理论上必须完成 `requiredFields` 才可跳转。
+- **节点链长度**：不同分支的长度不同，但最终都汇聚到 `complete` 节点（`complete` 不作为显式节点出现在 JSON 中，但通过 `next: "complete"` 表示会话结束）。
+
+此路由规则可直接用于实现智能问话引擎的状态机逻辑。

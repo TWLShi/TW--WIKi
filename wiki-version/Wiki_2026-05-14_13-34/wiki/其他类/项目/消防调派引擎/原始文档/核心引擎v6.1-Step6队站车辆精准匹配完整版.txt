@@ -1,0 +1,193 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第6步）
+
+## 第6步：队站与车辆精准匹配（目标耗时：10-25秒）
+
+### 6.1 输入聚合
+- 6.1.1 接收第5步三档规模方案（推荐/最小/最大）
+- 6.1.2 接收第3步画像（建筑类型、特殊场景）
+- 6.1.3 实时查询全区车辆与中队状态
+
+### 6.2 GIS空间匹配
+- 6.2.1 计算所有中队到事发地的实时距离 + ETA（考虑路况、拥堵）
+- 6.2.2 筛选候选中队（ETA ≤ 10分钟优先）
+
+### 6.3 车辆精准匹配
+- 6.3.1 按类型需求匹配可用车辆（水罐、泡沫、举高、特勤等）
+- 6.3.2 考虑车辆状态（空闲、在勤、维修、保养、出警中）
+- 6.3.3 装备匹配度打分（是否携带必要器材）
+
+### 6.4 多目标优化
+- 6.4.1 多目标优化算法（距离最优 + 负载均衡 + 专业匹配）
+- 6.4.2 单中队出车率限制（≤70%）
+- 6.4.3 跨区联动方案生成（必要时）
+
+### 6.5 方案生成与排序
+- 6.5.1 生成首选方案 + 2-3个备选方案
+- 6.5.2 每套方案包含ETA总和、负载影响、匹配度
+- 6.5.3 生成自然语言推荐理由
+
+### 6.6 输出与分流
+- 6.6.1 更新推荐中队与车辆清单
+- 6.6.2 触发第7步（约束校验）
+
+---
+
+## 1. 代码伪代码
+
+```python
+def station_vehicle_matching(incident_id: str):
+    # 6.1 输入聚合
+    scale = get_scale_result(incident_id)
+    portrait = get_portrait(incident_id)
+    resource = get_realtime_resource()   # 全区车辆状态
+
+    # 6.2 GIS空间匹配
+    candidates = gis_engine.find_nearby_stations(
+        location=portrait.spatial.geo,
+        max_eta=15,
+        limit=20
+    )
+
+    # 6.3 车辆匹配
+    matched_vehicles = []
+    for station in candidates:
+        available = filter_available_vehicles(station, scale.composition)
+        scored = score_vehicle_match(available, portrait.risk, scale)
+        matched_vehicles.extend(scored)
+
+    # 6.4 多目标优化
+    optimized_plans = multi_objective_optimizer(
+        vehicles=matched_vehicles,
+        scale=scale,
+        constraints={
+            "max_load_per_station": 0.7,
+            "min_total_eta": True
+        }
+    )
+
+    # 6.5 生成方案
+    result = {
+        "incident_id": incident_id,
+        "primary_plan": optimized_plans[0],
+        "alternative_plans": optimized_plans[1:3],
+        "total_eta_minutes": optimized_plans[0].total_eta,
+        "load_impact": calculate_load_impact(optimized_plans[0]),
+        "matching_score": optimized_plans[0].score,
+        "explanation": generate_matching_explanation(optimized_plans[0]),
+        "need_human_review": optimized_plans[0].score < 0.85
+    }
+
+    save_matching_result(incident_id, result)
+    log_audit("Step6_StationVehicleMatching", result)
+
+    trigger_next_step(incident_id, "Step7_ConstraintValidation")
+    return result
+```
+
+---
+
+## 2. Prompt模板
+
+### 匹配方案解释Prompt
+```text
+你是一名消防调度专家。根据以下匹配结果，给调度员一段简洁清晰的推荐理由（不超过60字）：
+
+推荐方案：{{primary_plan_summary}}
+总ETA：{{total_eta}}分钟
+主要优势：{{advantages}}
+潜在风险：{{risks}}
+
+输出自然语言解释。
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 附近无足够可用车辆          | 自动扩大搜索半径 + 触发跨区联动      | 标记"资源紧张"               | 最高   |
+| ETA计算异常（路况数据失败） | 使用历史平均速度替代                  | 标记"ETA估算不准"            | 高     |
+| 关键装备（如举高车）缺失    | 自动推荐最近替代中队                  | 推送预警给调度员             | 高     |
+| 优化算法超时                | 回退到距离最优贪心算法                | 记录降级                     | 中     |
+| 单中队负载超限              | 强制分散到多个中队                    | 生成多站点联动方案           | 高     |
+| GIS服务不可用               | 使用备用坐标 + 手动距离表             | 通知运维                     | 高     |
+
+---
+
+## 4. 数据库表结构
+
+### 匹配结果主表：station_vehicle_matching
+```sql
+CREATE TABLE station_vehicle_matching (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    primary_plan          JSONB,                    -- 首选方案完整信息
+    alternative_plans     JSONB[],                  -- 备选方案
+    total_eta_minutes     INTEGER,
+    matching_score        NUMERIC(5,3),
+    load_impact           JSONB,                    -- 各中队负载变化
+    explanation           TEXT,
+    need_human_review     BOOLEAN DEFAULT FALSE,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 车辆匹配明细表：vehicle_assignment
+```sql
+CREATE TABLE vehicle_assignment (
+    assignment_id         BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    station_id            VARCHAR(20),
+    vehicle_id            VARCHAR(30),
+    vehicle_type          VARCHAR(30),
+    eta_minutes           INTEGER,
+    match_score           NUMERIC(5,3),
+    priority              INTEGER,
+    assigned_at           TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/matching/plan
+
+请求体：
+```json
+{
+  "use_ml_optimizer": true,
+  "max_eta_limit": 12,
+  "allow_cross_district": true,
+  "priority": "recommended"     // min / recommended / max
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "primary_plan": {
+      "stations": [
+        {"station_id": "S001", "name": "XX中队", "eta": 6, "vehicles": [...]}
+      ],
+      "total_eta": 8,
+      "total_vehicles": 15,
+      "matching_score": 0.94
+    },
+    "alternative_plans": [ ... ],
+    "explanation": "XX中队距离最近且装备齐全，推荐优先调派...",
+    "need_human_review": false,
+    "next_step": "Step7_ConstraintValidation"
+  }
+}
+```
+
+---
+
+## 第6步核心特点
+- GIS + 实时资源 + ML优化三结合
+- 支持多目标平衡（速度、负载、专业性）
+- 为后续约束校验提供精准候选方案

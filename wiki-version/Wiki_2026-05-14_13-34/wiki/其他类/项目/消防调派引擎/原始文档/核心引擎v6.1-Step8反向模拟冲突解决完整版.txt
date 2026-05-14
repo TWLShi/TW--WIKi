@@ -1,0 +1,175 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第8步）
+
+## 第8步：反向模拟与冲突解决（目标耗时：15-35秒）
+
+### 8.1 输入聚合
+- 8.1.1 接收第7步校验报告（Pass/Warning）
+- 8.1.2 接收第6步匹配方案
+- 8.1.3 接收第5步规模方案 + 第3步画像
+
+### 8.2 方案推演模拟
+- 8.2.1 时间线推演（T+0 到 T+60分钟）
+- 8.2.2 火势蔓延模拟（基于画像 + 预测模型）
+- 8.2.3 资源消耗模拟（水、泡沫、人员疲劳）
+- 8.2.4 覆盖能力模拟（火场控制概率）
+
+### 8.3 冲突全面检测
+- 8.3.1 资源冲突（同一中队超负荷）
+- 8.3.2 时间冲突（ETA超标）
+- 8.3.3 装备冲突（缺少关键器材）
+- 8.3.4 战术冲突（方案与场景不匹配）
+- 8.3.5 次生风险冲突（坍塌、爆炸、毒气）
+
+### 8.4 自动调整与优化
+- 8.4.1 生成调整方案（增/减车辆、更换中队、调整编成）
+- 8.4.2 多方案对比排序（可行性 × 效率 × 风险）
+- 8.4.3 若无法自动解决 → 推送人工介入
+
+### 8.5 输出与分流
+- 8.5.1 输出最终可执行方案
+- 8.5.2 若通过 → 触发第9步（AI多智能体决策）
+- 8.5.3 若失败 → 回退到第5步或第6步
+
+---
+
+## 1. 代码伪代码
+
+```python
+def reverse_simulation_and_conflict_resolution(incident_id: str):
+    # 8.1 输入聚合
+    validation = get_validation_report(incident_id)
+    matching = get_matching_result(incident_id)
+    scale = get_scale_result(incident_id)
+    portrait = get_portrait(incident_id)
+
+    simulation = run_full_simulation(portrait, matching, scale)  # 时间线 + 火势 + 资源
+
+    # 8.3 冲突检测
+    conflicts = detect_all_conflicts(simulation, validation)
+
+    result = {
+        "incident_id": incident_id,
+        "simulation_summary": simulation.summary,
+        "conflicts": conflicts,
+        "overall_feasibility": calculate_feasibility_score(simulation, conflicts),
+        "adjusted_plans": []
+    }
+
+    if conflicts.severe_count == 0:
+        result["status"] = "PASS"
+        result["final_plan"] = matching.primary_plan
+    else:
+        # 8.4 自动调整
+        result["adjusted_plans"] = auto_repair_engine.generate_plans(conflicts, simulation)
+        result["status"] = "ADJUSTED" if result["adjusted_plans"] else "FAIL"
+
+    # 持久化
+    save_simulation_result(incident_id, result)
+    log_audit("Step8_ReverseSimulation", result)
+
+    # 分流
+    if result["status"] in ["PASS", "ADJUSTED"]:
+        trigger_next_step(incident_id, "Step9_AIMultiAgent")
+    else:
+        rollback_to_step(incident_id, target=["Step5", "Step6"])
+
+    return result
+```
+
+---
+
+## 2. Prompt模板
+
+### 模拟冲突解释Prompt
+```text
+你是一名资深消防指挥官。请根据以下反向模拟结果，用简洁语言向调度员说明当前方案的风险和建议（不超过80字）：
+
+模拟结果：{{simulation_summary}}
+主要冲突：{{top_conflicts}}
+调整建议：{{adjusted_plans}}
+
+输出格式：问题 + 风险 + 推荐行动
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 模拟引擎超时                | 使用简化规则推演                      | 标记"模拟不完整"             | 高     |
+| 火势预测模型不可用          | 回退到静态规模评估                    | 通知预测模型团队             | 高     |
+| 严重冲突无法自动修复        | 直接推送给人工确认                    | 标记"需人工干预"             | 最高   |
+| 资源数据实时性差            | 使用保守估算 + 增加缓冲               | 提高最小车辆数               | 中     |
+| 多方案均不可行              | 强制回退到第5步重新计算规模           | 推送高级警报                 | 最高   |
+
+---
+
+## 4. 数据库表结构
+
+### 核心模拟表：reverse_simulation_result
+```sql
+CREATE TABLE reverse_simulation_result (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    status                VARCHAR(20),           -- PASS / ADJUSTED / FAIL
+    feasibility_score     NUMERIC(5,2),
+    simulation_timeline   JSONB,                 -- 时间线推演
+    conflicts             JSONB[],               -- 冲突清单
+    adjusted_plans        JSONB[],               -- 调整后方案
+    explanation           TEXT,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 冲突明细表：simulation_conflicts
+```sql
+CREATE TABLE simulation_conflicts (
+    conflict_id           BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    conflict_type         VARCHAR(50),           -- resource/time/tactical/risk
+    severity              VARCHAR(10),           -- low/medium/high/critical
+    description           TEXT,
+    suggested_repair      JSONB,
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/simulation/reverse
+
+请求体：
+```json
+{
+  "simulation_depth": "full",        // full / fast
+  "include_fire_spread": true,
+  "max_adjustment_attempts": 3
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "status": "ADJUSTED",
+    "feasibility_score": 88.5,
+    "conflicts": [
+      {"type": "time", "severity": "medium", "suggestion": "替换中队X"}
+    ],
+    "final_plan": { ... },
+    "explanation": "原方案ETA超标，已自动调整为XX中队...",
+    "next_step": "Step9_AIMultiAgent"
+  }
+}
+```
+
+---
+
+## 第8步核心特点
+- 真正实现"先推演再执行"的闭环校验
+- 自动修复能力大幅降低人工干预频率
+- 为第9步AI多智能体提供高质量可行方案

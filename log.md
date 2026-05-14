@@ -21,3 +21,5 @@ title: Wiki Log
 - [2026-05-06] LLM_WIKI_INIT: Reorganized into wiki/ folder - 01-Part、02-Step、03-Scene、版本管理、其他类、原始材料 moved to wiki/ subfolder
 - [2026-05-06] REORG: 需求/ directory reorganized with new folders (调派核心模型, 约束校验, 问题路由, 多智能体架构, AI流程, 火灾预测, 审计体系, 责任机制)
 - [2026-05-06] INGEST: _raw/语义/ PDFs → 需求/ subdirectories, 10+ new pages created
+- [2026-05-13] INGEST source="llm-wiki-base/_raw/应急响应与调度指挥手册-天津.pdf" pages_created=8 pages_updated=0 mode=ocr notes="天津消防应急响应与调度指挥手册（158页扫描件OCR提取），7章24节"
+- [2026-05-13] EXPAND pages_updated=7 mode=content-expansion notes="根据用户反馈'生成的内容不完整'，重新基于完整OCR文本扩展所有7个章节页面，增加原始文档完整话术脚本、规范用语、调度矩阵、信息报送模板、车辆分布明细等原始内容。清理临时OCR文件（ch_*.txt、OCR输出目录、Swift脚本）"

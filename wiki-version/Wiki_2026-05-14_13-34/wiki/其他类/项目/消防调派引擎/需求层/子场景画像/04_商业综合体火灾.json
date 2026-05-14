@@ -1,0 +1,56 @@
+{
+  "id": "sub_04",
+  "name": "商业综合体/商场火灾",
+  "coverage": 0.07,
+  "alias": ["商场火灾", "超市火灾", "综合体火灾"],
+  "alertKeywords": ["商场", "超市", "综合体"],
+  "level": 3,
+  "nTotalRange": [9, 13],
+  "formula": {
+    "nBase": 5,
+    "alphaSub": 1,
+    "betaStruct": 2,
+    "gSpecial": 2,
+    "mSupport": 2,
+    "nTotal": "12"
+  },
+  "slots": {
+    "structureType": {
+      "typicalValue": "大空间、商业建筑",
+      "confidenceRequired": 1.0
+    },
+    "energyMaterial": {
+      "typicalValue": "A类可燃物（服装/家具）",
+      "confidenceRequired": 0.80
+    },
+    "trappedCount": {
+      "typicalValue": ">10（人员密集）",
+      "confidenceRequired": 0.85,
+      "note": "优先搜救"
+    },
+    "developmentStage": {
+      "typicalValue": "发展→猛烈",
+      "confidenceRequired": 0.75,
+      "note": "快速蔓延"
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 3,
+    "commandVehicle": 1,
+    "elevatedPlatform": 2,
+    "foamVehicle": 0,
+    "rescueVehicle": 2,
+    "smokeExhaust": 2,
+    "medicalVehicle": 1,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 1
+  },
+  "triggerConditions": [
+    "报警描述含'商场''超市''综合体'等",
+    "人员密集场所，优先确认被困人数和位置",
+    "注意疏散秩序和医疗保障"
+  ],
+  "priorityNote": "搜救 + 医疗 + 大空间排烟"
+}

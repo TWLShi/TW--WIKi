@@ -1,0 +1,137 @@
+# 消防调派智能系统核心引擎 - 多智能体仲裁机制 v6.2（9.5节细化版）
+
+## 多智能体仲裁机制整体架构
+
+### 目标
+解决四个Agent输出不一致的问题，确保最终方案一致性、可解释性、可执行性最高。
+
+### 仲裁流程（5阶段）
+
+#### 阶段1：结果标准化（Normalization）
+- 将每个Agent输出转为统一JSON Schema
+- 包含：score（0-1）、confidence、rationale、key_recommendations
+
+#### 阶段2：交叉验证（Cross-Validation）
+- 感知Agent vs 决策Agent：场景理解是否一致
+- 决策Agent vs 执行Agent：战术是否可落地
+- 执行Agent vs 预测Agent：时间线与预测是否匹配
+- 冲突检测阈值：差异 > 0.25 → 标记冲突
+
+#### 阶段3：加权投票 + 分层仲裁
+- **基础权重**（可配置）：
+  - DecisionAgent（战术核心）：**40%**
+  - PredictionAgent（前瞻性）：**25%**
+  - ExecutionAgent（可执行性）：**20%**
+  - PerceptionAgent（事实基础）：**15%**
+
+- **分层仲裁规则**：
+  1. 若3个以上Agent一致 → 直接采用
+  2. 若存在严重分歧（权重差距>0.3）→ 进入LLM仲裁
+  3. 高风险场景（4级、危化品、高层）→ 自动提升人工确认优先级
+
+#### 阶段4：LLM仲裁器（最终裁判）
+```text
+【LLM仲裁Prompt - 核心模板】
+
+你是消防指挥最终仲裁官。
+
+当前四个Agent输出：
+- Perception: {{perception_output}}
+- Decision: {{decision_output}}
+- Execution: {{execution_output}}
+- Prediction: {{prediction_output}}
+
+冲突点：{{detected_conflicts}}
+
+请综合所有信息，输出最终指挥方案（JSON格式）：
+{
+  "final_tactical_direction": "...",
+  "force_assignment": [...],
+  "timeline": [...],
+  "risk_mitigation": [...],
+  "arbitration_reason": "详细解释为什么这样融合（引用具体Agent观点）",
+  "overall_confidence": 0.XX,
+  "compromise_made": ["牺牲了XXAgent的建议，因为..."]
+}
+```
+
+#### 阶段5：后仲裁校验
+- 将仲裁结果重新送回ExecutionAgent和PredictionAgent做二次验证
+- 若二次验证通过率 < 85% → 标记"高不确定性"，强制人工确认
+
+---
+
+## 仲裁机制实现伪代码
+
+```python
+def multi_agent_arbitration(agent_outputs: dict) -> dict:
+    # 阶段1：标准化
+    normalized = {name: normalize_output(output) for name, output in agent_outputs.items()}
+
+    # 阶段2：冲突检测
+    conflicts = detect_conflicts(normalized)
+
+    # 阶段3：加权投票
+    weighted_vote = calculate_weighted_vote(normalized, weights=DEFAULT_WEIGHTS)
+
+    if max_conflict_score(conflicts) < 0.25:
+        return weighted_vote  # 直接通过
+
+    # 阶段4：LLM仲裁
+    arbitration_result = llm_arbitrator.call(
+        prompt=build_arbitration_prompt(normalized, conflicts),
+        temperature=0.3,          # 较低温度保证稳定性
+        model="grok-4" or "claude-3.5"
+    )
+
+    # 阶段5：二次验证
+    validation = secondary_validation(arbitration_result, agent_outputs)
+
+    final_plan = {
+        **arbitration_result,
+        "arbitration_method": "weighted_vote" if not conflicts else "llm_arbitration",
+        "secondary_validation_pass_rate": validation.pass_rate,
+        "final_confidence": recalculate_confidence(arbitration_result, validation)
+    }
+
+    return final_plan
+```
+
+---
+
+## 仲裁机制关键配置（可热更新）
+
+### 权重矩阵（支持按场景动态调整）
+- 普通住宅：Decision 35% / Prediction 30%
+- 化工场景：Prediction 40% / Execution 30%
+- 高层建筑：Execution 35% / Decision 35%
+
+### 仲裁阈值
+- 自动通过阈值：冲突分 < 0.25
+- 强制人工阈值：冲突分 > 0.45 或置信度 < 0.78
+
+---
+
+## 数据库记录结构（仲裁日志）
+
+```sql
+CREATE TABLE multi_agent_arbitration_log (
+    arbitration_id        BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    arbitration_method    VARCHAR(20),           -- weighted_vote / llm_arbitration
+    agent_scores          JSONB,
+    conflicts             JSONB[],
+    llm_prompt_snapshot   TEXT,
+    llm_response_snapshot JSONB,
+    final_confidence      NUMERIC(4,3),
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 仲裁机制特点
+- **可解释**：每一步都有清晰理由
+- **可配置**：权重、阈值可按场景调整
+- **可审计**：完整仲裁过程留痕
+- **可持续优化**：人工最终确认结果可反向用于仲裁器微调

@@ -1,0 +1,23 @@
+{
+  "id": "conv-1777518848572-7vr6s0kfm",
+  "providerId": "claude",
+  "title": "我来帮你把TW--WIKi仓库推送到GitHub。先检查一下当前仓库状态和远程配置。\n<min...",
+  "titleGenerationStatus": "success",
+  "createdAt": 1777518848584,
+  "updatedAt": 1777520209188,
+  "lastResponseAt": 1777520209188,
+  "sessionId": "30bec109-edcf-4626-917c-796cfb0aab70",
+  "providerState": {
+    "providerSessionId": "30bec109-edcf-4626-917c-796cfb0aab70"
+  },
+  "usage": {
+    "model": "haiku",
+    "inputTokens": 16201,
+    "cacheCreationInputTokens": 0,
+    "cacheReadInputTokens": 22501,
+    "contextWindow": 200000,
+    "contextTokens": 38702,
+    "percentage": 19,
+    "contextWindowIsAuthoritative": true
+  }
+}

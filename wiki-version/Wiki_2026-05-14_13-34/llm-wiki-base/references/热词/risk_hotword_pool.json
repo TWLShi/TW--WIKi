@@ -1,0 +1,575 @@
+{
+  "meta": {
+    "name": "消防接警风险热词池",
+    "version": "1.0.0",
+    "description": "专用于119消防接警场景的高风险信息识别热词池，按风险等级和风险类别组织，覆盖人员被困、弱势群体、浓烟爆炸、燃气危化品、锂电池等关键风险要素。用于提升接警阶段的风险自动识别与响应等级判定",
+    "created": "2026-05-11",
+    "total_hotwords": 116,
+    "total_risk_phrases": 62,
+    "total_correction_pairs": 51,
+    "risk_levels": {
+      "critical": "即刻危及生命或可能造成重大伤亡——需最高等级响应，立即调派最近力量+增援",
+      "high": "可能造成人员伤亡或快速恶化——需优先响应，调派专业力量",
+      "elevated": "存在明显危险因素，需重点关注——需在处置中持续评估"
+    }
+  },
+
+  "risk_levels_detail": {
+
+    "critical_risk": {
+      "label": "高危——即刻生命威胁",
+      "level": "CRITICAL",
+      "response_action": "最高等级响应，立即调派最近消防站+请求增援+联动120/110",
+      "description": "存在即刻生命威胁或极可能造成群死群伤的风险因素",
+      "word_count": 128,
+      "categories": {
+
+        "people_life_threat": {
+          "label": "人员生命威胁",
+          "description": "直接表明人员生命安全受到威胁的风险词汇",
+          "words": [
+            {"word": "有人被困", "weight": 3.0, "risk_score": 100, "synonyms": ["困住人了", "人在里面", "人还没出来", "里面有人", "有人出不来", "人困在里面"]},
+            {"word": "多人被困", "weight": 3.0, "risk_score": 100, "synonyms": ["好多人被困", "很多人困在里面", "十几个人出不来", "几十人被困", "大量人员被困"]},
+            {"word": "老人被困", "weight": 3.0, "risk_score": 100, "synonyms": ["老年人困在里面", "大爷困住了", "老太太出不来", "老人行动不便困住了"]},
+            {"word": "儿童被困", "weight": 3.0, "risk_score": 100, "synonyms": ["小孩被困", "孩子困在里面", "小朋友出不来", "婴儿在屋里", "幼儿困住了"]},
+            {"word": "婴儿被困", "weight": 3.0, "risk_score": 100, "synonyms": ["新生儿在屋里", "几个月大的孩子", "襁媬中的婴儿"]},
+            {"word": "病人被困", "weight": 3.0, "risk_score": 95, "synonyms": ["病号困在里面", "患者出不来", "卧床病人困住了"]},
+            {"word": "孕妇被困", "weight": 3.0, "risk_score": 95, "synonyms": ["怀孕的被困", "大肚子孕妇出不来", "快生了困住了"]},
+            {"word": "残障人士被困", "weight": 3.0, "risk_score": 95, "synonyms": ["残疾人困住了", "坐轮椅的出不来", "盲人被困", "聋哑人困住了"]},
+            {"word": "有人昏迷", "weight": 3.0, "risk_score": 100, "synonyms": ["人晕倒了", "不省人事", "人已经没反应了", "叫不醒", "昏过去了"]},
+            {"word": "有人窒息", "weight": 3.0, "risk_score": 100, "synonyms": ["喘不上气", "呼吸困难", "憋住了", "缺氧了", "透不过气"]},
+            {"word": "有人中毒", "weight": 3.0, "risk_score": 100, "synonyms": ["中毒了", "煤气中毒", "烟气中毒", "毒气中毒", "化学品中毒"]},
+            {"word": "有人休克", "weight": 3.0, "risk_score": 100, "synonyms": ["休克了", "没有意识", "心跳微弱", "没有心跳"]},
+            {"word": "有人死亡", "weight": 3.0, "risk_score": 100, "synonyms": ["人死了", "没有生命体征", "死亡", "身亡"]},
+            {"word": "有人跳楼", "weight": 3.0, "risk_score": 100, "synonyms": ["要跳楼", "站在楼顶要跳", "想不开要跳", "有人要自杀"]},
+            {"word": "人员埋压", "weight": 3.0, "risk_score": 100, "synonyms": ["被压在废墟下", "埋在下面", "塌了压住人了", "被埋了"]},
+            {"word": "有人溺水", "weight": 3.0, "risk_score": 100, "synonyms": ["掉水里了", "落水了", "被水冲走", "在水里挣扎", "沉下去了"]}
+          ]
+        },
+
+        "structure_collapse_risk": {
+          "label": "建筑坍塌风险",
+          "description": "建筑结构已发生或即将发生坍塌的高危信号",
+          "words": [
+            {"word": "楼塌了", "weight": 3.0, "risk_score": 100, "synonyms": ["房子塌了", "楼房坍塌", "建筑倒塌", "整栋楼塌了"]},
+            {"word": "快塌了", "weight": 3.0, "risk_score": 100, "synonyms": ["马上要塌", "撑不住了", "结构不稳", "随时要塌", "裂缝越来越大"]},
+            {"word": "墙塌了", "weight": 2.8, "risk_score": 95, "synonyms": ["围墙倒了", "承重墙塌了", "墙体坍塌"]},
+            {"word": "屋顶塌了", "weight": 2.8, "risk_score": 90, "synonyms": ["天花板塌了", "吊顶塌了", "棚顶塌了"]},
+            {"word": "爆炸后坍塌", "weight": 3.0, "risk_score": 100, "synonyms": ["炸塌了", "爆炸后楼塌了", "炸了之后塌了"]},
+            {"word": "火灾中坍塌", "weight": 3.0, "risk_score": 100, "synonyms": ["烧塌了", "火烧大了楼快塌了", "钢结构烧软了要塌"]},
+            {"word": "地基下沉", "weight": 2.5, "risk_score": 85, "synonyms": ["地面下沉", "地基塌陷", "房子歪了"]}
+          ]
+        },
+
+        "explosion_risk": {
+          "label": "爆炸风险",
+          "description": "已发生爆炸或存在极高爆炸风险",
+          "words": [
+            {"word": "爆炸了", "weight": 3.0, "risk_score": 100, "synonyms": ["炸了", "爆了", "发生爆炸", "砰的一声炸了", "爆炸声很大"]},
+            {"word": "二次爆炸", "weight": 3.0, "risk_score": 100, "synonyms": ["又炸了", "再次爆炸", "第二次爆炸", "炸了好几次"]},
+            {"word": "可能爆炸", "weight": 3.0, "risk_score": 100, "synonyms": ["快要炸了", "要爆炸了", "随时会炸", "怕它爆炸", "有爆炸危险"]},
+            {"word": "油罐可能爆炸", "weight": 3.0, "risk_score": 100, "synonyms": ["油罐要炸了", "储油罐危险", "油库快炸了"]},
+            {"word": "气罐可能爆炸", "weight": 3.0, "risk_score": 100, "synonyms": ["煤气罐要炸了", "气罐危险", "液化气罐快炸了"]},
+            {"word": "粉尘爆炸", "weight": 2.8, "risk_score": 95, "synonyms": ["粉尘爆了", "粉末爆炸", "粉尘炸了"]},
+            {"word": "爆燃", "weight": 2.8, "risk_score": 90, "synonyms": ["轰燃", "瞬间爆燃", "火一下子窜出来"]},
+            {"word": "化学品爆炸", "weight": 3.0, "risk_score": 100, "synonyms": ["化工品爆炸", "危化品炸了", "化学物质爆炸"]},
+            {"word": "电池爆炸", "weight": 2.8, "risk_score": 90, "synonyms": ["锂电池炸了", "电池组爆炸", "电瓶炸了"]}
+          ]
+        },
+
+        "toxic_release_risk": {
+          "label": "有毒物质释放风险",
+          "description": "有毒气体、化学品泄漏释放的高危信号",
+          "words": [
+            {"word": "毒气泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["有毒气体泄漏", "毒气扩散", "有毒气体飘出来"]},
+            {"word": "氯气泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["氯气漏了", "绿气泄漏", "液氯泄漏"]},
+            {"word": "氨气泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["氨气漏了", "液氨泄漏", "刺鼻气味扩散"]},
+            {"word": "氰化物泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["氰化钾泄漏", "氰化钠泄漏", "剧毒物泄漏"]},
+            {"word": "一氧化碳泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["CO泄漏", "煤气泄漏", "无味毒气"]},
+            {"word": "硫化氢泄漏", "weight": 3.0, "risk_score": 100, "synonyms": ["H2S泄漏", "臭鸡蛋味扩散", "毒臭气"]}
+          ]
+        }
+      }
+    },
+
+    "high_risk": {
+      "label": "高风险——严重威胁",
+      "level": "HIGH",
+      "response_action": "优先响应，调派专业力量+通知相关联动单位",
+      "description": "存在严重安全威胁、可能快速恶化或涉及弱势群体的风险因素",
+      "word_count": 112,
+      "categories": {
+
+        "vulnerable_populations": {
+          "label": "弱势群体风险",
+          "description": "涉及老人、儿童、病人、孕妇、残障人士等自救能力弱的人员",
+          "words": [
+            {"word": "独居老人", "weight": 2.8, "risk_score": 85, "synonyms": ["一个人住的老人", "空巢老人", "孤寡老人"]},
+            {"word": "高龄老人", "weight": 2.8, "risk_score": 85, "synonyms": ["八十多岁", "九十岁了", "年纪很大", "行动不便的老人"]},
+            {"word": "失能老人", "weight": 2.8, "risk_score": 90, "synonyms": ["瘫痪老人", "卧床老人", "不能自理的老人", "坐轮椅的老人"]},
+            {"word": "留守儿童", "weight": 2.5, "risk_score": 80, "synonyms": ["父母不在家的小孩", "独自在家的小孩"]},
+            {"word": "多名儿童", "weight": 2.8, "risk_score": 85, "synonyms": ["好几个小孩", "幼儿园的孩子", "一屋子小孩"]},
+            {"word": "重病患者", "weight": 2.8, "risk_score": 85, "synonyms": ["重症病人", "危重病人", "插管的病人", "需要吸氧的病人"]},
+            {"word": "孕晚期", "weight": 2.5, "risk_score": 80, "synonyms": ["快生了", "怀孕八九个月", "临产的孕妇"]},
+            {"word": "精神障碍", "weight": 2.5, "risk_score": 80, "synonyms": ["精神病人", "智障人士", "有精神问题的"]},
+            {"word": "醉酒人员", "weight": 2.3, "risk_score": 75, "synonyms": ["喝醉了", "醉汉", "酒醉不醒", "喝多的人"]}
+          ]
+        },
+
+        "thick_smoke_risk": {
+          "label": "浓烟风险",
+          "description": "浓烟导致的视线受阻、窒息、中毒风险",
+          "words": [
+            {"word": "浓烟滚滚", "weight": 2.8, "risk_score": 85, "synonyms": ["滚滚浓烟", "黑烟冲天", "大股浓烟", "烟非常大"]},
+            {"word": "浓烟封锁", "weight": 2.8, "risk_score": 90, "synonyms": ["烟堵住路了", "烟气封锁通道", "烟挡住了出口"]},
+            {"word": "满屋是烟", "weight": 2.5, "risk_score": 80, "synonyms": ["整个屋子都是烟", "烟雾弥漫", "全是烟看不见"]},
+            {"word": "看不清路", "weight": 2.5, "risk_score": 80, "synonyms": ["什么也看不见", "能见度为零", "眼前一片黑烟"]},
+            {"word": "毒烟", "weight": 2.8, "risk_score": 90, "synonyms": ["有毒烟气", "毒性烟雾", "化学毒烟", "毒气混合烟"]},
+            {"word": "黑烟", "weight": 2.3, "risk_score": 75, "synonyms": ["浓黑烟", "黑滚滚的烟", "乌黑浓烟"]},
+            {"word": "黄烟", "weight": 2.5, "risk_score": 80, "synonyms": ["黄色烟", "黄褐色烟", "化学黄烟", "有毒黄烟"]},
+            {"word": "烟气倒灌", "weight": 2.5, "risk_score": 80, "synonyms": ["烟往下走", "烟气下沉", "烟气倒流进房间"]},
+            {"word": "烟囱效应", "weight": 2.3, "risk_score": 75, "synonyms": ["烟往上窜", "烟气快速上升", "拔风效应"]},
+            {"word": "烟太大跑不掉", "weight": 2.8, "risk_score": 90, "synonyms": ["烟太大出不去了", "烟堵住了逃生路", "被烟困住了"]}
+          ]
+        },
+
+        "gas_risk": {
+          "label": "燃气风险",
+          "description": "燃气泄漏、燃气罐爆炸风险",
+          "words": [
+            {"word": "燃气泄漏", "weight": 2.8, "risk_score": 90, "synonyms": ["煤气泄漏", "天然气泄漏", "漏气了", "气管漏了"]},
+            {"word": "闻到煤气味", "weight": 2.8, "risk_score": 85, "synonyms": ["有煤气味", "煤气味很重", "瓦斯味", "燃气味浓"]},
+            {"word": "煤气罐泄漏", "weight": 2.8, "risk_score": 90, "synonyms": ["液化气罐漏气", "气罐在漏", "罐子漏气了"]},
+            {"word": "煤气罐着火", "weight": 3.0, "risk_score": 95, "synonyms": ["液化气罐着火", "气罐烧起来了", "燃气罐起火"]},
+            {"word": "管道破裂", "weight": 2.8, "risk_score": 85, "synonyms": ["燃气管道破裂", "天然气管道断了", "煤气管断裂"]},
+            {"word": "阀门没关", "weight": 2.3, "risk_score": 75, "synonyms": ["燃气阀门没关", "气阀开着", "忘关煤气了"]},
+            {"word": "燃气爆燃", "weight": 2.8, "risk_score": 95, "synonyms": ["煤气爆燃", "燃气轰燃", "开灯引爆了"]}
+          ]
+        },
+
+        "hazmat_risk": {
+          "label": "危化品风险",
+          "description": "危险化学品、易燃易爆品、有毒物质的存在",
+          "words": [
+            {"word": "危化品", "weight": 2.8, "risk_score": 90, "synonyms": ["危险化学品", "危险品", "危货", "化工危险品"]},
+            {"word": "危化品泄漏", "weight": 3.0, "risk_score": 95, "synonyms": ["危险品泄漏", "化学品泄漏", "化工品漏了", "有毒物质泄漏"]},
+            {"word": "危化品仓库", "weight": 2.8, "risk_score": 90, "synonyms": ["危险品库", "化工仓库", "危化库", "化学危险品仓库"]},
+            {"word": "油罐", "weight": 2.8, "risk_score": 90, "synonyms": ["储油罐", "油库", "大型油罐", "油品储存"]},
+            {"word": "油罐车", "weight": 2.8, "risk_score": 90, "synonyms": ["槽罐车", "油车", "危化品运输车", "运油车"]},
+            {"word": "不明化学品", "weight": 2.5, "risk_score": 80, "synonyms": ["不知道什么化学品", "不明化学物质", "奇怪的化学品"]},
+            {"word": "汽油", "weight": 2.5, "risk_score": 80, "synonyms": ["燃油", "汽油桶", "散装汽油"]},
+            {"word": "酒精", "weight": 2.3, "risk_score": 75, "synonyms": ["乙醇", "工业酒精", "医用酒精", "大量酒精"]},
+            {"word": "乙炔", "weight": 2.5, "risk_score": 85, "synonyms": ["电石气", "乙炔气瓶", "焊接气瓶"]},
+            {"word": "电石", "weight": 2.5, "risk_score": 85, "synonyms": ["碳化钙", "电石粉", "遇水燃烧物"]},
+            {"word": "油漆", "weight": 2.0, "risk_score": 70, "synonyms": ["涂料", "油性漆", "稀释剂", "大量油漆"]},
+            {"word": "农药", "weight": 2.5, "risk_score": 85, "synonyms": ["杀虫剂", "剧毒农药", "农药仓库"]},
+            {"word": "放射性物质", "weight": 3.0, "risk_score": 100, "synonyms": ["放射源", "辐射物", "钴60", "铯137", "有辐射"]}
+          ]
+        },
+
+        "lithium_battery_risk": {
+          "label": "锂电池风险",
+          "description": "锂电池、储能电池相关的热失控、爆炸、毒烟风险",
+          "words": [
+            {"word": "锂电池", "weight": 2.8, "risk_score": 85, "synonyms": ["锂电", "锂离子电池", "聚合物锂电池", "三元锂电池"]},
+            {"word": "锂电池着火", "weight": 2.8, "risk_score": 90, "synonyms": ["锂电池起火", "锂电烧了", "锂电池燃烧"]},
+            {"word": "电池热失控", "weight": 2.8, "risk_score": 90, "synonyms": ["热失控", "电池过热", "电池温度异常", "电池要炸了"]},
+            {"word": "电池冒烟", "weight": 2.8, "risk_score": 85, "synonyms": ["锂电池冒烟", "电池组冒烟", "电池冒白烟"]},
+            {"word": "电池鼓包", "weight": 2.5, "risk_score": 80, "synonyms": ["电池鼓起来了", "电池变形", "电池胀了"]},
+            {"word": "电动车电池", "weight": 2.5, "risk_score": 80, "synonyms": ["电瓶", "电瓶车电池", "电动车电瓶", "铅酸电池"]},
+            {"word": "充电着火", "weight": 2.8, "risk_score": 85, "synonyms": ["充电时起火", "充电中着火", "充电爆燃", "充电烧了"]},
+            {"word": "储能电池", "weight": 2.5, "risk_score": 85, "synonyms": ["储能柜", "大型锂电池组", "UPS电池", "储能电站"]},
+            {"word": "动力电池", "weight": 2.5, "risk_score": 85, "synonyms": ["汽车电池", "新能源电池", "车载锂电池"]},
+            {"word": "电池复燃", "weight": 2.5, "risk_score": 80, "synonyms": ["电池灭了又着了", "锂电池反复燃烧", "多次复燃"]}
+          ]
+        }
+      }
+    },
+
+    "elevated_risk": {
+      "label": "较高风险——需重点关注",
+      "level": "ELEVATED",
+      "response_action": "常规响应但持续评估，注意风险升级信号",
+      "description": "存在明显危险因素，需要处置过程中持续关注和评估",
+      "word_count": 72,
+      "categories": {
+
+        "fire_spread_risk": {
+          "label": "火势蔓延风险",
+          "description": "火势正在扩大或有可能扩大的风险信号",
+          "words": [
+            {"word": "蔓延很快", "weight": 2.5, "risk_score": 75, "synonyms": ["扩散很快", "火势迅速扩大", "越烧越快"]},
+            {"word": "失控", "weight": 2.8, "risk_score": 80, "synonyms": ["控制不住", "压不住了", "灭不了", "没法控制"]},
+            {"word": "大火", "weight": 2.3, "risk_score": 70, "synonyms": ["很大火", "猛烈大火", "火势凶猛"]},
+            {"word": "风助火势", "weight": 2.3, "risk_score": 75, "synonyms": ["风大助火", "顺风烧", "风一吹更大了"]},
+            {"word": "接近危险品", "weight": 2.8, "risk_score": 85, "synonyms": ["火烧到危险品了", "快烧到危化品了", "火靠近油罐"]},
+            {"word": "火烧到邻居", "weight": 2.3, "risk_score": 70, "synonyms": ["蔓延到隔壁", "火烧到旁边楼了", "殃及邻居"]},
+            {"word": "多层着火", "weight": 2.5, "risk_score": 75, "synonyms": ["好几层都着了", "上下楼都烧了", "多层同时燃烧"]}
+          ]
+        },
+
+        "evacuation_obstruction": {
+          "label": "疏散受阻风险",
+          "description": "逃生通道被堵、人员无法撤离的风险",
+          "words": [
+            {"word": "门打不开", "weight": 2.5, "risk_score": 80, "synonyms": ["门锁死了", "开不了门", "门被堵住了", "防盗门打不开"]},
+            {"word": "逃生通道堵了", "weight": 2.8, "risk_score": 85, "synonyms": ["疏散通道堵塞", "安全出口堵住了", "逃生路被火封了"]},
+            {"word": "消防通道被堵", "weight": 2.5, "risk_score": 80, "synonyms": ["消防车进不来", "消防车道堵了", "通道被车占了"]},
+            {"word": "楼梯烧断了", "weight": 2.5, "risk_score": 80, "synonyms": ["楼梯塌了", "楼梯间着火", "上下楼的路没了"]},
+            {"word": "电梯停了", "weight": 2.3, "risk_score": 70, "synonyms": ["电梯坏了", "电梯不能用", "停电电梯停运"]},
+            {"word": "防盗网封死", "weight": 2.5, "risk_score": 80, "synonyms": ["防盗窗打不开", "窗户被封死了", "逃生窗锁住了"]}
+          ]
+        },
+
+        "hazardous_condition": {
+          "label": "危险条件",
+          "description": "增加救援难度或次生风险的环境条件",
+          "words": [
+            {"word": "电线外露", "weight": 2.3, "risk_score": 75, "synonyms": ["电线断了", "电线裸露", "有漏电危险"]},
+            {"word": "积水带电", "weight": 2.5, "risk_score": 85, "synonyms": ["水里有电", "积水可能带电", "电线泡在水里"]},
+            {"word": "高温环境", "weight": 2.0, "risk_score": 65, "synonyms": ["温度很高", "热得受不了", "高温危险"]},
+            {"word": "缺氧空间", "weight": 2.3, "risk_score": 75, "synonyms": ["憋闷", "空气稀薄", "氧气不够", "密闭空间"]},
+            {"word": "夜间火灾", "weight": 2.3, "risk_score": 70, "synonyms": ["半夜着火", "晚上着火了", "凌晨着火", "天黑了看不清"]},
+            {"word": "偏远地区", "weight": 2.0, "risk_score": 65, "synonyms": ["很远的地方", "山里", "乡下偏僻处", "不好找的地方"]},
+            {"word": "雨雪天气", "weight": 2.0, "risk_score": 65, "synonyms": ["下大雨着火", "暴雪天着火", "恶劣天气"]},
+            {"word": "缺少水源", "weight": 2.3, "risk_score": 75, "synonyms": ["没有消防栓", "附近没水", "消防水池干了"]}
+          ]
+        },
+
+        "special_location_risk": {
+          "label": "特殊场所风险",
+          "description": "场所本身特性带来的额外风险",
+          "words": [
+            {"word": "高层建筑", "weight": 2.3, "risk_score": 75, "synonyms": ["高楼", "很高的楼", "二十几层的楼"]},
+            {"word": "地下空间", "weight": 2.3, "risk_score": 75, "synonyms": ["地下室", "地库", "地下商场", "地下通道"]},
+            {"word": "人员密集", "weight": 2.5, "risk_score": 80, "synonyms": ["人很多", "顾客多", "好多人", "人挤人"]},
+            {"word": "养老院", "weight": 2.5, "risk_score": 85, "synonyms": ["敬老院", "养老机构", "老年公寓"]},
+            {"word": "幼儿园", "weight": 2.5, "risk_score": 85, "synonyms": ["幼稚园", "托儿所", "早教中心"]},
+            {"word": "医院", "weight": 2.5, "risk_score": 85, "synonyms": ["诊所", "卫生院", "住院部"]},
+            {"word": "加油站", "weight": 2.8, "risk_score": 90, "synonyms": ["油站", "加油点", "油气站"]},
+            {"word": "化工厂", "weight": 2.8, "risk_score": 90, "synonyms": ["化工企业", "化工厂房", "化学工厂"]}
+          ]
+        }
+      }
+    }
+  },
+
+  "risk_combination_patterns": {
+    "label": "风险叠加模式",
+    "description": "多个风险因素同时存在的组合模式，叠加后响应等级自动升级",
+    "pattern_count": 16,
+    "patterns": [
+      {
+        "id": "RC001",
+        "pattern": "有人被困 + 浓烟",
+        "risk_escalation": "CRITICAL",
+        "description": "浓烟环境下人员被困，窒息风险极高，需优先破拆排烟+搜救",
+        "trigger_combination": [["有人被困", "困住", "出不来"], ["浓烟", "烟很大", "全是烟", "看不清"]]
+      },
+      {
+        "id": "RC002",
+        "pattern": "有人被困 + 爆炸",
+        "risk_escalation": "CRITICAL",
+        "description": "爆炸后人员被困，需同时应对二次爆炸风险和埋压搜救",
+        "trigger_combination": [["有人被困", "压在下面", "出不来"], ["爆炸", "炸了", "爆了"]]
+      },
+      {
+        "id": "RC003",
+        "pattern": "老人/儿童 + 高层建筑",
+        "risk_escalation": "CRITICAL",
+        "description": "高层建筑中弱势群体被困，疏散困难，需云梯/登高车+担架",
+        "trigger_combination": [["老人", "小孩", "儿童", "婴儿", "孕妇"], ["高层", "高楼", "十几楼", "二十几楼"]]
+      },
+      {
+        "id": "RC004",
+        "pattern": "燃气泄漏 + 明火",
+        "risk_escalation": "CRITICAL",
+        "description": "燃气环境中存在明火，随时可能爆燃，需立即疏散+关阀",
+        "trigger_combination": [["燃气泄漏", "煤气泄漏", "漏气", "煤气味"], ["明火", "着火", "有火", "火星"]]
+      },
+      {
+        "id": "RC005",
+        "pattern": "危化品 + 火灾",
+        "risk_escalation": "CRITICAL",
+        "description": "危化品场所火灾，可能产生毒烟、爆炸，需防化车+洗消",
+        "trigger_combination": [["危化品", "危险化学品", "化工品", "化学物质"], ["着火", "起火", "火灾", "燃烧"]]
+      },
+      {
+        "id": "RC006",
+        "pattern": "锂电池 + 室内",
+        "risk_escalation": "CRITICAL",
+        "description": "室内锂电池着火，毒烟快速充满，爆炸风险高，需立即疏散",
+        "trigger_combination": [["锂电池", "电动车电池", "电瓶"], ["家里", "室内", "房间", "客厅", "楼道"]]
+      },
+      {
+        "id": "RC007",
+        "pattern": "多人被困 + 建筑坍塌",
+        "risk_escalation": "CRITICAL",
+        "description": "建筑坍塌多人埋压，需大规模搜救+结构支撑+医疗",
+        "trigger_combination": [["多人", "好多人", "十几人", "几十人"], ["坍塌", "塌了", "埋压", "被埋"]]
+      },
+      {
+        "id": "RC008",
+        "pattern": "油罐/气罐 + 火灾",
+        "risk_escalation": "CRITICAL",
+        "description": "储油/储气罐附近火灾，爆炸风险极高，需大规模疏散+远距离灭火",
+        "trigger_combination": [["油罐", "气罐", "储油", "储气", "油库"], ["着火", "起火", "火灾", "燃烧"]]
+      },
+      {
+        "id": "RC009",
+        "pattern": "医院/养老院/幼儿园 + 火灾",
+        "risk_escalation": "CRITICAL",
+        "description": "弱势群体聚集场所火灾，疏散极其困难，需大量担架和医疗资源",
+        "trigger_combination": [["医院", "养老院", "幼儿园", "敬老院"], ["着火", "起火", "火灾", "冒烟"]]
+      },
+      {
+        "id": "RC010",
+        "pattern": "有毒烟气 + 有人昏迷",
+        "risk_escalation": "CRITICAL",
+        "description": "有毒烟气已造成人员昏迷，中毒程度严重，需医疗急救优先",
+        "trigger_combination": [["毒烟", "有毒烟气", "中毒"], ["昏迷", "晕倒", "不省人事", "没反应"]]
+      },
+      {
+        "id": "RC011",
+        "pattern": "夜间 + 偏远 + 有人被困",
+        "risk_escalation": "HIGH→CRITICAL",
+        "description": "夜间偏远地区人员被困，定位困难、到达时间长，需及早调度",
+        "trigger_combination": [["半夜", "晚上", "凌晨", "天黑"], ["山里", "偏远", "乡下", "不好找"], ["被困", "出不来"]]
+      },
+      {
+        "id": "RC012",
+        "pattern": "电动车充电 + 楼道/室内",
+        "risk_escalation": "CRITICAL",
+        "description": "电动车在楼道或室内充电着火，毒烟封锁逃生通道",
+        "trigger_combination": [["电动车", "电瓶车", "充电"], ["楼道", "走廊", "家里", "室内", "房间"]]
+      },
+      {
+        "id": "RC013",
+        "pattern": "缺少水源 + 大火",
+        "risk_escalation": "HIGH",
+        "description": "大火但缺少消防水源，灭火能力受限，需调派水罐车",
+        "trigger_combination": [["没水", "缺少水源", "消防栓没水", "水池干了"], ["大火", "火很大", "猛烈燃烧"]]
+      },
+      {
+        "id": "RC014",
+        "pattern": "危化品运输车 + 交通事故",
+        "risk_escalation": "CRITICAL",
+        "description": "危化品运输车发生事故，泄漏/爆炸/毒气风险叠加",
+        "trigger_combination": [["油罐车", "危化品车", "槽罐车"], ["撞了", "翻了", "追尾", "事故"]]
+      },
+      {
+        "id": "RC015",
+        "pattern": "洪涝 + 电线 + 被困",
+        "risk_escalation": "CRITICAL",
+        "description": "洪涝中电线断落水中+人员被困，触电+溺水双重风险",
+        "trigger_combination": [["洪水", "内涝", "积水", "被淹"], ["电线", "漏电", "高压线"], ["被困", "出不来"]]
+      },
+      {
+        "id": "RC016",
+        "pattern": "跳楼 + 劝说无效",
+        "risk_escalation": "CRITICAL",
+        "description": "自杀干预场景，需心理危机干预+救生气垫+高空救援",
+        "trigger_combination": [["跳楼", "要自杀", "想不开"], ["劝说无效", "不听劝", "情绪激动"]]
+      }
+    ]
+  },
+
+  "risk_phrases": {
+    "label": "高风险报警语句",
+    "description": "报警人在紧急状态下的完整高风险表述语句，权重2.8~3.0，直接触发最高响应等级",
+    "phrase_count": 72,
+    "categories": {
+      "life_threat_phrases": {
+        "label": "生命威胁类语句",
+        "phrases": [
+          {"phrase": "里面还有人没出来", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "老人/小孩困在里面出不来", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "有人晕倒了叫不醒", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "快不行了喘不上气", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "人被压在下面了快来救", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "好多人还困在里面", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "火已经烧到人身上了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "有人中毒了已经没反应了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "婴儿还在屋里快去救", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "有人掉水里了不会游泳", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "有人要跳楼已经站在边上了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "好几个老人瘫痪在床出不来", "weight": 3.0, "risk_level": "CRITICAL"}
+        ]
+      },
+      "explosion_threat_phrases": {
+        "label": "爆炸威胁类语句",
+        "phrases": [
+          {"phrase": "煤气罐着火了快要爆炸了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "油罐车着火了随时会炸", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "里面堆了很多危化品怕爆炸", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "已经炸了一次了可能还会炸", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "砰的一声爆炸了然后着火了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "粉尘爆炸了整个车间都炸了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "闻到很重的煤气味千万别开灯", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "液化气罐阀门坏了关不上一直漏", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "加油站着火了有油罐", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "化工厂爆炸了毒气飘过来了", "weight": 3.0, "risk_level": "CRITICAL"}
+        ]
+      },
+      "smoke_toxic_phrases": {
+        "label": "浓烟毒气类语句",
+        "phrases": [
+          {"phrase": "烟太大了什么都看不见出不去", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "楼道全是浓烟下不去楼", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "浓烟滚滚呛得人喘不上气", "weight": 2.8, "risk_level": "CRITICAL"},
+          {"phrase": "有毒气飘过来了味道很刺鼻", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "电池冒烟了烟很大有毒", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "氯气泄漏了绿色的烟飘过来了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "地下室里全是烟找不到人", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "烟从门缝灌进来了越来越浓", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "黑烟里面有毒气人晕倒了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "塑料烧起来的黑烟很呛人", "weight": 2.5, "risk_level": "HIGH"}
+        ]
+      },
+      "structure_threat_phrases": {
+        "label": "结构威胁类语句",
+        "phrases": [
+          {"phrase": "房子快塌了里面还有人", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "楼板已经裂了随时会塌", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "钢架结构烧变形了马上要塌", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "墙都歪了快撑不住了", "weight": 2.8, "risk_level": "CRITICAL"},
+          {"phrase": "火烧到承重墙了楼很危险", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "地震后房子到处是裂缝", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "工地基坑塌方了工人被埋了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "桥塌了一段有车掉下去了", "weight": 3.0, "risk_level": "CRITICAL"}
+        ]
+      },
+      "battery_ev_phrases": {
+        "label": "电池/电动车风险语句",
+        "phrases": [
+          {"phrase": "电动车充电时突然冒烟着火了", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "锂电池着火了灭不掉一直在复燃", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "电瓶车在楼道里烧起来了堵住出口", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "电池鼓包了温度很高要炸了", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "储能电站电池着火了很大烟", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "新能源汽车底盘电池冒烟了", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "家里充电宝突然爆炸着火了", "weight": 2.5, "risk_level": "HIGH"},
+          {"phrase": "锂电池厂着火了里面有大量电池", "weight": 3.0, "risk_level": "CRITICAL"}
+        ]
+      },
+      "hazmat_phrases": {
+        "label": "危化品风险语句",
+        "phrases": [
+          {"phrase": "危化品仓库着火了不知道里面有什么", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "化学品泄漏了味道很刺鼻有人在吐", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "化工园区爆炸了有毒气扩散", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "储油罐区着火了火势很大", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "运送危化品的车翻了在泄漏", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "实验室化学品起火了有爆炸声", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "放射性物质在着火区域附近", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "大量油漆桶堆在着火仓库里", "weight": 2.8, "risk_level": "HIGH"}
+        ]
+      },
+      "vulnerable_group_phrases": {
+        "label": "弱势群体类语句",
+        "phrases": [
+          {"phrase": "养老院着火了里面全是老人", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "幼儿园楼上着火了孩子在午睡", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "医院住院部着火了病人跑不了", "weight": 3.0, "risk_level": "CRITICAL"},
+          {"phrase": "我家里有瘫痪的老人出不来", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "孕妇被困在房间里烟太大了", "weight": 2.8, "risk_level": "HIGH"},
+          {"phrase": "家里有三个小孩我一个人带不出来", "weight": 2.8, "risk_level": "HIGH"}
+        ]
+      }
+    }
+  },
+
+  "correction_pairs": {
+    "label": "风险信息识别纠错词对",
+    "description": "将ASR对高风险词汇的误识别结果映射为正确词汇，确保风险信息不被漏报",
+    "total_pairs": 62,
+    "categories": {
+      "life_threat_correction": {
+        "label": "生命威胁类纠错",
+        "pairs": [
+          {"error": "有人被捆", "correct": "有人被困", "context": "kǔn/kùn 韵母——极高危：漏报可能导致救援延迟"},
+          {"error": "有人背困", "correct": "有人被困", "context": "bēi/bèi 声调——极高危"},
+          {"error": "人在里便", "correct": "人在里面", "context": "miàn/biàn——极高危"},
+          {"error": "人还没处来", "correct": "人还没出来", "context": "chū/chù——极高危"},
+          {"error": "昏米", "correct": "昏迷", "context": "mí/mǐ 声调——极高危"},
+          {"error": "混过去了", "correct": "昏过去了", "context": "hún/hūn——极高危"},
+          {"error": "自系", "correct": "窒息", "context": "zhì/xì 拆字——极高危"},
+          {"error": "没反应了", "correct": "无意识", "context": "口语→标准——高危"},
+          {"error": "叫不行", "correct": "叫不醒", "context": "xíng/xǐng——极高危"},
+          {"error": "中毒了", "correct": "中毒", "context": "翘舌混淆——极高危"}
+        ]
+      },
+      "vulnerable_correction": {
+        "label": "弱势群体类纠错",
+        "pairs": [
+          {"error": "老忍", "correct": "老人", "context": "rén/rěn 声调——高危"},
+          {"error": "消孩", "correct": "小孩", "context": "xiǎo/xiāo——高危"},
+          {"error": "晕付", "correct": "孕妇", "context": "yùn/yùn同音+fù——高危"},
+          {"error": "病号", "correct": "病人", "context": "口语通用→标准——高危"},
+          {"error": "谈换", "correct": "瘫痪", "context": "tān/tán声调——高危"},
+          {"error": "做轮椅", "correct": "坐轮椅", "context": "zuò/zuò同音——高危"}
+        ]
+      },
+      "explosion_correction": {
+        "label": "爆炸风险类纠错",
+        "pairs": [
+          {"error": "报站", "correct": "爆炸", "context": "bào zhà/bào zhàn——极高危"},
+          {"error": "抱闸", "correct": "爆炸", "context": "同音——极高危"},
+          {"error": "包燃", "correct": "爆燃", "context": "bào/bāo——高危"},
+          {"error": "分尘", "correct": "粉尘", "context": "fěn/fēn——高危"},
+          {"error": "二次报站", "correct": "二次爆炸", "context": "叠加误识——极高危"},
+          {"error": "快要炸了", "correct": "即将爆炸", "context": "口语→标准——极高危"}
+        ]
+      },
+      "gas_correction": {
+        "label": "燃气风险类纠错",
+        "pairs": [
+          {"error": "燃气泄漏", "correct": "燃气泄漏", "context": "xiè/xuè 方言——极高危"},
+          {"error": "煤气泄露", "correct": "煤气泄漏", "context": "lòu/lù——极高危"},
+          {"error": "天燃气", "correct": "天然气", "context": "tiān/tān——高危"},
+          {"error": "液化石油器", "correct": "液化石油气", "context": "口语拖音——高危"},
+          {"error": "阀门没关", "correct": "阀门未关", "context": "口语→标准——高危"},
+          {"error": "气管断裂", "correct": "燃气管道断裂", "context": "口语省略→标准——极高危"}
+        ]
+      },
+      "hazmat_correction": {
+        "label": "危化品类纠错",
+        "pairs": [
+          {"error": "威化品", "correct": "危化品", "context": "wēi/wēi同音——极高危"},
+          {"error": "危险花雪品", "correct": "危险化学品", "context": "拆字+方言——极高危"},
+          {"error": "绿气", "correct": "氯气", "context": "颜色描述→标准词——极高危"},
+          {"error": "安气", "correct": "氨气", "context": "ān/ān同音——极高危"},
+          {"error": "情化物", "correct": "氰化物", "context": "qíng/qīng——极高危"},
+          {"error": "电石", "correct": "电石", "context": "与电池区分——高危"},
+          {"error": "油罐扯", "correct": "油罐车", "context": "chē/chě——极高危"},
+          {"error": "槽罐车", "correct": "槽罐车", "context": "cáo/cháo——高危"},
+          {"error": "放射物", "correct": "放射性物质", "context": "口语省略→标准——极高危"}
+        ]
+      },
+      "battery_correction": {
+        "label": "锂电池类纠错",
+        "pairs": [
+          {"error": "理店吃", "correct": "锂电池", "context": "拆字+方言——高危"},
+          {"error": "里垫吃", "correct": "锂电池", "context": "完全误识——高危"},
+          {"error": "电瓶车电池", "correct": "电动车电池", "context": "口语→标准——高危"},
+          {"error": "热时控", "correct": "热失控", "context": "shī/kòng——高危"},
+          {"error": "电池冒烟", "correct": "电池冒烟", "context": "mào/mǎo——高危"},
+          {"error": "充电着火", "correct": "充电着火", "context": "zháo/zhuó——高危"},
+          {"error": "电池鼓包", "correct": "电池鼓包", "context": "gǔ/gū——高危"},
+          {"error": "储能点池", "correct": "储能电池", "context": "diǎn/diàn声调——高危"}
+        ]
+      },
+      "smoke_correction": {
+        "label": "浓烟毒烟类纠错",
+        "pairs": [
+          {"error": "聋烟", "correct": "浓烟", "context": "nóng/lóng——高危"},
+          {"error": "农烟", "correct": "浓烟", "context": "同音——高危"},
+          {"error": "赌烟", "correct": "毒烟", "context": "dú/dǔ声调——极高危"},
+          {"error": "烟太大看不见", "correct": "浓烟封锁视线", "context": "口语→标准——高危"},
+          {"error": "烟出不去", "correct": "排烟困难", "context": "口语→标准——高危"},
+          {"error": "烟呛死人", "correct": "烟气窒息", "context": "口语→标准——极高危"}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,202 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第9步）
+
+## 第9步：AI多智能体协同决策（目标耗时：20-45秒）
+
+### 9.1 感知Agent（场景理解层）
+- 9.1.1 接收第8步最终可行方案 + 第3步完整画像
+- 9.1.2 精准匹配11类子场景画像库（相似度Top3）
+- 9.1.3 提取历史最佳处置案例（Top5 + 成功率）
+- 9.1.4 GIS叠加实时水源、道路、风险点
+
+### 9.2 决策Agent（战术规划层）
+- 9.2.1 DIKW完整链路推理
+- 9.2.2 生成主攻方向（内攻/外攻/上下合围/重点突破）
+- 9.2.3 力量详细分工（主攻组、供水组、搜救组、警戒组、后勤组）
+- 9.2.4 战术要点生成（排烟时机、破拆位置、疏散路线、进攻路线）
+- 9.2.5 高风险点识别与应对预案
+
+### 9.3 执行Agent（落地模拟层）
+- 9.3.1 时间线精细模拟（T+5 / T+15 / T+30 / T+60分钟）
+- 9.3.2 各小组任务顺序与依赖关系
+- 9.3.3 指令模板生成（现场指挥官、对讲机、车载终端）
+- 9.3.4 资源消耗实时预估
+
+### 9.4 预测Agent（前瞻预警层）
+- 9.4.1 火势蔓延速度与方向预测
+- 9.4.2 30/60分钟后态势预测
+- 9.4.3 伤亡风险分级预测
+- 9.4.4 增援需求时间点预测
+- 9.4.5 次生灾害预警（爆炸、坍塌、有毒气体扩散）
+
+### 9.5 多智能体融合与仲裁
+- 9.5.1 四个Agent结果交叉验证
+- 9.5.2 冲突仲裁（权重投票 + LLM最终仲裁）
+- 9.5.3 生成完整结构化指挥方案
+- 9.5.4 输出自然语言解释（Why推荐此方案）
+
+### 9.6 输出与分流
+- 9.6.1 输出最终智能指挥方案
+- 9.6.2 触发第10步（人工二次确认）
+
+---
+
+## 1. 代码伪代码
+
+```python
+def ai_multi_agent_decision(incident_id: str):
+    # 9.1 输入聚合
+    sim_result = get_simulation_result(incident_id)
+    portrait = get_portrait(incident_id)
+
+    # 创建多智能体
+    agents = {
+        "perception": PerceptionAgent(),
+        "decision": DecisionAgent(),
+        "execution": ExecutionAgent(),
+        "prediction": PredictionAgent()
+    }
+
+    # 并行执行
+    perception_output = agents["perception"].run(portrait, sim_result)
+    decision_output = agents["decision"].run(perception_output)
+    execution_output = agents["execution"].run(decision_output)
+    prediction_output = agents["prediction"].run(portrait, decision_output)
+
+    # 9.5 融合仲裁
+    fused_plan = multi_agent_fusion(
+        perception=perception_output,
+        decision=decision_output,
+        execution=execution_output,
+        prediction=prediction_output
+    )
+
+    result = {
+        "incident_id": incident_id,
+        "command_plan": fused_plan.structured_plan,
+        "timeline": fused_plan.timeline,
+        "risk_points": fused_plan.risks,
+        "prediction": prediction_output,
+        "explanation": fused_plan.explanation,
+        "overall_confidence": fused_plan.confidence,
+        "agents_contribution": {
+            "perception": perception_output.score,
+            "decision": decision_output.score,
+            ...
+        }
+    }
+
+    save_ai_plan(incident_id, result)
+    log_audit("Step9_AIMultiAgent", result)
+
+    trigger_next_step(incident_id, "Step10_HumanConfirmation")
+    return result
+```
+
+---
+
+## 2. Prompt模板（核心Agent用）
+
+### 决策Agent主Prompt
+```text
+你是一名优秀消防指挥长，拥有20年实战经验。
+
+当前场景：{{portrait_summary}}
+推荐规模：{{scale_summary}}
+模拟结果：{{simulation_summary}}
+
+请生成完整指挥方案，包括：
+- 主攻方向与战术
+- 各小组详细任务分工
+- 关键战术要点与时间节点
+- 高风险点及应对措施
+
+输出严格JSON格式，并附带简短自然语言总结。
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 某个Agent服务超时           | 使用备用规则模板                      | 标记该Agent贡献为0           | 高     |
+| 多Agent结果严重冲突         | LLM仲裁 + 降低整体置信度              | 强制进入人工确认             | 最高   |
+| 预测Agent火势模型失败       | 使用保守估算                          | 增加最小规模缓冲             | 高     |
+| 置信度 < 0.75               | 标记"高风险方案"                      | 加强人工确认权重             | 高     |
+| 新场景无历史匹配            | 使用通用模板 + 标记"新场景"           | 重点人工审核                 | 中     |
+
+---
+
+## 4. 数据库表结构
+
+### AI指挥方案主表：ai_command_plan
+```sql
+CREATE TABLE ai_command_plan (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    tactical_direction    TEXT,
+    force_assignment      JSONB,                 -- 小组分工
+    timeline              JSONB[],               -- 时间线
+    risk_points           JSONB[],
+    prediction           JSONB,
+    explanation           TEXT,
+    overall_confidence    NUMERIC(4,3),
+    agents_scores         JSONB,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Agent执行记录表：multi_agent_execution_log
+```sql
+CREATE TABLE multi_agent_execution_log (
+    log_id                BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    agent_name            VARCHAR(30),           -- perception/decision/...
+    input_snapshot        JSONB,
+    output_snapshot       JSONB,
+    score                 NUMERIC(4,3),
+    duration_ms           INTEGER,
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/ai/decision
+
+请求体：
+```json
+{
+  "enable_prediction": true,
+  "enable_explanation": true,
+  "agent_mode": "full"          // full / fast
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "command_plan": {
+      "tactical_direction": "内外合围 + 重点搜救",
+      "force_assignment": [ ... ],
+      "timeline": [ ... ],
+      "risk_points": [ ... ]
+    },
+    "prediction": { ... },
+    "explanation": "基于类似高层案例，优先采用...战术",
+    "overall_confidence": 0.91,
+    "next_step": "Step10_HumanConfirmation"
+  }
+}
+```
+
+---
+
+## 第9步核心特点
+- 真正多智能体协同（非单一LLM）
+- 可解释 + 可落地 + 可预测
+- 为人工确认提供高质量、智能化的辅助方案

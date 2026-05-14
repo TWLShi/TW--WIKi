@@ -1,0 +1,187 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第7步）
+
+## 第7步：约束校验机制（目标耗时：8-18秒）
+
+### 7.1 输入聚合
+- 7.1.1 接收第6步匹配方案（首选 + 备选）
+- 7.1.2 接收第5步规模方案
+- 7.1.3 接收第3步画像（特殊环境标签）
+- 7.1.4 加载全局约束规则库（最新版本）
+
+### 7.2 多维度约束检查
+- 7.2.1 资源可用性校验（实时车辆状态）
+- 7.2.2 时间窗约束（ETA是否满足等级要求）
+- 7.2.3 特殊环境约束（城中村、窄巷、高层、化工等）
+- 7.2.4 规模合法性约束（最小/最大车辆限制）
+- 7.2.5 政策与预案约束（跨区调派权限、重大活动限制）
+
+### 7.3 冲突检测与评分
+- 7.3.1 逐条规则打分（Pass/Warning/Fail）
+- 7.3.2 整体可行性评分（0-100分）
+- 7.3.3 生成冲突清单与优先级
+
+### 7.4 自动修复建议
+- 7.4.1 对Warning/Fail项生成自动调整方案
+- 7.4.2 推荐替换车辆/中队/规模调整
+- 7.4.3 若无法自动修复则标记人工介入
+
+### 7.5 输出与分流
+- 7.5.1 输出校验报告
+- 7.5.2 若全部Pass → 触发第8步（反向模拟）
+- 7.5.3 若存在Fail → 回退到第5步或第6步
+
+---
+
+## 1. 代码伪代码
+
+```python
+def constraint_validation(incident_id: str):
+    # 7.1 输入聚合
+    matching = get_matching_result(incident_id)
+    scale = get_scale_result(incident_id)
+    portrait = get_portrait(incident_id)
+    rules = load_constraint_rules()   # 配置中心最新规则
+
+    validation_report = {
+        "incident_id": incident_id,
+        "checks": [],
+        "overall_score": 100.0,
+        "status": "PASS",
+        "suggestions": []
+    }
+
+    # 7.2 多维度校验
+    checks = [
+        check_resource_availability(matching, rules),
+        check_time_window(matching, scale, rules),
+        check_special_environment(portrait, matching, rules),
+        check_scale_legality(scale, rules),
+        check_policy_constraints(incident_id, rules)
+    ]
+
+    for check in checks:
+        validation_report["checks"].append(check)
+        validation_report["overall_score"] *= check.score_factor
+        if check.status == "FAIL":
+            validation_report["status"] = "FAIL"
+        elif check.status == "WARNING" and validation_report["status"] != "FAIL":
+            validation_report["status"] = "WARNING"
+
+    # 7.4 自动修复
+    if validation_report["status"] != "PASS":
+        validation_report["suggestions"] = generate_repair_suggestions(validation_report)
+
+    # 7.5 持久化与分流
+    save_validation_report(incident_id, validation_report)
+    log_audit("Step7_ConstraintValidation", validation_report)
+
+    if validation_report["status"] == "PASS":
+        trigger_next_step(incident_id, "Step8_ReverseSimulation")
+    elif validation_report["status"] == "WARNING":
+        trigger_next_step(incident_id, "Step8_ReverseSimulation")  # 带警告继续
+    else:
+        rollback_to_previous_step(incident_id, target="Step5_or_Step6")
+
+    return validation_report
+```
+
+---
+
+## 2. Prompt模板
+
+### 约束校验解释Prompt
+```text
+你是一名消防调度专家。请根据以下校验报告，用简洁语言向调度员说明问题和建议（不超过70字）：
+
+{{validation_report_summary}}
+
+重点说明：
+- 主要冲突点
+- 推荐调整方案
+- 是否需要人工介入
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                      | 处理逻辑                              | 后续动作                     | 优先级 |
+|-------------------------------|---------------------------------------|------------------------------|--------|
+| 实时资源数据同步失败          | 使用缓存数据 + 标记"数据可能滞后"     | 降低整体评分，通知运维       | 高     |
+| 特殊环境规则缺失              | 使用默认保守约束                      | 标记"规则不完整"             | 高     |
+| 校验引擎超时                  | 回退到基础规则检查                    | 记录降级                     | 高     |
+| 多个严重Fail项                | 直接回退到第5步重新计算规模           | 推送高优先级警报             | 最高   |
+| 跨区联动权限不足              | 自动降级为本地方案                    | 通知上级指挥中心             | 高     |
+| GIS路况数据不可用             | 使用历史平均ETA                       | 标记"ETA估算偏差"            | 中     |
+
+---
+
+## 4. 数据库表结构
+
+### 核心校验表：constraint_validation_report
+```sql
+CREATE TABLE constraint_validation_report (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    overall_status        VARCHAR(10),           -- PASS / WARNING / FAIL
+    overall_score         NUMERIC(5,2),
+    checks_detail         JSONB,                 -- 每条规则检查结果
+    suggestions           JSONB[],               -- 修复建议
+    repair_applied        BOOLEAN DEFAULT FALSE,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 规则检查明细表：constraint_check_items
+```sql
+CREATE TABLE constraint_check_items (
+    check_id              BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    rule_type             VARCHAR(50),           -- resource/time/special/scale/policy
+    rule_name             VARCHAR(100),
+    status                VARCHAR(10),           -- PASS/WARNING/FAIL
+    score_factor          NUMERIC(4,3),
+    details               JSONB,
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/constraint/validate
+
+请求体：
+```json
+{
+  "strict_mode": false,
+  "allow_auto_repair": true,
+  "max_repair_attempts": 2
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "overall_status": "WARNING",
+    "overall_score": 82.5,
+    "checks": [
+      {"type": "time_window", "status": "PASS", "eta": 7},
+      {"type": "special_environment", "status": "WARNING", "issue": "城中村窄巷", "suggestion": "增加小型水罐车"}
+    ],
+    "suggestions": ["建议替换1辆举高车为轻型抢险车"],
+    "need_human_review": true,
+    "next_step": "Step8_ReverseSimulation"
+  }
+}
+```
+
+---
+
+## 第7步核心特点
+- 多层防御（资源、时间、环境、规模、政策）
+- 自动修复 + 人工兜底
+- 全链路可解释 + 可审计

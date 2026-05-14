@@ -1,0 +1,152 @@
+# 消防调派智能系统 - AI多智能体架构设计 v6.2
+
+## 1. 架构总览
+
+**系统名称**：消防调派智能系统 - Multi-Agent Architecture（MAA）
+
+**核心理念**：
+**"四个专业Agent + 一个仲裁Agent"** 的协同工作模式，替代单一LLM，提升**专业性、可解释性、可执行性**和**安全性**。
+
+```mermaid
+flowchart TD
+    Input[输入: 完整画像 + 模拟结果 + 规模方案] --> Perception
+    Perception[感知Agent<br/>场景理解] --> Decision
+    Decision[决策Agent<br/>战术规划] --> Execution
+    Execution[执行Agent<br/>落地验证] --> Prediction
+    Prediction[预测Agent<br/>前瞻预警] --> Arbitrator
+    Arbitrator[仲裁Agent<br/>融合决策] --> Output[输出: 最终指挥方案]
+
+    Arbitrator -.->|冲突大| LLM[LLM最终仲裁]
+    LLM --> Arbitrator
+```
+
+---
+
+## 2. 四个专业Agent详细设计
+
+| Agent | 名称 | 核心职责 | 关键技术 | 输出格式 |
+|-------|------|----------|----------|----------|
+| **Perception** | 感知Agent | 场景理解 + 事实基础 | 向量匹配 + GIS叠加 + 历史案例检索 | 场景标签 + 历史Top5 + 风险清单 |
+| **Decision** | 决策Agent | 战术规划 + 力量分工 | DIKW推理 + 规则库 | 主攻方向 + 小组分工 + 战术要点 |
+| **Execution** | 执行Agent | 可执行性验证 + 指令生成 | 时间线模拟 + 依赖关系 | 执行时间线 + 指令模板 + 资源消耗 |
+| **Prediction** | 预测Agent | 态势预测 + 风险预警 | 火势蔓延模型 + 时间序列预测 | 30/60分钟预测 + 增援需求 + 次生灾害 |
+
+---
+
+## 3. 详细Prompt体系（可直接使用）
+
+### PerceptionAgent Prompt
+```text
+你是一名消防现场侦察专家。
+
+当前警情：{{full_portrait}}
+
+请完成场景深度理解，输出JSON：
+{
+  "scene_type": "...",
+  "key_features": [...],
+  "historical_matches": [{"case_id": "...", "similarity": 0.XX, "lesson": "..."}],
+  "risk_points": [...],
+  "confidence": 0.XX
+}
+```
+
+### DecisionAgent Prompt
+```text
+你是一名20年经验的消防指挥长。
+
+场景：{{perception_output}}
+规模：{{scale_summary}}
+
+生成指挥方案JSON：
+{
+  "tactical_direction": "...",
+  "force_assignment": [{"group": "...", "tasks": [...], "vehicles": [...]}],
+  "key_tactics": [...],
+  "confidence": 0.XX
+}
+```
+
+### ExecutionAgent Prompt
+```text
+你是一名作战行动专家。
+
+战术：{{decision_output}}
+
+生成可落地执行方案JSON：
+{
+  "timeline": [{"time": "T+XX", "action": "...", "group": "..."}],
+  "instructions": {...},
+  "resource_consumption": {...},
+  "confidence": 0.XX
+}
+```
+
+### PredictionAgent Prompt
+```text
+你是一名灾害预测专家。
+
+当前战术：{{decision_output}}
+
+预测未来态势JSON：
+{
+  "fire_spread_30min": "快速/中速/缓慢",
+  "casualty_risk": "低/中/高",
+  "reinforcement_time": "...",
+  "secondary_disaster": [...],
+  "confidence": 0.XX
+}
+```
+
+### Arbitrator（仲裁Agent）Prompt（最重要）
+```text
+你是最终消防指挥仲裁官。
+
+四个Agent输出：
+- Perception: {{perception}}
+- Decision: {{decision}}
+- Execution: {{execution}}
+- Prediction: {{prediction}}
+
+冲突点：{{conflicts}}
+
+请输出最终方案JSON：
+{
+  "final_tactical_direction": "...",
+  "force_assignment": [...],
+  "timeline": [...],
+  "risk_mitigation": [...],
+  "arbitration_reason": "详细解释融合理由...",
+  "overall_confidence": 0.XX,
+  "compromise_made": [...]
+}
+```
+
+---
+
+## 4. 仲裁机制流程
+
+1. **标准化** → 统一输出格式
+2. **交叉验证** → 检测冲突
+3. **加权投票**（默认权重：Decision 40%、Prediction 25%、Execution 20%、Perception 15%）
+4. **LLM仲裁**（冲突较大时触发）
+5. **二次验证** → Execution + Prediction 再校验一次
+
+---
+
+## 5. 技术实现建议
+
+- **框架**：LangGraph / AutoGen / CrewAI
+- **模型**：Grok-4 / Claude-3.5 / GPT-4o（仲裁用大模型）
+- **向量库**：PGVector 或 Milvus（画像匹配）
+- **状态管理**：Redis + PostgreSQL
+- **可观测性**：每个Agent输出 + 仲裁过程全部记录
+
+---
+
+## 6. 优势总结
+
+- **专业分工**：每个Agent专注一个领域，避免单一模型幻觉
+- **可解释**：仲裁过程完整记录理由
+- **高安全性**：高风险场景自动提升人工确认权重
+- **持续进化**：人工确认结果反馈到各Agent和仲裁器

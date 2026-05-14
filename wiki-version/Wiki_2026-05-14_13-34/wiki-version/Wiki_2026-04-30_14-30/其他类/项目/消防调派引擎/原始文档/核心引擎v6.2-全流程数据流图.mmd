@@ -1,0 +1,119 @@
+flowchart TD
+    %% ==================== 图例 ====================
+    Start((🚨 119接警开始)):::start
+
+    subgraph 核心引擎 ["🔥 消防调派智能系统 全流程数据流 v6.2"]
+        direction TB
+
+        S1[1. 警情接收与初步解析]:::step
+        S2[2. Query_Routing 智能问询]:::step
+        S3[3. 多维要素识别与画像]:::step
+        S4[4. 警情等级判定]:::step
+        S5[5. 调派规模计算]:::step
+        S6[6. 队站车辆匹配]:::step
+        S7[7. 约束校验机制]:::step
+        S8[8. 反向模拟与冲突解决]:::step
+        S9[9. AI多智能体决策]:::ai
+        S10[10. 人工二次确认]:::human
+        S11[11. 调派方案生成与下达]:::step
+        S12[12. 审计留痕与责任记录]:::end
+    end
+
+    %% ==================== 输入输出标注 ====================
+    In1[输入: 原始语音 + 来电信息]:::input
+    Out1[输出: 结构化警情 + 初步标签]:::output
+
+    In2[输入: 第1步结构化警情]:::input
+    Out2[输出: 补全后的警情画像]:::output
+
+    In3[输入: 第2步补全警情]:::input
+    Out3[输出: 多维画像 + 向量]:::output
+
+    In4[输入: 第3步画像]:::input
+    Out4[输出: 警情等级 + 置信度]:::output
+
+    In5[输入: 第4步等级 + 画像]:::input
+    Out5[输出: 三档规模方案 + 编成清单]:::output
+
+    In6[输入: 第5步规模方案]:::input
+    Out6[输出: 推荐中队 + 车辆清单 + ETA]:::output
+
+    In7[输入: 第6步匹配方案]:::input
+    Out7[输出: 校验报告 + 修复建议]:::output
+
+    In8[输入: 第7步校验结果]:::input
+    Out8[输出: 最终可执行方案]:::output
+
+    In9[输入: 第8步可行方案]:::input
+    Out9[输出: 完整指挥方案 + 预测]:::output
+
+    In10[输入: 第9步AI方案]:::input
+    Out10[输出: 人工最终确认方案]:::output
+
+    In11[输入: 第10步确认方案]:::input
+    Out11[输出: 格式化指挥单 + 多端推送]:::output
+
+    In12[输入: 全流程数据]:::input
+    Out12[输出: 不可篡改审计档案 + 训练反馈]:::output
+
+    %% ==================== 数据流连接 ====================
+    Start --> In1
+    In1 --> S1
+    S1 --> Out1
+    Out1 --> In2
+    In2 --> S2
+    S2 --> Out2
+    Out2 --> In3
+    In3 --> S3
+    S3 --> Out3
+    Out3 --> In4
+    In4 --> S4
+    S4 --> Out4
+    Out4 --> In5
+    In5 --> S5
+    S5 --> Out5
+    Out5 --> In6
+    In6 --> S6
+    S6 --> Out6
+    Out6 --> In7
+    In7 --> S7
+    S7 --> Out7
+    Out7 --> In8
+    In8 --> S8
+    S8 --> Out8
+    Out8 --> In9
+    In9 --> S9
+    S9 --> Out9
+    Out9 --> In10
+    In10 --> S10
+    S10 --> Out10
+    Out10 --> In11
+    In11 --> S11
+    S11 --> Out11
+    Out11 --> In12
+    In12 --> S12
+    S12 --> Out12
+
+    %% ==================== 回退循环 ====================
+    S7 -.->|Warning/Fail| Back1[回退 → 第5/6步]:::loop
+    S8 -.->|严重冲突| Back2[回退 → 第5/6步]:::loop
+    S10 -.->|重大修改| Back3[回退 → 第7步]:::loop
+
+    %% ==================== 样式 ====================
+    classDef start fill:#22c55e,stroke:#166534,color:#fff,stroke-width:4px
+    classDef step fill:#f59e0b,stroke:#b45309,color:#000,stroke-width:3px
+    classDef ai fill:#a855f7,stroke:#6b21a8,color:#fff,stroke-width:3px
+    classDef human fill:#3b82f6,stroke:#1e40af,color:#fff,stroke-width:4px
+    classDef end fill:#ef4444,stroke:#991b1b,color:#fff,stroke-width:4px
+    classDef input fill:#64748b,stroke:#475569,color:#fff,stroke-width:2px
+    classDef output fill:#22d3ee,stroke:#164e63,color:#000,stroke-width:2px
+    classDef loop fill:#f97316,stroke:#c2410c,color:#fff,stroke-width:2px
+
+    class Start start
+    class S1,S2,S3,S4,S5,S6,S7,S8,S11 step
+    class S9 ai
+    class S10 human
+    class S12 end
+    class In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12 input
+    class Out1,Out2,Out3,Out4,Out5,Out6,Out7,Out8,Out9,Out10,Out11,Out12 output
+    class Back1,Back2,Back3 loop

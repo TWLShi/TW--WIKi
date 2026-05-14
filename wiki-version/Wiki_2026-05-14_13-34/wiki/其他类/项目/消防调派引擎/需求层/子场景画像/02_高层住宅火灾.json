@@ -1,0 +1,62 @@
+{
+  "id": "sub_02",
+  "name": "高层住宅火灾",
+  "coverage": 0.18,
+  "alias": ["高层火灾", "楼房火灾"],
+  "alertKeywords": ["高层", "楼上着火", "烟很大"],
+  "level": 3,
+  "nTotalRange": [8, 12],
+  "formula": {
+    "nBase": 4,
+    "alphaSub": 2,
+    "betaStruct": 2,
+    "gSpecial": 0,
+    "mSupport": 1,
+    "nTotal": "9"
+  },
+  "slots": {
+    "energyMaterial": {
+      "typicalValue": "锂电池/电器/家具",
+      "confidenceRequired": 0.85,
+      "note": "锂电池权重最高"
+    },
+    "buildingStructure": {
+      "typicalValue": "高层住宅",
+      "confidenceRequired": 1.0
+    },
+    "buildingHeight": {
+      "typicalValue": "24-100m（重点85m）",
+      "confidenceRequired": 1.0,
+      "note": "每30m +1举高"
+    },
+    "trappedCount": {
+      "typicalValue": "5-30",
+      "confidenceRequired": 0.80,
+      "note": "恐慌时优先确认"
+    },
+    "developmentStage": {
+      "typicalValue": "发展→猛烈",
+      "confidenceRequired": 0.75,
+      "note": "浓烟描述"
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 3,
+    "commandVehicle": 1,
+    "elevatedPlatform": 3,
+    "foamVehicle": 0,
+    "rescueVehicle": 1,
+    "smokeExhaust": 1,
+    "medicalVehicle": 0,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 1
+  },
+  "triggerConditions": [
+    "报警描述含'高层''楼上着火''烟很大'等",
+    "优先确认被困楼层和人数",
+    "需注意内攻安全和供水保障"
+  ],
+  "priorityNote": "3+举高 + 细水雾 + 机器人"
+}

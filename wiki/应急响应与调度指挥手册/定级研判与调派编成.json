@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "source": "应急响应与调度指挥手册-第三章-接警调派",
+    "generated": "2026-05-14",
+    "description": "火警/应急救援定级研判条件与模块化调派力量编成"
+  },
+
+  "grading_criteria": {
+    "description": "火警与应急救援通用五级判定标准，按人员伤亡/被困数量定级",
+    "levels": [
+      {
+        "level": 1,
+        "name": "一级",
+        "color": "green",
+        "casualties": { "min": 0, "max": 0 },
+        "trapped": { "min": 0, "max": 0 },
+        "condition": "无人员伤亡或被困"
+      },
+      {
+        "level": 2,
+        "name": "二级",
+        "color": "blue",
+        "casualties": { "min": 1, "max": 2 },
+        "trapped": { "min": 1, "max": 4 },
+        "condition": "3人以下伤亡或5人以下被困"
+      },
+      {
+        "level": 3,
+        "name": "三级",
+        "color": "yellow",
+        "casualties": { "min": 3, "max": 5 },
+        "trapped": { "min": 5, "max": 9 },
+        "condition": "3人以上5人以下伤亡或5人以上10人以下被困"
+      },
+      {
+        "level": 4,
+        "name": "四级",
+        "color": "orange",
+        "casualties": { "min": 6, "max": 10 },
+        "trapped": { "min": 10, "max": 29 },
+        "condition": "5人以上10人以下伤亡或10人以上30人以下被困"
+      },
+      {
+        "level": 5,
+        "name": "五级",
+        "color": "red",
+        "casualties": { "min": 11, "max": null },
+        "trapped": { "min": 30, "max": null },
+        "condition": "10人以上伤亡或30人以上被困"
+      }
+    ],
+    "applicable_to": ["火警", "应急救援", "高层", "地下", "大跨度", "石油化工"]
+  },
+
+  "dispatch_modules": {
+    "fire": [
+      { "name": "基础灭火模块", "vehicles": ["压缩空气泡沫车（主战车）", "水罐车（泡沫车）", "抢险救援车"], "count": 3 },
+      { "name": "化工灭火模块", "vehicles": ["泡沫车", "水罐车（泡沫车）"], "count": 2 },
+      { "name": "专业模块（高层）", "vehicles": ["超高层供水车（压缩空气泡沫车）", "高喷车", "水罐车（泡沫车）", "登高车"], "count": 4 },
+      { "name": "专业模块（地下）", "vehicles": ["高倍数泡沫车", "水罐车（泡沫车）", "排烟车", "器材（机器人）"], "count": 4 },
+      { "name": "专业模块（大跨度）", "vehicles": ["压缩空气泡沫车（水罐车）", "高喷车", "水罐车（泡沫车）×2", "器材（机器人）"], "count": 5 },
+      { "name": "专业模块（石油化工）", "vehicles": ["泡沫车×2", "水罐车（泡沫车）", "器材（机器人）"], "count": 4 },
+      { "name": "高喷模块", "vehicles": ["高喷车", "水罐车（泡沫车）×2"], "count": 3 },
+      { "name": "供水模块", "vehicles": ["重型水罐车×2"], "count": 2 },
+      { "name": "照明模块", "vehicles": ["照明车（排烟照明车）"], "count": 1 },
+      { "name": "排烟模块", "vehicles": ["排烟车（排烟照明车）"], "count": 1 },
+      { "name": "洗消模块", "vehicles": ["洗消车", "水罐车"], "count": 2 },
+      { "name": "工程机械模块", "vehicles": ["挖掘机", "铲车", "起重机"], "count": 3 },
+      { "name": "战保模块", "vehicles": ["供气车", "供液车", "器材车"], "count": 3 },
+      { "name": "远程供水模块", "vehicles": ["泵浦消防车", "水带敷设车×2（3）"], "count_min": 3, "count_max": 4 },
+      { "name": "特种车模块", "vehicles": ["登高车（云梯车）", "大跨度高喷车", "物料喷射车", "器材（机器人）等"], "count_min": 3, "count_max": 4 }
+    ],
+    "rescue": [
+      { "name": "抢险搜救模块", "vehicles": ["抢险车"], "count": 1 },
+      { "name": "基础灭火模块", "vehicles": ["压缩空气泡沫车（主战车）", "水罐车（泡沫车）"], "count": 2 },
+      { "name": "供水模块", "vehicles": ["重型水罐车×2"], "count": 2 },
+      { "name": "照明模块", "vehicles": ["照明车（排烟照明车）"], "count": 1 },
+      { "name": "排烟模块", "vehicles": ["排烟车（排烟照明车）"], "count": 1 },
+      { "name": "洗消模块", "vehicles": ["洗消车", "水罐车"], "count": 2 },
+      { "name": "山岳救援模块", "vehicles": ["全地形抢险车"], "count": 1 },
+      { "name": "工程机械模块", "vehicles": ["挖掘机", "铲车", "起重机"], "count": 3 },
+      { "name": "堵漏模块", "vehicles": ["化工抢险车", "泡沫车"], "count": 2 },
+      { "name": "登高搜救模块", "vehicles": ["登高车（云梯车）"], "count": 1 },
+      { "name": "水下搜救模块", "vehicles": ["器材（水下机器人）"], "count": 1 },
+      { "name": "侦检模块", "vehicles": ["有毒物质侦检车"], "count": 1 },
+      { "name": "器材模块", "vehicles": ["器材车×2"], "count": 2 }
+    ]
+  },
+
+  "dispatch_plan": {
+    "high_rise_underground": {
+      "description": "高层/地下建筑火灾模块化调派力量编成",
+      "levels": [
+        {
+          "level": 1,
+          "burning_area": "未见明火",
+          "modules": {
+            "基础灭火": 1
+          },
+          "basic_vehicles": 10,
+          "notes": null
+        },
+        {
+          "level": 2,
+          "burning_area": "200m²以下",
+          "modules": {
+            "基础灭火": 2,
+            "供水": 1,
+            "特种车": "1登高"
+          },
+          "basic_vehicles": 27,
+          "notes": null
+        },
+        {
+          "level": 3,
+          "burning_area": "200～500m²",
+          "modules": {
+            "基础灭火": 3,
+            "供水": 1,
+            "专业模块（高层）": 1,
+            "照明": "1（夜间）",
+            "特种车": "2登高"
+          },
+          "basic_vehicles": 38,
+          "notes": null
+        },
+        {
+          "level": 4,
+          "burning_area": "500～1000m²",
+          "modules": {
+            "基础灭火": 4,
+            "高喷": 1,
+            "供水": 1,
+            "专业模块（高层）": "1（夜间）",
+            "照明": "1（夜间）",
+            "排烟": "2（夜间）",
+            "特种车": "2登高+1机器人"
+          },
+          "basic_vehicles": 43,
+          "notes": "工程机械、战保视情调派"
+        },
+        {
+          "level": 5,
+          "burning_area": "1000m²以上",
+          "modules": {
+            "基础灭火": "8以上",
+            "专业模块（高层）": "4以上",
+            "照明": "1（夜间）",
+            "排烟": "2（夜间）",
+            "特种车": "2登高+3机器人"
+          },
+          "basic_vehicles": null,
+          "notes": "工程机械、战保、远程供水视情调派"
+        }
+      ]
+    },
+    "large_span_petrochemical": {
+      "description": "大跨度/石油化工火灾模块化调派力量编成",
+      "levels": [
+        {
+          "level": 1,
+          "burning_area": "未见明火",
+          "modules": {
+            "化工灭火": 1
+          },
+          "basic_vehicles": 20,
+          "notes": null
+        },
+        {
+          "level": 2,
+          "burning_area": "500m²以下",
+          "modules": {
+            "化工灭火": 2,
+            "供水": 1,
+            "特种车": "1机器人"
+          },
+          "basic_vehicles": 26,
+          "notes": null
+        },
+        {
+          "level": 3,
+          "burning_area": "500～1000m²",
+          "modules": {
+            "化工灭火": 4,
+            "高喷": 1,
+            "专业模块": 1,
+            "照明": "1（夜间）",
+            "排烟": "1（夜间）",
+            "特种车": "机器人"
+          },
+          "basic_vehicles": null,
+          "notes": "工程机械视情调派"
+        },
+        {
+          "level": 4,
+          "burning_area": "1000～2000m²",
+          "modules": {
+            "化工灭火": "6以上",
+            "专业模块": "4以上",
+            "照明": "2（夜间）",
+            "排烟": "2（夜间）",
+            "洗消": "1（视情）",
+            "工程机械": "1（视情）",
+            "战保": "1（视情）",
+            "远程供水": "1（视情）",
+            "特种车": "机器人"
+          },
+          "basic_vehicles": null,
+          "notes": null
+        },
+        {
+          "level": 5,
+          "burning_area": "2000m²以上",
+          "modules": {
+            "化工灭火": "14以上",
+            "专业模块": "6以上",
+            "照明": "4（夜间）",
+            "排烟": "4（夜间）",
+            "战保": "视情",
+            "特种车": "机器人"
+          },
+          "basic_vehicles": null,
+          "notes": null
+        }
+      ]
+    }
+  }
+}

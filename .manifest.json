@@ -1,8 +1,8 @@
 {
   "version": 1,
   "stats": {
-    "total_sources_ingested": 38,
-    "total_pages": 215
+    "total_sources_ingested": 39,
+    "total_pages": 223
   },
   "sources": [
     {
@@ -103,6 +103,34 @@
       "project": "FireDispatchEngine",
       "pages_created": ["wiki/01-Part（部分）/Part1-需求层/source-FireDispatchEngine架构设计蓝图.md"],
       "pages_updated": []
+    }
+    {
+      "path": "llm-wiki-base/_raw/应急响应与调度指挥手册-天津.pdf",
+      "ingested_at": "2026-05-13T13:20:00Z",
+      "size_bytes": 90496500,
+      "modified_at": "2026-05-13T00:00:00Z",
+      "content_hash": "placeholder_pdf_scanned",
+      "source_type": "image",
+      "project": "null",
+      "pages_created": [
+        "wiki/应急响应与调度指挥手册/应急响应与调度指挥手册.md",
+        "wiki/应急响应与调度指挥手册/值班值守.md",
+        "wiki/应急响应与调度指挥手册/应急响应.md",
+        "wiki/应急响应与调度指挥手册/接警调派.md",
+        "wiki/应急响应与调度指挥手册/跟踪指挥.md",
+        "wiki/应急响应与调度指挥手册/信息报送.md",
+        "wiki/应急响应与调度指挥手册/应急联动.md",
+        "wiki/应急响应与调度指挥手册/基础信息.md"
+      ],
+      "pages_updated": [
+        "wiki/应急响应与调度指挥手册/第一章-值班值守.md",
+        "wiki/应急响应与调度指挥手册/第二章-应急响应.md",
+        "wiki/应急响应与调度指挥手册/第三章-接警调派.md",
+        "wiki/应急响应与调度指挥手册/第四章-跟踪指挥.md",
+        "wiki/应急响应与调度指挥手册/第五章-信息报送.md",
+        "wiki/应急响应与调度指挥手册/第六章-应急联动.md",
+        "wiki/应急响应与调度指挥手册/第七章-基础信息.md"
+      ]
     }
   ]
 }

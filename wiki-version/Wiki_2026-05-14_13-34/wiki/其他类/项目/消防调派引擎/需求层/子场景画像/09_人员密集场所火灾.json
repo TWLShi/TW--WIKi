@@ -1,0 +1,56 @@
+{
+  "id": "sub_09",
+  "name": "人员密集公共场所火灾",
+  "coverage": 0.02,
+  "alias": ["学校火灾", "医院火灾", "地铁火灾", "公共场所火灾"],
+  "alertKeywords": ["学校", "医院", "地铁", "商场"],
+  "level": { "min": 3, "max": 4 },
+  "nTotalRange": [10, 16],
+  "formula": {
+    "nBase": 5,
+    "alphaSub": 1,
+    "betaStruct": 2,
+    "gSpecial": 3,
+    "mSupport": 2,
+    "nTotal": "13"
+  },
+  "slots": {
+    "structureType": {
+      "typicalValue": "公共场所建筑",
+      "confidenceRequired": 1.0
+    },
+    "energyMaterial": {
+      "typicalValue": "A类可燃物",
+      "confidenceRequired": 0.80
+    },
+    "trappedCount": {
+      "typicalValue": ">20（人员密集）",
+      "confidenceRequired": 0.85,
+      "note": "优先搜救+疏散"
+    },
+    "developmentStage": {
+      "typicalValue": "发展→猛烈",
+      "confidenceRequired": 0.75
+    }
+  },
+  "recommendedComposition": {
+    "waterTanker": 3,
+    "commandVehicle": 1,
+    "elevatedPlatform": 0,
+    "foamVehicle": 0,
+    "rescueVehicle": 2,
+    "smokeExhaust": 2,
+    "medicalVehicle": 2,
+    "robot": 0,
+    "hazardous": 0,
+    "decontamination": 0,
+    "supportVehicle": 1
+  },
+  "triggerConditions": [
+    "报警描述含'学校''医院''地铁''商场'等",
+    "人员密集，优先确认被困人数和位置",
+    "疏散压力大，需医疗保障",
+    "可能需要多部门联动"
+  ],
+  "priorityNote": "优先搜救 + 医疗保障"
+}

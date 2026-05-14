@@ -1,0 +1,180 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第10步）
+
+## 第10步：人工二次确认节点（目标耗时：30-90秒）
+
+### 10.1 方案呈现
+- 10.1.1 调度员界面展示第9步AI完整指挥方案
+- 10.1.2 并列显示规则解释 + ML解释 + 模拟结果
+- 10.1.3 高亮风险点、冲突项、调整建议
+
+### 10.2 逐项人工审核
+- 10.2.1 警情等级确认（可修改）
+- 10.2.2 调派规模确认（最小/推荐/最大）
+- 10.2.3 力量编成确认（车辆类型与数量）
+- 10.2.4 中队与车辆选择确认
+- 10.2.5 战术要点与注意事项确认
+- 10.2.6 特殊处置措施确认
+
+### 10.3 修改与留痕
+- 10.3.1 支持局部修改（必须填写修改理由）
+- 10.3.2 所有修改自动记录版本与操作人
+- 10.3.3 重要修改触发重新校验（第7步）
+
+### 10.4 最终签字确认
+- 10.4.1 电子签名 + 时间戳
+- 10.4.2 方案锁定（后续修改需更高权限）
+- 10.4.3 触发第11步（方案下达）
+
+### 10.5 审计与反馈
+- 10.5.1 记录人工修改与AI建议差异
+- 10.5.2 反馈数据进入模型训练集（持续学习）
+
+---
+
+## 1. 代码伪代码
+
+```python
+def human_confirmation(incident_id: str):
+    plan = get_ai_command_plan(incident_id)
+
+    # 10.1 呈现给调度员（前端界面）
+    display_to_dispatcher(plan, explanations=True, risks=True)
+
+    # 等待人工操作（WebSocket / 长轮询）
+    confirmation = wait_for_human_input(incident_id, timeout=180)
+
+    if confirmation.action == "approve":
+        final_plan = plan
+    elif confirmation.action == "modify":
+        final_plan = apply_human_modifications(plan, confirmation.changes)
+        # 记录修改理由
+        log_modification_audit(incident_id, confirmation.reason, operator=confirmation.user_id)
+
+        # 若重大修改，重新触发校验
+        if is_major_change(confirmation.changes):
+            revalidate_plan(incident_id, final_plan)
+
+    # 10.4 最终确认
+    final_plan["approved_by"] = confirmation.user_id
+    final_plan["approve_time"] = now()
+    final_plan["signature_hash"] = generate_signature(final_plan)
+
+    # 10.5 持久化与反馈
+    save_final_approved_plan(incident_id, final_plan)
+    log_audit("Step10_HumanConfirmation", final_plan)
+
+    # 反馈给模型训练
+    send_feedback_to_training(incident_id, ai_plan=plan, human_plan=final_plan)
+
+    trigger_next_step(incident_id, "Step11_DispatchOutput")
+    return final_plan
+```
+
+---
+
+## 2. Prompt模板（辅助调度员决策）
+
+### AI辅助提示Prompt（显示在确认界面）
+```text
+AI建议方案总结：
+等级：{{level}}级 | 推荐车辆：{{vehicles}}辆 | ETA：{{eta}}分钟
+
+主要风险：{{top_risks}}
+AI理由：{{explanation}}
+
+请确认或修改以下关键项：
+1. 警情等级
+2. 力量编成
+3. 主攻战术
+4. 特殊措施
+
+修改时请填写理由（用于审计与模型学习）。
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 调度员长时间无操作（>3分钟）| 自动提醒 + 升级通知                  | 推送给值班长                 | 高     |
+| 重大修改（规模变化≥3辆）    | 强制重新走第7步约束校验              | 记录修改原因                 | 最高   |
+| 确认时发现新信息            | 允许回退到第2步补充问询              | 标记"信息更新"               | 高     |
+| 系统故障无法显示方案        | 切换纯人工模式 + 打印纸质方案        | 通知运维                     | 最高   |
+| 调度员拒绝AI方案            | 记录拒绝理由 + 进入纯人工流程        | 反馈给模型训练               | 高     |
+
+---
+
+## 4. 数据库表结构
+
+### 人工确认主表：human_confirmation_record
+```sql
+CREATE TABLE human_confirmation_record (
+    incident_id           VARCHAR(32) PRIMARY KEY REFERENCES incidents(incident_id),
+    approved_by           VARCHAR(50) NOT NULL,
+    approve_time          TIMESTAMP NOT NULL,
+    signature_hash        TEXT,
+    ai_plan_snapshot      JSONB,                    -- AI原始方案
+    final_plan            JSONB,                    -- 人工确认后方案
+    modifications         JSONB[],                  -- 修改记录（字段、原值、新值、理由）
+    confirmation_status   VARCHAR(20),             -- approved / modified / rejected
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 修改审计表：modification_audit
+```sql
+CREATE TABLE modification_audit (
+    audit_id              BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    modified_by           VARCHAR(50),
+    modified_field        VARCHAR(100),
+    old_value             JSONB,
+    new_value             JSONB,
+    reason                TEXT,
+    created_at            TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/human/confirm
+
+请求体：
+```json
+{
+  "action": "approve | modify | reject",
+  "modifications": [
+    {
+      "field": "recommended_vehicles",
+      "old_value": 15,
+      "new_value": 13,
+      "reason": "当前资源紧张，减少1辆举高车"
+    }
+  ],
+  "overall_comment": "方案可行，重点注意排烟"
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "status": "approved",
+    "final_plan_locked": true,
+    "next_step": "Step11_DispatchOutput",
+    "audit_log_id": "AUD-XXXX"
+  }
+}
+```
+
+---
+
+## 第10步核心特点
+- **责任闭环**：AI辅助 + 人工最终负责
+- **可追溯**：所有修改永久留痕
+- **持续学习**：人工反馈直接用于模型优化

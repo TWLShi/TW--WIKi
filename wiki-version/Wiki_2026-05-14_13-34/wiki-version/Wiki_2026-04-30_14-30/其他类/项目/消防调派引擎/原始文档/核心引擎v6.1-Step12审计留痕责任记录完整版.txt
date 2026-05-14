@@ -1,0 +1,198 @@
+# 消防调派智能系统核心引擎 - v6.1 完整细化版（第12步）
+
+## 第12步：审计留痕与责任记录（目标耗时：5-15秒，异步执行）
+
+### 12.1 全流程数据快照
+- 12.1.1 收集第1步至第11步所有中间结果与最终方案
+- 12.1.2 生成不可篡改的时间线快照
+- 12.1.3 记录每个节点的AI建议 vs 人工决策差异
+
+### 12.2 责任主体映射
+- 12.2.1 自动映射责任人：
+  - 接警员（第1-2步）
+  - 调度员（第10步确认人）
+  - AI贡献度（各Agent权重）
+  - 审批人（若有上级审核）
+- 12.2.2 生成责任链（责任矩阵）
+
+### 12.3 审计日志写入
+- 12.3.1 区块链式不可篡改日志（Hash链）
+- 12.3.2 写入审计数据库 + 备份日志仓库
+- 12.3.3 生成标准审计报告模板
+
+### 12.4 反馈与优化闭环
+- 12.4.1 将人工确认结果反馈至ML模型训练集
+- 12.4.2 计算本次调派质量评分（事后人工评价）
+- 12.4.3 进入持续学习流程
+
+### 12.5 归档与查询
+- 12.5.1 长期归档（满足审计保留年限）
+- 12.5.2 支持按Incident ID、时间、等级、责任人快速检索
+
+---
+
+## 1. 代码伪代码
+
+```python
+def audit_and_responsibility_record(incident_id: str):
+    # 12.1 收集全流程数据
+    full_trace = collect_full_trace(incident_id)  # 第1-11步所有结果
+
+    # 12.2 责任映射
+    responsibility = build_responsibility_chain(full_trace)
+
+    # 12.3 生成不可篡改日志
+    audit_entry = {
+        "incident_id": incident_id,
+        "trace_hash": generate_trace_hash(full_trace),   # SHA-256链
+        "timestamp": now(),
+        "responsibility": responsibility,
+        "ai_contribution": calculate_ai_contribution(full_trace),
+        "human_modifications": extract_all_modifications(full_trace),
+        "final_status": "completed"
+    }
+
+    # 写入不可篡改存储
+    immutable_log(audit_entry)          # 区块链或WORM存储
+    save_to_audit_db(audit_entry)
+
+    # 12.4 反馈学习
+    training_feedback = prepare_training_data(full_trace, responsibility)
+    send_to_model_training_queue(training_feedback)
+
+    # 12.5 生成报告
+    report = generate_audit_report(audit_entry)
+    archive_report(report)
+
+    log_system_event("Step12_AuditCompleted", incident_id)
+    return audit_entry
+```
+
+---
+
+## 2. Prompt模板
+
+### 审计报告总结Prompt（供最终报告使用）
+```text
+请根据以下完整调派记录，生成一份简洁的审计总结报告（供领导查阅）：
+
+警情ID：{{incident_id}}
+最终等级：{{level}}级
+实际出动车辆：{{actual_vehicles}}
+AI建议 vs 人工最终方案差异：{{modifications_summary}}
+
+重点关注：
+- 责任链
+- 主要决策点
+- 改进建议
+
+输出Markdown格式，控制在300字以内。
+```
+
+---
+
+## 3. 异常处理分支
+
+| 异常场景                    | 处理逻辑                              | 后续动作                     | 优先级 |
+|-----------------------------|---------------------------------------|------------------------------|--------|
+| 日志写入失败                | 重试3次 + 切换备用存储                | 告警运维 + 人工介入          | 最高   |
+| Hash链验证失败              | 隔离该记录 + 标记"数据异常"           | 立即通知安全审计组           | 最高   |
+| 反馈训练数据异常            | 丢弃本次反馈 + 记录警告               | 通知模型训练团队             | 中     |
+| 报告生成失败                | 使用基础模板                          | 标记"报告不完整"             | 中     |
+| 长期归档失败                | 进入本地冷备份队列                    | 定时重试                     | 低     |
+
+---
+
+## 4. 数据库表结构
+
+### 审计核心表：audit_trace
+```sql
+CREATE TABLE audit_trace (
+    incident_id           VARCHAR(32) PRIMARY KEY,
+    trace_hash            TEXT NOT NULL,                 -- 不可篡改哈希
+    previous_hash         TEXT,                           -- 区块链前序
+    full_trace_snapshot   JSONB,                         -- 全流程快照
+    responsibility        JSONB,                         -- 责任矩阵
+    ai_contribution       JSONB,
+    human_mod_count       INTEGER DEFAULT 0,
+    final_status          VARCHAR(20),
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 责任记录表：responsibility_mapping
+```sql
+CREATE TABLE responsibility_mapping (
+    mapping_id            BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    step_name             VARCHAR(50),
+    responsible_person    VARCHAR(50),
+    role_type             VARCHAR(30),           -- dispatcher / approver / ai
+    contribution_score    NUMERIC(4,2),
+    modification_reason   TEXT,
+    created_at            TIMESTAMP
+);
+```
+
+### 审计报告表：audit_reports
+```sql
+CREATE TABLE audit_reports (
+    report_id             BIGSERIAL PRIMARY KEY,
+    incident_id           VARCHAR(32),
+    report_type           VARCHAR(20),           -- full / summary / legal
+    report_url            TEXT,
+    generated_by          VARCHAR(50),
+    generated_at          TIMESTAMP
+);
+```
+
+---
+
+## 5. API接口定义
+
+### POST /api/v1/alerts/{incident_id}/audit/finalize
+
+请求体：
+```json
+{
+  "trigger_type": "auto | manual",
+  "include_training_feedback": true
+}
+```
+
+响应体：
+```json
+{
+  "code": 200,
+  "data": {
+    "incident_id": "INC-...",
+    "trace_hash": "0xabcdef...",
+    "status": "audit_completed",
+    "responsibility_summary": {
+      "dispatcher": "张某某",
+      "ai_contribution": 0.68,
+      "human_override_count": 2
+    },
+    "audit_report_url": "https://...",
+    "training_feedback_sent": true
+  }
+}
+```
+
+### 查询接口
+- GET /api/v1/audit/{incident_id}
+- GET /api/v1/audit/search?level=3&date=2025-04
+
+---
+
+## 第12步核心特点
+- **全程不可篡改**（Hash链）
+- **责任到人**（清晰矩阵）
+- **闭环优化**（反馈驱动模型迭代）
+- **合规就绪**（满足消防审计要求）
+
+---
+
+## 完整引擎12步归档完成
+
+**第1-12步已全部细化至生产级颗粒度**
